@@ -76,7 +76,7 @@ public static class MovementLimiter
         {
             if (!Options.ClimbVerticalCorridors && self.bodyMode == Player.BodyModeIndex.CorridorClimb && self.input[0].y > 0
                 && !self.IsTileSolid(0, 0, -1) && !self.room.GetTile(self.bodyChunks[1].pos + new Vector2(0, -13)).IsSolid() //can still climb up if there is terrain beneath
-                && self.room.shortcutData(self.mainBodyChunk.pos + new Vector2(0, 10)).shortCutType == ShortcutData.Type.DeadEnd //can climb if shortcut above
+                && self.room.shortcutData(self.mainBodyChunk.pos + new Vector2(0, 15)).shortCutType == ShortcutData.Type.DeadEnd //can climb if shortcut above
                 && self.room.shortcutData(self.mainBodyChunk.pos + new Vector2(0, -20)).shortCutType == ShortcutData.Type.DeadEnd) //can climb if shortcut below
             {
                 self.input[0].y = 0;
@@ -98,7 +98,7 @@ public static class MovementLimiter
             if (!Options.ClimbVerticalPoles
                 && (self.animation == Player.AnimationIndex.ClimbOnBeam || self.animation == Player.AnimationIndex.HangUnderVerticalBeam)
                 && self.input[0].y > 0
-                && self.room.shortcutData(self.mainBodyChunk.pos + new Vector2(0, 20)).shortCutType == ShortcutData.Type.DeadEnd) //can climb if shortcut above
+                && self.room.shortcutData(self.mainBodyChunk.pos + new Vector2(0, 35)).shortCutType == ShortcutData.Type.DeadEnd) //can climb if shortcut above
             {
                 self.input[0].y = 0;
                 orig(self);
