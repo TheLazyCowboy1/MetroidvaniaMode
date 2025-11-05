@@ -97,7 +97,8 @@ public static class MovementLimiter
         {
             if (!Options.ClimbVerticalPoles
                 && (self.animation == Player.AnimationIndex.ClimbOnBeam || self.animation == Player.AnimationIndex.HangUnderVerticalBeam)
-                && self.input[0].y > 0)
+                && self.input[0].y > 0
+                && self.room.shortcutData(self.mainBodyChunk.pos + new Vector2(0, 20)).shortCutType == ShortcutData.Type.DeadEnd) //can climb if shortcut above
             {
                 self.input[0].y = 0;
                 orig(self);
