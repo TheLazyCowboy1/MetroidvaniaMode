@@ -1,0 +1,12 @@
+{
+    "id": "LazyCowboy.MetroidvaniaMode",
+    "name": "(ALPHA) MetroidvaniaMode",
+    "version": "0.0.1",
+    "target_game_version": "v1.11",
+    "authors": "TheLazyCowboy1",
+    "description": "THIS IS AN ALPHA VERSION. EVEN THE NAME IS 100% A PLACEHOLDER. THE FINISHED PROJECT WILL BE UPLOADED SEPARATELY. PLEASE ONLY PLAY THIS IF YOU DO SO WITH THE INTENTION OF GIVING FEEDBACK, OR IF YOU JUST LOVE BUGGY MODS FOR SOME WEIRD REASON. Hey, playtesting is way more helpful than you'd think, so I appreciate help if you want to give it. But you have been warned this is far from a finished product.<LINE><LINE>The primary goal of this mod is to make exploring Rain World fun. This will be done by adding Metroidvania-style upgrades and abilities to be found throughout the world. To compensate for this, the world will be entirely re-arranged, and new challenges will be added.",
+    "requirements": [ "moreslugcats" ],
+    "requirements_names": [ "More Slugcats Expansion" ],
+    "tags": [ "Game Modes", "Downpour" ],
+    "checksum_override_version": false
+}

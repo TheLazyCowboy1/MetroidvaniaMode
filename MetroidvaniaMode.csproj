@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>11</LangVersion>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<Reference Include="..\REFERENCES\*.dll" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="MetroidvaniaMode\achievements\" />
+	  <Folder Include="MetroidvaniaMode\plugins\" />
+	  <Folder Include="MetroidvaniaMode\world\" />
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<ItemGroup>
+			<BuildFiles Include="$(Outdir)\MetroidvaniaMode.*" />
+		</ItemGroup>
+		<Copy SourceFiles="@(BuildFiles)" DestinationFolder="MetroidvaniaMode\plugins" />
+		<ItemGroup>
+			<OutputFolder Include="MetroidvaniaMode\*" />
+		</ItemGroup>
+		<Copy SourceFiles="@(OutputFolder)" DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\StreamingAssets\mods\MetroidvaniaMode" />
+		<Copy SourceFiles="@(BuildFiles)" DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\StreamingAssets\mods\MetroidvaniaMode\plugins" />
+	</Target>
+
+</Project>
