@@ -105,12 +105,13 @@ public partial class Plugin : BaseUnityPlugin
     public static void Error(object o, [CallerFilePath] string file = "", [CallerMemberName] string name = "", [CallerLineNumber] int line = -1)
         => Instance.Logger.LogError(logText(o, file, name, line));
 
+    private static DateTime PluginStartTime = DateTime.Now;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string logText(object o, string file, string name, int line)
     {
         try
         {
-            return $"[{DateTime.Now.ToShortTimeString()},{Path.GetFileName(file)}.{name}:{line}]: {o}";
+            return $"[{DateTime.Now.Subtract(PluginStartTime)},{Path.GetFileName(file)}.{name}:{line}]: {o}";
         }
         catch (Exception ex)
         {

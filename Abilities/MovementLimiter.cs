@@ -18,6 +18,7 @@ public static class MovementLimiter
         On.Player.UpdateAnimation += Player_UpdateAnimation;
 
         //prevent grabbing poles
+        //also change jumpBoostDecrement
         On.Player.MovementUpdate += Player_MovementUpdate;
 
         //prevent using normal shortcuts
@@ -112,12 +113,18 @@ public static class MovementLimiter
     }
 
     //Use the noGrabCounter to prevent grabbing poles entirely
+    //ALSO separately scales jumpBoost as it is decremented
     private static void Player_MovementUpdate(On.Player.orig_MovementUpdate orig, Player self, bool eu)
     {
         if (!Options.CanGrabPoles && self.noGrabCounter <= 0)
             self.noGrabCounter = 1;
 
+        float jb = self.jumpBoost; //track jumpBoost before
+
         orig(self, eu);
+
+        if (jb > self.jumpBoost)
+            self.jumpBoost = jb + (self.jumpBoost - jb) * Options.JumpBoostDecrement;
     }
 
     //Prevents the player from using normal shortcuts

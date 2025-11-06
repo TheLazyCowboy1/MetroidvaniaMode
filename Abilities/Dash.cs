@@ -46,6 +46,7 @@ public static class Dash
 
                     self.bodyChunks[0].vel = Vector2.LerpUnclamped(self.bodyChunks[0].vel, dir * Options.DashSpeed, Options.DashStrength);
                     self.bodyChunks[1].vel = Vector2.LerpUnclamped(self.bodyChunks[1].vel, dir * Options.DashSpeed, Options.DashStrength * 0.85f); //dash is weaker for tail
+                    self.canJump = 0; //don't double-jump!
 
                     info.DashCooldown = true;
                     Plugin.Log("Dashed!");

@@ -20,13 +20,15 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Pole Jump Boost", "Further multiplies the jump boost when jumping off of a pole. Intended to make jumping from horizontal poles mostly useless.", rightSide = true), LimitRange(0, 10f)]
     public static float PoleJumpBoost = 1;
 
+    [Config("Abilities", "Jump Boost Decrement", "How quickly Player.JumpBoost decrements while holding jump. Set below 1 to make jumps feel floatier.")]
+    public static float JumpBoostDecrement = 1;
+
     [Config("Abilities", "Can Wall Jump", "Allows the slugcat to wall jump")]
     public static bool CanWallJump = true;
 
     [Config("Abilities", "Can Grab Poles", "Allows the slugcat to grab poles, both horizontal and vertical")]
     public static bool CanGrabPoles = true;
-
-    [Config("Abilities", "Climb Vertical Poles", "Allows the slugcat to grab vertical poles")]
+    [Config("Abilities", "Climb Vertical Poles", "Allows the slugcat to grab vertical poles", rightSide = true)]
     public static bool ClimbVerticalPoles = true;
 
     [Config("Abilities", "Climb Vertical Pipes", "Allows the slugcat to crawl upward through vertical pipes/corridors")]
