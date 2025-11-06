@@ -1,19 +1,9 @@
 ﻿using System;
 using System.Security;
 using System.Security.Permissions;
-using UnityEngine;
 using BepInEx;
-using Watcher;
-using BepInEx.Logging;
-using SlugBase.SaveData;
-using MonoMod.RuntimeDetour;
-using MoreSlugcats;
-using Menu;
-using RWCustom;
 using System.Runtime.CompilerServices;
-using System.Collections.Generic;
 using System.IO;
-using System.Windows.Forms;
 
 #pragma warning disable CS0618
 
@@ -60,7 +50,8 @@ public partial class Plugin : BaseUnityPlugin
         {
             On.RainWorldGame.ctor -= RainWorldGame_ctor;
 
-            MovementLimiter.RemoveHooks();
+            Abilities.MovementLimiter.RemoveHooks();
+            Abilities.Dash.RemoveHooks();
 
             IsInit = false;
         }
@@ -77,7 +68,9 @@ public partial class Plugin : BaseUnityPlugin
             //Keep config menu options up to date
             On.RainWorldGame.ctor += RainWorldGame_ctor;
 
-            MovementLimiter.ApplyHooks();
+            //APPLY HOOKS
+            Abilities.MovementLimiter.ApplyHooks();
+            Abilities.Dash.ApplyHooks();
 
             
             //Set up config menu
@@ -88,7 +81,7 @@ public partial class Plugin : BaseUnityPlugin
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex);
+            Error(ex);
             throw;
         }
     }
@@ -112,6 +105,7 @@ public partial class Plugin : BaseUnityPlugin
     public static void Error(object o, [CallerFilePath] string file = "", [CallerMemberName] string name = "", [CallerLineNumber] int line = -1)
         => Instance.Logger.LogError(logText(o, file, name, line));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string logText(object o, string file, string name, int line)
     {
         try

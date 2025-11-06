@@ -3,15 +3,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
 
 namespace MetroidvaniaMode;
 
 public abstract class AutoConfigOptions : OptionInterface
 {
-    public class TabAtt : Attribute
+    public class Config : Attribute
     {
         public string Tab, Label, Desc;
-        public TabAtt(string tab, string label = "", string desc = "") : base()
+        public bool rightSide = false;
+        public bool hide = false;
+        public float width = -1f, spaceBefore = 0f, spaceAfter = 0f, height = -1f;
+        /// <summary>
+        /// Used for float configs
+        /// </summary>
+        public byte precision = 2;
+        /// <summary>
+        /// Used for string configs. Makes the config a dropdown choice-selection box instead of a textbox.
+        /// </summary>
+        public string[] dropdownOptions = null;
+        public Config(string tab, string label, string desc) : base()
         {
             this.Tab = tab;
             this.Label = label;
@@ -35,20 +47,29 @@ public abstract class AutoConfigOptions : OptionInterface
         public string tab;
         public string label;
         public string desc;
-        public ConfigInfo(ConfigurableBase config, string tab, string label, string desc)
+        public bool rightSide;
+        public bool hide;
+        public float width, spaceBefore, spaceAfter, height;
+        public byte precision;
+        public string[] dropdownOptions;
+    }
+
+    public struct TabInfo
+    {
+        public string name;
+        public float startHeight = 550f, spacing = 40f, leftMargin = 50f,
+            textOffset = 100f, updownWidth = 80f, checkboxOffset = 55f,
+            rightMargin = 300f, defaultHeight = 25f;
+        public TabInfo(string name)
         {
-            this.config = config;
-            this.tab = tab;
-            this.label = label;
-            this.desc = desc;
+            this.name = name;
         }
     }
 
-    public AutoConfigOptions(string[] tabs)
+    public AutoConfigOptions(TabInfo[] tabs)
     {
-        TabNames = tabs;
+        TabInfos = tabs;
 
-        //Warp = this.config.Bind<float>("Warp", 25, new ConfigAcceptableRange<float>(-500, 500));
         List<ConfigInfo> configs = new();
 
         FieldInfo[] fields = GetType().GetFields();
@@ -56,7 +77,7 @@ public abstract class AutoConfigOptions : OptionInterface
         {
             try
             {
-                TabAtt att = info.GetCustomAttribute<TabAtt>();
+                Config att = info.GetCustomAttribute<Config>();
                 if (att != null)
                 {
                     ConfigurableBase configBase = (ConfigurableBase)typeof(ConfigHolder).GetMethods().First(m => m.Name == nameof(ConfigHolder.Bind)).MakeGenericMethod(info.FieldType)
@@ -68,7 +89,11 @@ public abstract class AutoConfigOptions : OptionInterface
                         configBase.info.acceptable = (ConfigAcceptableBase)Activator.CreateInstance(typeof(ConfigAcceptableRange<>).MakeGenericType(info.FieldType), rangeAtt.Min, rangeAtt.Max);
                     }
 
-                    configs.Add(new(configBase, att.Tab, att.Label, att.Desc));
+                    configs.Add(new() { config = configBase, tab = att.Tab, label = att.Label, desc = att.Desc,
+                        hide = att.hide, rightSide = att.rightSide, width = att.width, spaceBefore = att.spaceBefore,
+                        spaceAfter = att.spaceAfter, height = att.height, precision = att.precision,
+                        dropdownOptions = att.dropdownOptions
+                    });
                 }
             } catch (Exception ex) { Plugin.Error(ex); }
         }
@@ -77,66 +102,69 @@ public abstract class AutoConfigOptions : OptionInterface
         Plugin.Log("Found " + ConfigInfos.Length + " configs");
     }
 
-    //General
-    //public readonly Configurable<float> Warp;
-
     private ConfigInfo[] ConfigInfos;
-    private string[] TabNames;
+    public TabInfo[] TabInfos;
 
     public override void Initialize()
     {
-        this.Tabs = new OpTab[TabNames.Length];
-        for (int i = 0; i < TabNames.Length; i++)
+        this.Tabs = new OpTab[TabInfos.Length];
+        for (int i = 0; i < TabInfos.Length; i++)
         {
-            this.Tabs[i] = new(this, TabNames[i]);
+            TabInfo tInfo = TabInfos[i];
+            string name = tInfo.name;
+            this.Tabs[i] = new(this, name);
 
-            float t = 150f, y = 550f, h = -40f, H = -70f, x = 50f, w = 80f, c = 50f;
-            //float t2 = 400f, x2 = 300f;
+            float y = tInfo.startHeight;
 
-            foreach (ConfigInfo info in ConfigInfos)
+            foreach (ConfigInfo cInfo in ConfigInfos)
             {
-                if (info.tab == TabNames[i])
+                if (cInfo.tab == name)
                 {
+                    float x = cInfo.rightSide ? tInfo.rightMargin : tInfo.leftMargin;
+                    float w = cInfo.width >= 0 ? cInfo.width : tInfo.updownWidth;
+                    float h = cInfo.height >= 0 ? cInfo.height : tInfo.defaultHeight;
+                    float t = tInfo.textOffset + w - tInfo.updownWidth; //updownWidth is the default
+
+                    if (cInfo.rightSide)
+                        y += tInfo.spacing; //keep on same height... a janky method to do so, but oh well
+                    y -= cInfo.spaceBefore;
+
                     UIelement el;
-                    if (info.config is Configurable<bool> cb)
-                        el = new OpCheckBox(cb, x + c, y) { description = info.desc };
-                    else if (info.config is Configurable<float> cf)
-                        el = new OpUpdown(cf, new(x, y), w) { description = info.desc };
-                    else if (info.config is Configurable<int> ci)
-                        el = new OpUpdown(ci, new(x, y), w) { description = info.desc };
+                    if (cInfo.config is Configurable<bool> cb)
+                        el = new OpCheckBox(cb, x + tInfo.checkboxOffset, y);
+                    else if (cInfo.config is Configurable<float> cf)
+                        el = new OpUpdown(cf, new(x, y), w, cInfo.precision);
+                    else if (cInfo.config is Configurable<int> ci)
+                        el = new OpUpdown(ci, new(x, y), w);
+                    else if (cInfo.config is Configurable<KeyCode> ck)
+                        el = new OpKeyBinder(ck, new(x, y), new(w, h));
+                    else if (cInfo.config is Configurable<string> cs)
+                    {
+                        if (cInfo.dropdownOptions != null)
+                            el = new OpComboBox(cs, new(x, y), w, cInfo.dropdownOptions);
+                        else
+                            el = new OpTextBox(cs, new(x, y), w);
+                    }
                     else
                     {
-                        Plugin.Error("This config type is not yet supported: " + info.config.GetType().FullName);
+                        Plugin.Error("This config type is not yet supported: " + cInfo.config.GetType().FullName);
                         continue;
                     }
+                    el.description = cInfo.desc;
 
-                    this.Tabs[i].AddItems(new OpLabel(t, y, info.label), el);
-                    y += h;
+                    this.Tabs[i].AddItems(new OpLabel(x + t, y, cInfo.label), el);
+                    y -= tInfo.spacing + cInfo.spaceAfter;
                 }
             }
         }
+    }
 
-        /*var optionsTab = new OpTab(this, "Options");
-        this.Tabs = new[]
-        {
-            optionsTab
-        };
+    /// <summary>
+    /// Use to add any additional elements, such as buttons
+    /// </summary>
+    public virtual void MenuInitialized()
+    {
 
-        OpHoldButton clearAchievementButton;
-
-        float t = 150f, y = 550f, h = -40f, H = -70f, x = 50f, w = 80f, c = 50f;
-        float t2 = 400f, x2 = 300f;
-
-        optionsTab.AddItems(
-
-            clearAchievementButton = new OpHoldButton(new(50, 50), new Vector2(150, 40), "Clear Achievements") { description = "Clears all achievements for the currently active save file." }
-            );
-
-        clearAchievementButton.OnPressDone += (trigger) =>
-        {
-            //AchievementManager.ClearAllAchievements();
-            trigger?.Menu?.PlaySound(SoundID.MENU_Checkbox_Check);
-        };*/
     }
 
 

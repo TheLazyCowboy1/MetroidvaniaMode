@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace MetroidvaniaMode;
+namespace MetroidvaniaMode.Abilities;
 
 public static class MovementLimiter
 {
