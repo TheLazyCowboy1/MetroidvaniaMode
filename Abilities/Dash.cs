@@ -42,7 +42,7 @@ public static class Dash
                     else
                         return; //there is no dash direction, so don't use up the dash
 
-                    dir.y = Mathf.Min(dir.y, dir.y + 0.2f); //add a little extra upwards speed to help counteract gravity
+                    dir.y = Mathf.Min(1, dir.y + 0.15f); //add a little extra upwards speed to help counteract gravity
 
                     self.bodyChunks[0].vel = Vector2.LerpUnclamped(self.bodyChunks[0].vel, dir * Options.DashSpeed, Options.DashStrength);
                     self.bodyChunks[1].vel = Vector2.LerpUnclamped(self.bodyChunks[1].vel, dir * Options.DashSpeed, Options.DashStrength * 0.85f); //dash is weaker for tail

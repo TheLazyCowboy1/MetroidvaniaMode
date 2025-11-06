@@ -110,7 +110,7 @@ public partial class Plugin : BaseUnityPlugin
     {
         try
         {
-            return $"[{Path.GetFileName(file)}.{name}:{line}]: {o}";
+            return $"[{DateTime.Now.ToShortTimeString()},{Path.GetFileName(file)}.{name}:{line}]: {o}";
         }
         catch (Exception ex)
         {
