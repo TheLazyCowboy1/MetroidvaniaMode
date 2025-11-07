@@ -36,14 +36,15 @@ public static class Dash
             //dash sound loop volume
             if (info.DashSoundLoop != null && info.DashSoundLoop.Volume > 0)
             {
+                info.DashSoundLoop.Update();
                 info.DashSoundLoop.Volume -= 2f / 40f; //one second sound loop
                 if (info.DashSoundLoop.Volume <= 0)
                 {
                     info.DashSoundLoop.sound = SoundID.None;
                     info.DashSoundLoop.Volume = 0;
+                    info.DashSoundLoop.Stop();
                 }
             }
-            info.DashSoundLoop?.Update();
 
             if (Input.GetKeyDown(Options.DashKeyCode) && !info.DashCooldown)
             {
@@ -66,6 +67,7 @@ public static class Dash
                 info.DashSoundLoop ??= new(self.mainBodyChunk);
                 info.DashSoundLoop.sound = SoundID.Rock_Through_Air_LOOP;
                 info.DashSoundLoop.Volume = 2;
+                info.DashSoundLoop.Start();
 
                 //particles
                 /*if (smoke == null || smoke.room != self.room)
@@ -80,8 +82,8 @@ public static class Dash
                 FloatRect confines = new(corner1.x, corner1.y, corner2.x, corner2.y);
                 for (int i = 0; i < 20; i++)
                     smoke.EmitSmoke(pos, self.mainBodyChunk.vel, confines, 0.3f);*/
-                for (int i = 0; i < 20; i++)
-                    self.room.AddObject(new Spark(self.mainBodyChunk.pos + Custom.RNV() * 10f, self.mainBodyChunk.vel + Custom.RNV() * 1f, new(0.8f, 0.8f, 0.9f), null, 15, 30));
+                for (int i = 0; i < 10; i++)
+                    self.room.AddObject(new Spark(self.mainBodyChunk.pos + Custom.RNV() * 10f - self.mainBodyChunk.vel, self.mainBodyChunk.vel * 0.75f + Custom.RNV() * 0.5f, new(0.8f, 0.8f, 0.9f), null, 15, 30));
 
                 info.DashCooldown = true;
                 Plugin.Log("Dashed!");
