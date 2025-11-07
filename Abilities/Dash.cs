@@ -21,32 +21,20 @@ public static class Dash
         On.Player.MovementUpdate -= Player_MovementUpdate;
     }
 
-    //private static SteamSmoke smoke = null;
-
     private static void Player_MovementUpdate(On.Player.orig_MovementUpdate orig, Player self, bool eu)
     {
         orig(self, eu);
 
         try
         {
-            if (!Options.CanDash) return;
+            if (!Options.CanDash) return; //don't run dash code if we can't dash!
 
-            PlayerInfo info = self.GetInfo();
-
-            //dash sound loop volume
-            if (info.DashSoundLoop.Volume > 0)
+            if (Input.GetKeyDown(Options.DashKeyCode))
             {
-                info.DashSoundLoop.Volume -= 0.01f; //one second sound loop
-                if (info.DashSoundLoop.Volume <= 0)
-                {
-                    info.DashSoundLoop.sound = SoundID.None;
-                    info.DashSoundLoop.Volume = 0;
-                }
-            }
-            info.DashSoundLoop.Update();
+                PlayerInfo info = self.GetInfo();
+                if (info.DashCooldown) return; //don't dash when on cooldown!
 
-            if (Input.GetKeyDown(Options.DashKeyCode) && !info.DashCooldown)
-            {
+                //pick dash direction vector
                 Player.InputPackage input = self.input[0];
                 Vector2 dir;
                 if (input.analogueDir.sqrMagnitude > 0.02)
@@ -58,36 +46,24 @@ public static class Dash
 
                 dir.y = Mathf.Min(1, dir.y + 0.15f); //add a little extra upwards speed to help counteract gravity
 
+                //actually move the player
                 self.bodyChunks[0].vel = Vector2.LerpUnclamped(self.bodyChunks[0].vel, dir * Options.DashSpeed, Options.DashStrength);
                 self.bodyChunks[1].vel = Vector2.LerpUnclamped(self.bodyChunks[1].vel, dir * Options.DashSpeed, Options.DashStrength * 0.85f); //dash is weaker for tail
                 self.canJump = 0; //don't double-jump!
 
                 //sounds
-                info.DashSoundLoop.sound = SoundID.Spear_Thrown_Through_Air_LOOP;//SoundID.Rock_Through_Air_LOOP;
-                info.DashSoundLoop.Volume = 1;
+                self.room.PlaySound(SoundID.Slugcat_Throw_Rock, self.mainBodyChunk, false, 1f, 0.9f);
 
                 //particles
-                /*if (smoke == null || smoke.room != self.room)
-                {
-                    smoke?.RemoveFromRoom();
-                    smoke?.Destroy();
-                    smoke = new SteamSmoke(self.room);
-                    self.room.AddObject(smoke);
-                }
-                Vector2 n = self.mainBodyChunk.vel.normalized;
-                Vector2 pos = self.mainBodyChunk.pos, corner1 = pos - new Vector2(200, 200) + n * 150, corner2 = pos + new Vector2(200, 200) + n * 150;
-                FloatRect confines = new(corner1.x, corner1.y, corner2.x, corner2.y);
-                for (int i = 0; i < 20; i++)
-                    smoke.EmitSmoke(pos, self.mainBodyChunk.vel, confines, 0.3f);*/
-                for (int i = 0; i < 10; i++)
-                    self.room.AddObject(new Spark(self.mainBodyChunk.pos + Custom.RNV() * 10f - self.mainBodyChunk.vel * 3f, self.mainBodyChunk.vel * 0.5f + Custom.RNV() * 0.3f, new(0.8f, 0.8f, 0.9f), null, 15, 20));
+                for (int i = 0; i < 12; i++)
+                    self.room.AddObject(new Spark(self.mainBodyChunk.pos + Custom.RNV() * 10f - self.mainBodyChunk.vel * 3f, self.mainBodyChunk.vel * 0.6f, new(0.8f, 0.8f, 0.9f), null, 15, 20));
 
                 info.DashCooldown = true;
                 Plugin.Log("Dashed!");
             }
             else if (self.canJump > 1 && (Options.ClimbVerticalPoles || self.animation != Player.AnimationIndex.ClimbOnBeam))
             {
-                info.DashCooldown = false;
+                self.GetInfo().DashCooldown = false;
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }
