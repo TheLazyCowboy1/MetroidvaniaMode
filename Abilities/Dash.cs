@@ -1,4 +1,5 @@
-﻿using Smoke;
+﻿using RWCustom;
+using Smoke;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ public static class Dash
         On.Player.MovementUpdate -= Player_MovementUpdate;
     }
 
-    private static SteamSmoke smoke = null;
+    //private static SteamSmoke smoke = null;
 
     private static void Player_MovementUpdate(On.Player.orig_MovementUpdate orig, Player self, bool eu)
     {
@@ -35,14 +36,14 @@ public static class Dash
             //dash sound loop volume
             if (info.DashSoundLoop != null && info.DashSoundLoop.Volume > 0)
             {
-                info.DashSoundLoop.Update();
-                info.DashSoundLoop.Volume -= 1f / 40f; //one second sound loop
+                info.DashSoundLoop.Volume -= 2f / 40f; //one second sound loop
                 if (info.DashSoundLoop.Volume <= 0)
                 {
                     info.DashSoundLoop.sound = SoundID.None;
                     info.DashSoundLoop.Volume = 0;
                 }
             }
+            info.DashSoundLoop?.Update();
 
             if (Input.GetKeyDown(Options.DashKeyCode) && !info.DashCooldown)
             {
@@ -64,10 +65,10 @@ public static class Dash
                 //sounds
                 info.DashSoundLoop ??= new(self.mainBodyChunk);
                 info.DashSoundLoop.sound = SoundID.Rock_Through_Air_LOOP;
-                info.DashSoundLoop.Volume = 1;
+                info.DashSoundLoop.Volume = 2;
 
                 //particles
-                if (smoke == null || smoke.room != self.room)
+                /*if (smoke == null || smoke.room != self.room)
                 {
                     smoke?.RemoveFromRoom();
                     smoke?.Destroy();
@@ -78,7 +79,9 @@ public static class Dash
                 Vector2 pos = self.mainBodyChunk.pos, corner1 = pos - new Vector2(200, 200) + n * 150, corner2 = pos + new Vector2(200, 200) + n * 150;
                 FloatRect confines = new(corner1.x, corner1.y, corner2.x, corner2.y);
                 for (int i = 0; i < 20; i++)
-                    smoke.EmitSmoke(pos, self.mainBodyChunk.vel, confines, 0.3f);
+                    smoke.EmitSmoke(pos, self.mainBodyChunk.vel, confines, 0.3f);*/
+                for (int i = 0; i < 20; i++)
+                    self.room.AddObject(new Spark(self.mainBodyChunk.pos + Custom.RNV() * 10f, self.mainBodyChunk.vel + Custom.RNV() * 1f, new(0.8f, 0.8f, 0.9f), null, 15, 30));
 
                 info.DashCooldown = true;
                 Plugin.Log("Dashed!");
