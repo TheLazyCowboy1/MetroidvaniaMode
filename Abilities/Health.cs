@@ -44,9 +44,9 @@ public static class Health
         if (info.iFrames <= 0)
         {
             self.room.AddObject(new TemporaryLight(self.mainBodyChunk.pos, false, Color.red, self, 40, 10)
-                { blinkType = PlacedObject.LightSourceData.BlinkType.Fade, blinkRate = 0.3f,
-                setAlpha = 0.9f, setRad = 20f, affectedByPaletteDarkness = 0 }); //add a flashing red light for 1 second
-            self.room.PlaySound(SoundID.Spear_Stick_In_Ground, self.mainBodyChunk, false, 1.5f, 1.2f); //play a heavy impact sound
+                { blinkType = PlacedObject.LightSourceData.BlinkType.Fade, blinkRate = 1.005f, //blink every 5 ticks
+                setAlpha = 1f, colorAlpha = 2f, setRad = 60f, affectedByPaletteDarkness = 0 }); //add a flashing red light for 1 second
+            self.room.PlaySound(SoundID.HUD_Game_Over_Prompt, self.mainBodyChunk, false, 1f, 1.3f); //play a impactful sound
 
             CurrentHealth = Mathf.Max(0, CurrentHealth - damage);
 
@@ -55,6 +55,7 @@ public static class Health
         }
         info.iFrames = 40; //1 second of i-frames
         self.showKarmaFoodRainTime = 40; //show the HUD
+        UI.HealthMeter.HealthFlash = 40;
 
         Plugin.Log("Player damaged! Damage = " + damage);
     }

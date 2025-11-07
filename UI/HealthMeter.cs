@@ -10,6 +10,9 @@ namespace MetroidvaniaMode.UI;
 
 public class HealthMeter : HudPart
 {
+
+    public static int HealthFlash = -1;
+
     private FSprite[] spriteBackgrounds;
     private FSprite[] slugSprites;
 
@@ -31,7 +34,7 @@ public class HealthMeter : HudPart
             spriteBackgrounds[i].SetPosition(pos + new Vector2(i * 20, 0));
             //spriteBackgrounds[i].scaleX = (spriteBackgrounds[i].width + 2) / spriteBackgrounds[i].width;
             //spriteBackgrounds[i].scaleY = (spriteBackgrounds[i].height + 2) / spriteBackgrounds[i].height;
-            spriteBackgrounds[i].scale = 1.1f;
+            spriteBackgrounds[i].scale = 1.2f;
             spriteBackgrounds[i].color = new(0.5f, 0, 0);
             spriteBackgrounds[i].alpha = 0.5f;
             fContainer.AddChild(spriteBackgrounds[i]);
@@ -42,14 +45,19 @@ public class HealthMeter : HudPart
         }
     }
 
-    public override void Draw(float timeStacker)
+    public override void Update()
     {
-        base.Draw(timeStacker);
-
         for (int i = 0; i < slugSprites.Length; i++)
         {
             slugSprites[i].isVisible = i < Abilities.Health.CurrentHealth;
+            if (HealthFlash >= 0)
+            {
+                spriteBackgrounds[i].alpha = (HealthFlash & 1) == 0 ? 0.5f : 1f;
+                spriteBackgrounds[i].color = new((HealthFlash & 1) == 0 ? 0.5f : (slugSprites[i].isVisible ? 1f : 0.75f), 0, 0);
+            }
         }
+        if (HealthFlash >= 0)
+            HealthFlash--;
     }
 
     public override void ClearSprites()
