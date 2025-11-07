@@ -33,7 +33,7 @@ public abstract class AutoConfigOptions : OptionInterface
 
     public class LimitRange : Attribute
     {
-        public IComparable Min, Max;
+        public float Min, Max;
         public LimitRange(float min, float max) : base()
         {
             this.Min = min;
@@ -86,7 +86,10 @@ public abstract class AutoConfigOptions : OptionInterface
                     LimitRange rangeAtt = info.GetCustomAttribute<LimitRange>();
                     if (rangeAtt != null)
                     {
-                        configBase.info.acceptable = (ConfigAcceptableBase)Activator.CreateInstance(typeof(ConfigAcceptableRange<>).MakeGenericType(info.FieldType), rangeAtt.Min, rangeAtt.Max);
+                        if (info.FieldType == typeof(int))
+                            configBase.info.acceptable = (ConfigAcceptableBase)Activator.CreateInstance(typeof(ConfigAcceptableRange<>).MakeGenericType(info.FieldType), (int)rangeAtt.Min, (int)rangeAtt.Max);
+                        else
+                            configBase.info.acceptable = (ConfigAcceptableBase)Activator.CreateInstance(typeof(ConfigAcceptableRange<>).MakeGenericType(info.FieldType), rangeAtt.Min, rangeAtt.Max);
                     }
 
                     configs.Add(new() { config = configBase, tab = att.Tab, label = att.Label, desc = att.Desc,

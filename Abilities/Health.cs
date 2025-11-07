@@ -84,6 +84,12 @@ public static class Health
     private static bool dieAnyway = false; //used to kill the player anyway when destroyed
     private static void Player_Die(On.Player.orig_Die orig, Player self)
     {
+        if (!Options.HasHealth)
+        {
+            orig(self);
+            return;
+        }
+
         try
         {
             if ((dieAnyway || CurrentHealth < 2 || self.abstractCreature.InDen || self.playerState.permaDead) && self.GetInfo().iFrames <= 0)
@@ -102,6 +108,12 @@ public static class Health
 
     private static void Player_Destroy(On.Player.orig_Destroy orig, Player self)
     {
+        if (!Options.HasHealth)
+        {
+            orig(self);
+            return;
+        }
+
         dieAnyway = true;
         self.Die();
 
@@ -110,6 +122,12 @@ public static class Health
 
     private static void Player_Grabbed(On.Player.orig_Grabbed orig, Player self, Creature.Grasp grasp)
     {
+        if (!Options.HasHealth)
+        {
+            orig(self, grasp);
+            return;
+        }
+
         orig(self, grasp);
 
         try
@@ -125,6 +143,12 @@ public static class Health
 
     private static void Player_Update(On.Player.orig_Update orig, Player self, bool eu)
     {
+        if (!Options.HasHealth)
+        {
+            orig(self, eu);
+            return;
+        }
+
         try
         {
             PlayerInfo info = self.GetInfo();
@@ -155,7 +179,9 @@ public static class Health
 
         try
         {
-            self.AddPart(new UI.HealthMeter(self));
+            if (Options.HasHealth)
+                self.AddPart(new UI.HealthMeter(self));
+
         } catch (Exception ex) { Plugin.Error(ex); }
     }
 }
