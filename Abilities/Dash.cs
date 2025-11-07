@@ -34,17 +34,16 @@ public static class Dash
             PlayerInfo info = self.GetInfo();
 
             //dash sound loop volume
-            if (info.DashSoundLoop != null && info.DashSoundLoop.Volume > 0)
+            if (info.DashSoundLoop.Volume > 0)
             {
-                info.DashSoundLoop.Update();
-                info.DashSoundLoop.Volume -= 2f / 40f; //one second sound loop
+                info.DashSoundLoop.Volume -= 0.01f; //one second sound loop
                 if (info.DashSoundLoop.Volume <= 0)
                 {
                     info.DashSoundLoop.sound = SoundID.None;
                     info.DashSoundLoop.Volume = 0;
-                    info.DashSoundLoop.Stop();
                 }
             }
+            info.DashSoundLoop.Update();
 
             if (Input.GetKeyDown(Options.DashKeyCode) && !info.DashCooldown)
             {
@@ -64,10 +63,8 @@ public static class Dash
                 self.canJump = 0; //don't double-jump!
 
                 //sounds
-                info.DashSoundLoop ??= new(self.mainBodyChunk);
-                info.DashSoundLoop.sound = SoundID.Rock_Through_Air_LOOP;
-                info.DashSoundLoop.Volume = 2;
-                info.DashSoundLoop.Start();
+                info.DashSoundLoop.sound = SoundID.Spear_Thrown_Through_Air_LOOP;//SoundID.Rock_Through_Air_LOOP;
+                info.DashSoundLoop.Volume = 1;
 
                 //particles
                 /*if (smoke == null || smoke.room != self.room)
@@ -83,7 +80,7 @@ public static class Dash
                 for (int i = 0; i < 20; i++)
                     smoke.EmitSmoke(pos, self.mainBodyChunk.vel, confines, 0.3f);*/
                 for (int i = 0; i < 10; i++)
-                    self.room.AddObject(new Spark(self.mainBodyChunk.pos + Custom.RNV() * 10f - self.mainBodyChunk.vel, self.mainBodyChunk.vel * 0.75f + Custom.RNV() * 0.5f, new(0.8f, 0.8f, 0.9f), null, 15, 30));
+                    self.room.AddObject(new Spark(self.mainBodyChunk.pos + Custom.RNV() * 10f - self.mainBodyChunk.vel * 3f, self.mainBodyChunk.vel * 0.5f + Custom.RNV() * 0.3f, new(0.8f, 0.8f, 0.9f), null, 15, 20));
 
                 info.DashCooldown = true;
                 Plugin.Log("Dashed!");

@@ -6,11 +6,11 @@ namespace MetroidvaniaMode;
 public class PlayerInfo
 {
     public bool DashCooldown = false;
-    public ChunkDynamicSoundLoop DashSoundLoop = null;
+    public ChunkDynamicSoundLoop DashSoundLoop;
 
 
     private static ConditionalWeakTable<Player, PlayerInfo> playerInfos = new();
-    public static PlayerInfo GetPlayerInfo(Player player) => playerInfos.GetValue(player, p => new PlayerInfo());
+    public static PlayerInfo GetPlayerInfo(Player player) => playerInfos.GetValue(player, p => new PlayerInfo() { DashSoundLoop = new(p.mainBodyChunk) });
     //public static void Clear() => playerInfos. //I would like a clear function, but CWTs don't seem to have that. Memory leaks can't be that bad, right?
 }
 
