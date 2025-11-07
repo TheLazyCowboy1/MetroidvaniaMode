@@ -1,6 +1,4 @@
-﻿
-
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace MetroidvaniaMode;
 
@@ -20,7 +18,7 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Pole Jump Boost", "Further multiplies the jump boost when jumping off of a pole. Intended to make jumping from horizontal poles mostly useless.", rightSide = true), LimitRange(0, 10f)]
     public static float PoleJumpBoost = 1;
 
-    [Config("Abilities", "Jump Boost Decrement", "How quickly Player.JumpBoost decrements while holding jump. Set below 1 to make jumps feel floatier.")]
+    [Config("Abilities", "Jump Boost Decrement", "How quickly Player.JumpBoost decrements while holding jump. Set below 1 to make jumps feel floatier."), LimitRange(0, 10f)]
     public static float JumpBoostDecrement = 1;
 
     [Config("Abilities", "Can Wall Jump", "Allows the slugcat to wall jump")]

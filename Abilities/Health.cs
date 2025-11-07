@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MetroidvaniaMode.Abilities;
@@ -46,7 +42,7 @@ public static class Health
             self.room.AddObject(new TemporaryLight(self.mainBodyChunk.pos, false, Color.red, self, 40, 10)
                 { blinkType = PlacedObject.LightSourceData.BlinkType.Fade, blinkRate = 1.005f, //blink every 5 ticks
                 setAlpha = 1f, colorAlpha = 2f, setRad = 60f, affectedByPaletteDarkness = 0 }); //add a flashing red light for 1 second
-            self.room.PlaySound(SoundID.HUD_Game_Over_Prompt, self.mainBodyChunk, false, 1f, 1.3f); //play a impactful sound
+            self.room.PlaySound(SoundID.HUD_Game_Over_Prompt, self.mainBodyChunk, false, 1f, 1.4f); //play a impactful sound
 
             CurrentHealth = Mathf.Max(0, CurrentHealth - damage);
 
@@ -115,6 +111,8 @@ public static class Health
             {
                 Plugin.Log("Player died!");
                 orig(self);
+
+                TakeDamage(self, CurrentHealth); //visually show the health bar at 0
             }
             else
             {
@@ -186,7 +184,7 @@ public static class Health
             }
 
             //decrement iFrames
-            if (info.iFrames > 0)
+            if (info.iFrames > 0 && !self.Stunned) //don't decrement i-frames while stunned
                 info.iFrames--;
 
         } catch (Exception ex) { Plugin.Error(ex); }

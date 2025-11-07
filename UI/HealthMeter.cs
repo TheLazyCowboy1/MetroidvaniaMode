@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HUD;
+﻿using HUD;
 using UnityEngine;
 
 namespace MetroidvaniaMode.UI;
@@ -11,7 +6,9 @@ namespace MetroidvaniaMode.UI;
 public class HealthMeter : HudPart
 {
 
-    public static int HealthFlash = -1;
+    public static int HealthFlash = 0;
+
+    private static int CurrentHealth => Abilities.Health.CurrentHealth; //this should ideally be changed later
 
     private FSprite[] spriteBackgrounds;
     private FSprite[] slugSprites;
@@ -31,7 +28,7 @@ public class HealthMeter : HudPart
         for (int i = 0; i < slugSprites.Length; i++)
         {
             spriteBackgrounds[i] = new FSprite("Kill_Slugcat");
-            spriteBackgrounds[i].SetPosition(pos + new Vector2(i * 20, 0));
+            spriteBackgrounds[i].SetPosition(pos + new Vector2(i * 22, 0));
             //spriteBackgrounds[i].scaleX = (spriteBackgrounds[i].width + 2) / spriteBackgrounds[i].width;
             //spriteBackgrounds[i].scaleY = (spriteBackgrounds[i].height + 2) / spriteBackgrounds[i].height;
             spriteBackgrounds[i].scale = 1.2f;
@@ -40,7 +37,7 @@ public class HealthMeter : HudPart
             fContainer.AddChild(spriteBackgrounds[i]);
 
             slugSprites[i] = new FSprite("Kill_Slugcat");
-            slugSprites[i].SetPosition(pos + new Vector2(i * 20, 0));
+            slugSprites[i].SetPosition(pos + new Vector2(i * 22, 0));
             fContainer.AddChild(slugSprites[i]);
         }
     }
@@ -49,14 +46,15 @@ public class HealthMeter : HudPart
     {
         for (int i = 0; i < slugSprites.Length; i++)
         {
-            slugSprites[i].isVisible = i < Abilities.Health.CurrentHealth;
-            if (HealthFlash >= 0)
+            slugSprites[i].isVisible = i < CurrentHealth;
+            if (HealthFlash > 0)
             {
-                spriteBackgrounds[i].alpha = (HealthFlash & 1) == 0 ? 0.5f : 1f;
-                spriteBackgrounds[i].color = new((HealthFlash & 1) == 0 ? 0.5f : (slugSprites[i].isVisible ? 1f : 0.75f), 0, 0);
+                slugSprites[i].alpha = (HealthFlash & 2) == 0 ? 1f : 0.7f; //white sprites get slightly transparent
+                spriteBackgrounds[i].alpha = (HealthFlash & 2) == 0 ? 0.5f : 1f; //red sprites get fully opaque
+                spriteBackgrounds[i].color = new((HealthFlash & 2) == 0 ? 0.5f : (slugSprites[i].isVisible ? 1f : 0.75f), 0, 0); //red sprites get redder
             }
         }
-        if (HealthFlash >= 0)
+        if (HealthFlash > 0)
             HealthFlash--;
     }
 
