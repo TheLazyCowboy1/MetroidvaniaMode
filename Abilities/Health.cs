@@ -44,7 +44,7 @@ public static class Health
         if (info.iFrames <= 0)
         {
             self.room.AddObject(new TemporaryLight(self.mainBodyChunk.pos, false, Color.red, self, 40, 10)
-                { blinkType = PlacedObject.LightSourceData.BlinkType.Fade, blinkRate = 0.3f, setAlpha = 0.8f }); //add a flashing red light for 1 second
+                { blinkType = PlacedObject.LightSourceData.BlinkType.Fade, blinkRate = 0.3f, setAlpha = 0.8f, setRad = 20f }); //add a flashing red light for 1 second
             self.room.PlaySound(SoundID.Cicada_Heavy_Terrain_Impact, self.mainBodyChunk, false, 1.5f, 1.2f); //play a heavy impact sound
 
             CurrentHealth = Mathf.Max(0, CurrentHealth - damage);
@@ -91,7 +91,10 @@ public static class Health
         orig(self, abstractCreature, world);
 
         if (self.playerState.playerNumber == 0)
+        {
             CurrentHealth = Options.MaxHealth;
+            Plugin.Log("Set player health: " + CurrentHealth);
+        }
     }
 
     //Prevent the player from dying if he has > 1 health
@@ -168,6 +171,8 @@ public static class Health
             PlayerInfo info = self.GetInfo();
             if (info.ReleaseQueued)
             {
+                info.ReleaseQueued = false;
+
                 Creature.Grasp[] tempList = self.grabbedBy.ToArray();
                 foreach (var g in tempList)
                 {
