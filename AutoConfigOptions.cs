@@ -157,6 +157,8 @@ public abstract class AutoConfigOptions : OptionInterface
                 }
             }
         }
+
+        MenuInitialized();
     }
 
     /// <summary>

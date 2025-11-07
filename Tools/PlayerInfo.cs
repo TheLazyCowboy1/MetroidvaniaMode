@@ -6,6 +6,7 @@ namespace MetroidvaniaMode;
 public class PlayerInfo
 {
     public bool DashCooldown = false;
+    public ChunkDynamicSoundLoop DashSoundLoop = null;
 
 
     private static ConditionalWeakTable<Player, PlayerInfo> playerInfos = new();
