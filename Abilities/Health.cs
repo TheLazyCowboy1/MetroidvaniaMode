@@ -13,6 +13,7 @@ public static class Health
 
     public static void ApplyHooks()
     {
+        On.Player.ctor += Player_ctor;
         On.Player.Die += Player_Die;
         On.Player.Destroy += Player_Destroy;
         On.Player.Grabbed += Player_Grabbed;
@@ -23,6 +24,7 @@ public static class Health
 
     public static void RemoveHooks()
     {
+        On.Player.ctor -= Player_ctor;
         On.Player.Die -= Player_Die;
         On.Player.Destroy -= Player_Destroy;
         On.Player.Grabbed -= Player_Grabbed;
@@ -80,6 +82,16 @@ public static class Health
                 this.rad *= 1f - 0.5f / fadeTime;
             }
         }
+    }
+
+
+    //Set the health when player 0 is spawned
+    private static void Player_ctor(On.Player.orig_ctor orig, Player self, AbstractCreature abstractCreature, World world)
+    {
+        orig(self, abstractCreature, world);
+
+        if (self.playerState.playerNumber == 0)
+            CurrentHealth = Options.MaxHealth;
     }
 
     //Prevent the player from dying if he has > 1 health
