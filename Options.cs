@@ -47,6 +47,11 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Dash Strength", "How much of the player's speed is converted to the dash speed.\n1 = dash completely overrides player speed. 0 = dash does nothing.")]
     public static float DashStrength = 0.9f;
 
+    [Config("Abilities", "Has Health", "Enables the health bar system")]
+    public static bool HasHealth = false;
+    [Config("Abilities", "Max Health", "The maximum amount of health, and the default health", rightSide = true), LimitRange(0, 30)]
+    public static int MaxHealth = 3;
+
     [Config("General", "Test String", "This is a test", width = 150f)]
     public static string TestString = "Hi!";
     [Config("General", "Test ComboBox", "This is also a test", width = 150f, dropdownOptions = new string[] {"Option1", "Option2", "Option3"})]
