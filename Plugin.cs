@@ -52,6 +52,7 @@ public partial class Plugin : BaseUnityPlugin
 
             Abilities.MovementLimiter.RemoveHooks();
             Abilities.Dash.RemoveHooks();
+            Abilities.Health.RemoveHooks();
 
             IsInit = false;
         }
@@ -71,6 +72,7 @@ public partial class Plugin : BaseUnityPlugin
             //APPLY HOOKS
             Abilities.MovementLimiter.ApplyHooks();
             Abilities.Dash.ApplyHooks();
+            Abilities.Health.ApplyHooks();
 
             
             //Set up config menu

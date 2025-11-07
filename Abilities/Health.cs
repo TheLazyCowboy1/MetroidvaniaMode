@@ -52,6 +52,8 @@ public static class Health
         }
         info.iFrames = 40; //1 second of i-frames
         self.showKarmaFoodRainTime = 40; //show the HUD
+
+        Plugin.Log("Player damaged! Damage = " + damage);
     }
 
     private class TemporaryLight : LightSource
@@ -161,6 +163,7 @@ public static class Health
                     //self.room.AddObject(new CreatureSpasmer(g.grabber, false, g.grabber.stun));
                     g.grabber.LoseAllGrasps();
                 }
+                Plugin.Log("Released grasps on player");
             }
 
             //decrement iFrames
@@ -180,7 +183,10 @@ public static class Health
         try
         {
             if (Options.HasHealth)
+            {
                 self.AddPart(new UI.HealthMeter(self));
+                Plugin.Log("Added health meter");
+            }
 
         } catch (Exception ex) { Plugin.Error(ex); }
     }
