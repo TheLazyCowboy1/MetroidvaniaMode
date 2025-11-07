@@ -44,8 +44,9 @@ public static class Health
         if (info.iFrames <= 0)
         {
             self.room.AddObject(new TemporaryLight(self.mainBodyChunk.pos, false, Color.red, self, 40, 10)
-                { blinkType = PlacedObject.LightSourceData.BlinkType.Fade, blinkRate = 0.3f, setAlpha = 0.8f, setRad = 20f }); //add a flashing red light for 1 second
-            self.room.PlaySound(SoundID.Cicada_Heavy_Terrain_Impact, self.mainBodyChunk, false, 1.5f, 1.2f); //play a heavy impact sound
+                { blinkType = PlacedObject.LightSourceData.BlinkType.Fade, blinkRate = 0.3f,
+                setAlpha = 0.9f, setRad = 20f, affectedByPaletteDarkness = 0 }); //add a flashing red light for 1 second
+            self.room.PlaySound(SoundID.Spear_Stick_In_Ground, self.mainBodyChunk, false, 1.5f, 1.2f); //play a heavy impact sound
 
             CurrentHealth = Mathf.Max(0, CurrentHealth - damage);
 

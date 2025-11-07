@@ -22,17 +22,18 @@ public class HealthMeter : HudPart
 
             //this pos is the FoodMeter's default location
         Vector2 pos = new Vector2(Mathf.Max(50f, hud.rainWorld.options.SafeScreenOffset.x + 5.5f), Mathf.Max(25f, hud.rainWorld.options.SafeScreenOffset.y + 17.25f));
-        pos.x += 50f;
+        pos.x += 60f;
         pos.y += 50f; //offset it to not collide with food meter
 
         for (int i = 0; i < slugSprites.Length; i++)
         {
             spriteBackgrounds[i] = new FSprite("Kill_Slugcat");
-            spriteBackgrounds[i].SetPosition(pos + new Vector2(i * 20 - 1, -1));
-            spriteBackgrounds[i].scaleX = (spriteBackgrounds[i].width + 2) / spriteBackgrounds[i].width;
-            spriteBackgrounds[i].scaleY = (spriteBackgrounds[i].height + 2) / spriteBackgrounds[i].height;
+            spriteBackgrounds[i].SetPosition(pos + new Vector2(i * 20, 0));
+            //spriteBackgrounds[i].scaleX = (spriteBackgrounds[i].width + 2) / spriteBackgrounds[i].width;
+            //spriteBackgrounds[i].scaleY = (spriteBackgrounds[i].height + 2) / spriteBackgrounds[i].height;
+            spriteBackgrounds[i].scale = 1.1f;
             spriteBackgrounds[i].color = new(0.5f, 0, 0);
-            spriteBackgrounds[i].alpha = 0.7f;
+            spriteBackgrounds[i].alpha = 0.5f;
             fContainer.AddChild(spriteBackgrounds[i]);
 
             slugSprites[i] = new FSprite("Kill_Slugcat");
