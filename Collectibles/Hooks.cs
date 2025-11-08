@@ -79,9 +79,11 @@ public static class Hooks
         try
         {
             RainWorld rw = menu.manager.rainWorld;
-            List<string> regions = SlugcatStats.SlugcatStoryRegions(saveSlot).Union(SlugcatStats.SlugcatOptionalRegions(saveSlot)).ToList();
-            foreach (string r in regions)
+            foreach (string reg in SlugcatStats.SlugcatStoryRegions(saveSlot).Union(SlugcatStats.SlugcatOptionalRegions(saveSlot)))
             {
+                string r = reg.ToLowerInvariant();
+                if (!rw.regionBlueTokens.ContainsKey(r))
+                    continue;
                 for (int i = rw.regionBlueTokens[r].Count - 1; i >= 0; i--)
                 {
                     if (!Collectibles.AllCollectibles.Contains(rw.regionBlueTokens[r][i]))
@@ -114,6 +116,8 @@ public static class Hooks
                         rw.regionGreenTokensAccessibility[r].RemoveAt(i);
                     }
                 }
+
+                Plugin.Log("Trimmed down collectibles in collectible tracker");
             }
         } catch (Exception ex) { Plugin.Error(ex); }
 
