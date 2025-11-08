@@ -30,16 +30,21 @@ public static class Hooks
 
         try
         {
-            WorldSaveData saveData = self.room.game.GetStorySession.saveState.miscWorldSaveData.GetData();
             CollectToken.CollectTokenData data = self.placedObj.data as CollectToken.CollectTokenData;
 
-            if (data.isBlue)
+            if (data.isBlue && Collectibles.AllCollectibles.Contains(data.SandboxUnlock))
             {
+                WorldSaveData saveData = self.room.game.GetStorySession.saveState.miscWorldSaveData.GetData();
                 if (!saveData.UnlockedBlueTokens.Split(';').Contains(data.SandboxUnlock.ToString()))
                     saveData.UnlockedBlueTokens += data.SandboxUnlock.ToString() + ";";
-            }
 
-            Abilities.CurrentAbilities.ResetAbilities(self.room.game);
+                Abilities.CurrentAbilities.ResetAbilities(self.room.game);
+
+                self.anythingUnlocked = false;
+                self.room.game.cameras[0].hud.textPrompt.AddMessage(
+                    RWCustom.Custom.rainWorld.inGameTranslator.Translate("Unlocked new cool ability. I'm not sure what."),
+                    20, 160, true, true);
+            }
         }
         catch (Exception ex) { Plugin.Error(ex); }
     }

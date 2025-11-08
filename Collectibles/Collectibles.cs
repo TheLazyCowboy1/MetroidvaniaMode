@@ -25,12 +25,15 @@ public static class Collectibles
         }
     }
 
+    public static List<ExtEnumBase> AllCollectibles;
+
     private const string PREFIX = "MVM_";
 
     public static void Register()
     {
         try
         {
+            AllCollectibles = new();
             string debugList = "";
 
             FieldInfo[] infos = typeof(Collectibles).GetFields();
@@ -53,6 +56,7 @@ public static class Collectibles
                                 debugList += PREFIX + info.Name + "_" + i + ";";
                             }
 
+                            AllCollectibles.AddRange(arr);
                             info.SetValue(null, arr); //set the value of the actual field
                         }
                         else if (info.FieldType == typeof(LevelUnlockID[]))
@@ -67,6 +71,7 @@ public static class Collectibles
                                 debugList += PREFIX + info.Name + "_" + i + ";";
                             }
 
+                            AllCollectibles.AddRange(arr);
                             info.SetValue(null, arr); //set the value of the actual field
                         }
                         else if (info.FieldType == typeof(SafariUnlockID[]))
@@ -81,6 +86,7 @@ public static class Collectibles
                                 debugList += PREFIX + info.Name + "_" + i + ";";
                             }
 
+                            AllCollectibles.AddRange(arr);
                             info.SetValue(null, arr); //set the value of the actual field
                         }
                         else if (info.FieldType == typeof(SlugcatUnlockID[]))
@@ -95,6 +101,7 @@ public static class Collectibles
                                 debugList += PREFIX + info.Name + "_" + i + ";";
                             }
 
+                            AllCollectibles.AddRange(arr);
                             info.SetValue(null, arr); //set the value of the actual field
                         }
                         else
