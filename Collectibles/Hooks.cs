@@ -65,7 +65,7 @@ public static class Hooks
             foreach (string s in data.UnlockedBlueTokens.Split(';'))
             {
                 if (s.Length > 0)
-                    self.progression.miscProgressionData.levelTokens.Add(new(s));
+                    self.progression.miscProgressionData.sandboxTokens.Add(new(s));
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }

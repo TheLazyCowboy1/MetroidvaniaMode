@@ -156,12 +156,6 @@ public static class Collectibles
         } catch (Exception ex) { Plugin.Error(ex); }
     }
 
-    public static int UnlockedCount(string[] splitSaveString, ExtEnumBase[] unlock)
-    {
-        int count = 0;
-        while (count < unlock.Length && splitSaveString.Contains(unlock[count].value))
-            count++;
-        return count;
-    }
+    public static int UnlockedCount(string[] splitSaveString, ExtEnumBase[] unlock) => unlock.Count(u => splitSaveString.Contains(u.value));
 
 }
