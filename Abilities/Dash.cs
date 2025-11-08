@@ -22,12 +22,13 @@ public static class Dash
 
         try
         {
-            if (!Options.CanDash) return; //don't run dash code if we can't dash!
+            if (Options.DashCount <= 0) return; //don't run dash code if we can't dash!
 
+            PlayerInfo info = self.GetInfo();
+            //The dash button is being pressed
             if (Input.GetKeyDown(Options.DashKeyCode))
             {
-                PlayerInfo info = self.GetInfo();
-                if (info.DashCooldown) return; //don't dash when on cooldown!
+                if (info.DashCooldown || info.DashesLeft < 1) return; //don't dash when on cooldown!
 
                 //pick dash direction vector
                 Player.InputPackage input = self.input[0];
@@ -51,14 +52,28 @@ public static class Dash
 
                 //particles
                 for (int i = 0; i < 12; i++)
-                    self.room.AddObject(new Spark(self.mainBodyChunk.pos + Custom.RNV() * 10f - self.mainBodyChunk.vel * 3f, self.mainBodyChunk.vel * 0.6f, new(0.8f, 0.8f, 0.9f), null, 15, 20));
+                {
+                    Spark spark = new Spark(self.mainBodyChunk.pos + Custom.RNV() * 10f - self.mainBodyChunk.vel * 3f, self.mainBodyChunk.vel * 0.6f, new(0.8f, 0.8f, 0.9f), null, 15, 20);
+                    spark.gravity *= 0.4f; //half the variation between
+                    spark.gravity += 0.1f; //gravity is in range 0.26 to 0.46
+                    self.room.AddObject(spark);
+                }
 
                 info.DashCooldown = true;
+                info.DashesLeft--;
+
                 Plugin.Log("Dashed!");
             }
+            //The dash button is NOT pressed, and the player meets the qualifications to refresh the dash counter
             else if (self.canJump > 1 && (Options.ClimbVerticalPoles || self.animation != Player.AnimationIndex.ClimbOnBeam))
             {
-                self.GetInfo().DashCooldown = false;
+                info.DashCooldown = false;
+                info.DashesLeft = Options.DashCount;
+            }
+            //At least mark that the dash button is no longer held down
+            else
+            {
+                info.DashCooldown = false;
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }

@@ -5,6 +5,9 @@ namespace MetroidvaniaMode;
 public class PlayerInfo
 {
     public bool DashCooldown = false;
+    public int DashesLeft = 0;
+
+    public int ExtraJumpsLeft = 0;
 
     public bool ReleaseQueued = false;
     public int iFrames = 0;

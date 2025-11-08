@@ -31,19 +31,28 @@ public class Options : AutoConfigOptions
 
     [Config("Abilities", "Climb Vertical Pipes", "Allows the slugcat to crawl upward through vertical pipes/corridors")]
     public static bool ClimbVerticalCorridors = true;
-
-    [Config("Abilities", "Can Use Shortcuts", "Allows the player to use shortcuts within a room. Does not apply to room exits.")]
+    [Config("Abilities", "Can Use Shortcuts", "Allows the player to use shortcuts within a room. Does not apply to room exits.", rightSide = true)]
     public static bool CanUseShortcuts = true;
 
-    [Config("Abilities", "Can Dash", "Allows the player to use a dash ability")]
-    public static bool CanDash = false;
+    [Config("Abilities", "Can Swim", "Allows the player to float to move around in water")]
+    public static bool CanSwim = true;
+    [Config("Abilities", "Can Dive", "Allows the player to swim downwards in water")]
+    public static bool CanDive = true;
+
+    //[Config("Abilities", "Can Dash", "Allows the player to use a dash ability")]
+    //public static bool CanDash = false;
+    [Config("Abilities", "Dash Count", "The number of dashes that the player can do before touching the ground again"), LimitRange(0, 100)]
+    public static int DashCount = 0;
     [Config("Abilities", "Dash Keybind", "Which keybind activates the dash ability, if it is enabled", rightSide = true, width = 100f)]
     public static KeyCode DashKeyCode = KeyCode.D;
 
     [Config("Abilities", "Dash Speed", "The player's set speed upon dashing")]
-    public static float DashSpeed = 20f;
+    public static float DashSpeed = 12f;
     [Config("Abilities", "Dash Strength", "How much of the player's speed is converted to the dash speed.\n1 = dash completely overrides player speed. 0 = dash does nothing.")]
     public static float DashStrength = 0.9f;
+
+    [Config("Abilities", "Extra Jumps", "Allows the player to double jump"), LimitRange(0, 100)]
+    public static int ExtraJumps = 0;
 
     [Config("Abilities", "Has Health", "Enables the health bar system")]
     public static bool HasHealth = false;

@@ -41,8 +41,10 @@ public static class Health
         {
             self.room.AddObject(new TemporaryLight(self.mainBodyChunk.pos, false, Color.red, self, 40, 10)
                 { blinkType = PlacedObject.LightSourceData.BlinkType.Fade, blinkRate = 1.005f, //blink every 5 ticks
-                setAlpha = 1f, colorAlpha = 2f, setRad = 60f, affectedByPaletteDarkness = 0 }); //add a flashing red light for 1 second
-            self.room.PlaySound(SoundID.HUD_Game_Over_Prompt, self.mainBodyChunk, false, 1f, 1.4f); //play a impactful sound
+                setAlpha = 1f, colorAlpha = 2f, setRad = 60f * damage, affectedByPaletteDarkness = 0 }); //add a flashing red light for 1 second
+
+            //self.room.PlaySound(SoundID.HUD_Game_Over_Prompt, self.mainBodyChunk, false, 1f, 1.3f); //play an impactful sound
+            self.room.PlaySound(SoundID.MENU_Start_New_Game, self.mainBodyChunk, false, 0.6f + damage * 0.2f, 1f + damage * 0.1f);
 
             CurrentHealth = Mathf.Max(0, CurrentHealth - damage);
 
@@ -112,7 +114,8 @@ public static class Health
                 Plugin.Log("Player died!");
                 orig(self);
 
-                TakeDamage(self, CurrentHealth); //visually show the health bar at 0
+                if (CurrentHealth > 0)
+                    TakeDamage(self, CurrentHealth); //visually show the health bar at 0
             }
             else
             {

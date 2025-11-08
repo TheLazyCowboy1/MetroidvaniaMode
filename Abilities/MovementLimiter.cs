@@ -19,11 +19,15 @@ public static class MovementLimiter
 
         //prevent grabbing poles
         //also change jumpBoostDecrement
+        //ALSO disable diving
         On.Player.MovementUpdate += Player_MovementUpdate;
 
         //prevent using normal shortcuts
         On.Player.Update += Player_Update;
+
+        On.Player.SwimDir += Player_SwimDir;
     }
+
     public static void RemoveHooks()
     {
         On.Player.Jump -= Player_Jump;
@@ -36,6 +40,8 @@ public static class MovementLimiter
         On.Player.MovementUpdate -= Player_MovementUpdate;
 
         On.Player.Update -= Player_Update;
+
+        On.Player.SwimDir -= Player_SwimDir;
     }
 
 
@@ -114,6 +120,8 @@ public static class MovementLimiter
 
     //Use the noGrabCounter to prevent grabbing poles entirely
     //ALSO separately scales jumpBoost as it is decremented
+    //ALSO disables floating on the surface of the water
+    //ALSO disables diving down into the water
     private static void Player_MovementUpdate(On.Player.orig_MovementUpdate orig, Player self, bool eu)
     {
         if (!Options.CanGrabPoles && self.noGrabCounter <= 0)
@@ -121,10 +129,18 @@ public static class MovementLimiter
 
         float jb = self.jumpBoost; //track jumpBoost before
 
+        int y = self.input[0].y;
+        if (!Options.CanSwim && self.animation == Player.AnimationIndex.SurfaceSwim)
+            self.input[0].y = -1; //swim down if on surface of water and unable to float
+        else if (!Options.CanDive && y < 0 && self.bodyMode == Player.BodyModeIndex.Swimming)
+            self.input[0].y = 0; //do not swim down if unable to dive
+
         orig(self, eu);
 
         if (jb > self.jumpBoost)
             self.jumpBoost = jb + (self.jumpBoost - jb) * Options.JumpBoostDecrement;
+
+        self.input[0].y = y; //fix the changed input
     }
 
     //Prevents the player from using normal shortcuts
@@ -141,6 +157,24 @@ public static class MovementLimiter
         catch (Exception ex) { Plugin.Error(ex); }
 
         orig(self, eu);
+    }
+
+    //Prevents the player from swimming down if unable to dive
+    //ALSO mostly disables swimming if unable to swim
+    private static Vector2 Player_SwimDir(On.Player.orig_SwimDir orig, Player self, bool normalize)
+    {
+        if (!Options.CanSwim)
+        {
+            self.swimCycle = 0; //no swimming animation
+            return new Vector2(0, -0.1f); //swim down slightly if we can't swim
+        }
+
+        Vector2 o = orig(self, normalize);
+
+        if (!Options.CanDive)
+            o.y = Mathf.Max(0.05f, o.y); //always swim slightly up if we can't dive
+
+        return o;
     }
 
 }
