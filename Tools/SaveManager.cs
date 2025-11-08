@@ -78,7 +78,8 @@ public abstract class SaveManager
                     SaveKey att = info.GetCustomAttribute<SaveKey>();
                     if (att != null)
                     {
-                        info.SetValue(this, FromString(info.FieldType, UnsafenString(d.First(str => str.StartsWith(att.ID + KEYVALUESPLIT)))));
+                        string key = att.ID + KEYVALUESPLIT;
+                        info.SetValue(this, FromString(info.FieldType, UnsafenString(d.First(str => str.StartsWith(key)).Substring(key.Length))));
                     }
                 }
                 catch (Exception ex) { Plugin.Error("Problematic field: " + info.Name); Plugin.Error(ex); }
