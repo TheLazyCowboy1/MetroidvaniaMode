@@ -22,7 +22,7 @@ public static class Dash
 
         try
         {
-            if (Options.DashCount <= 0) return; //don't run dash code if we can't dash!
+            if (CurrentAbilities.DashCount <= 0) return; //don't run dash code if we can't dash!
 
             PlayerInfo info = self.GetInfo();
             //The dash button is being pressed
@@ -43,8 +43,8 @@ public static class Dash
                 dir.y = Mathf.Min(1, dir.y + 0.15f); //add a little extra upwards speed to help counteract gravity
 
                 //actually move the player
-                self.bodyChunks[0].vel = Vector2.LerpUnclamped(self.bodyChunks[0].vel, dir * Options.DashSpeed, Options.DashStrength);
-                self.bodyChunks[1].vel = Vector2.LerpUnclamped(self.bodyChunks[1].vel, dir * Options.DashSpeed, Options.DashStrength * 0.85f); //dash is weaker for tail
+                self.bodyChunks[0].vel = Vector2.LerpUnclamped(self.bodyChunks[0].vel, dir * CurrentAbilities.DashSpeed, CurrentAbilities.DashStrength);
+                self.bodyChunks[1].vel = Vector2.LerpUnclamped(self.bodyChunks[1].vel, dir * CurrentAbilities.DashSpeed, CurrentAbilities.DashStrength * 0.95f); //dash is weaker for tail
                 self.canJump = 0; //don't double-jump!
 
                 //sounds
@@ -65,10 +65,10 @@ public static class Dash
                 Plugin.Log("Dashed!");
             }
             //The dash button is NOT pressed, and the player meets the qualifications to refresh the dash counter
-            else if (self.canJump > 1 && (Options.ClimbVerticalPoles || self.animation != Player.AnimationIndex.ClimbOnBeam))
+            else if (self.canJump > 1 && (CurrentAbilities.ClimbVerticalPoles || self.animation != Player.AnimationIndex.ClimbOnBeam))
             {
                 info.DashCooldown = false;
-                info.DashesLeft = Options.DashCount;
+                info.DashesLeft = CurrentAbilities.DashCount;
             }
             //At least mark that the dash button is no longer held down
             else

@@ -20,7 +20,7 @@ public static class DoubleJump
 
         try
         {
-            if (Options.ExtraJumps <= 0) return; //don't even run this code if it doesn't apply!
+            if (CurrentAbilities.ExtraJumps <= 0) return; //don't even run this code if it doesn't apply!
 
             if (self.wantToJump > 0 && self.canJump <= 0)
             {
@@ -35,7 +35,7 @@ public static class DoubleJump
             }
             else if (self.canJump > 1)
             {
-                self.GetInfo().ExtraJumpsLeft = Options.ExtraJumps;
+                self.GetInfo().ExtraJumpsLeft = CurrentAbilities.ExtraJumps;
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }

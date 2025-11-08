@@ -17,7 +17,7 @@ public class HealthMeter : HudPart
 
     public HealthMeter(HUD.HUD hud) : base(hud)
     {
-        slugSprites = new FSprite[Options.MaxHealth];
+        slugSprites = new FSprite[Abilities.CurrentAbilities.MaxHealth];
         spriteBackgrounds = new FSprite[slugSprites.Length];
 
             //this pos is the FoodMeter's default location

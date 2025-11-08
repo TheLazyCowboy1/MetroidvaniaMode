@@ -55,6 +55,11 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.DoubleJump.RemoveHooks();
             Abilities.Health.RemoveHooks();
 
+            SaveData.Hooks.RemoveHooks();
+            Collectibles.Hooks.RemoveHooks();
+
+            //Collectibles.Collectibles.Unregister();
+
             IsInit = false;
         }
     }
@@ -76,9 +81,15 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.DoubleJump.ApplyHooks();
             Abilities.Health.ApplyHooks();
 
+            SaveData.Hooks.ApplyHooks();
+            Collectibles.Hooks.RemoveHooks();
+
             
             //Set up config menu
             MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
+
+            //Register collectible ExtEnums
+            Collectibles.Collectibles.Register();
 
             IsInit = true;
             Log("Applied hooks");
@@ -96,6 +107,8 @@ public partial class Plugin : BaseUnityPlugin
         ConfigOptions.SetValues();
 
         orig(self, manager);
+
+        Abilities.CurrentAbilities.ResetAbilities(self);
     }
 
     #endregion

@@ -94,7 +94,7 @@ public static class Health
 
         if (self.playerState.playerNumber == 0)
         {
-            CurrentHealth = Options.MaxHealth;
+            CurrentHealth = CurrentAbilities.MaxHealth;
             Plugin.Log("Set player health: " + CurrentHealth);
         }
     }
@@ -103,7 +103,7 @@ public static class Health
     private static bool dieAnyway = false; //used to kill the player anyway when destroyed
     private static void Player_Die(On.Player.orig_Die orig, Player self)
     {
-        if (!Options.HasHealth)
+        if (!CurrentAbilities.HasHealth)
         {
             orig(self);
             return;
@@ -112,7 +112,7 @@ public static class Health
         try
         {
             if (dieAnyway
-                || ((CurrentHealth < 2 || self.abstractCreature.InDen || self.playerState.permaDead || (!Options.CanSwim && self.drown >= 1))
+                || ((CurrentHealth < 2 || self.abstractCreature.InDen || self.playerState.permaDead || (!CurrentAbilities.CanSwim && self.drown >= 1))
                     && self.GetInfo().iFrames <= 0)
                 )
             {
@@ -139,7 +139,7 @@ public static class Health
 
     private static void Player_Destroy(On.Player.orig_Destroy orig, Player self)
     {
-        if (!Options.HasHealth)
+        if (!CurrentAbilities.HasHealth)
         {
             orig(self);
             return;
@@ -153,7 +153,7 @@ public static class Health
 
     private static void Player_Grabbed(On.Player.orig_Grabbed orig, Player self, Creature.Grasp grasp)
     {
-        if (!Options.HasHealth)
+        if (!CurrentAbilities.HasHealth)
         {
             orig(self, grasp);
             return;
@@ -174,7 +174,7 @@ public static class Health
 
     private static void Player_Update(On.Player.orig_Update orig, Player self, bool eu)
     {
-        if (!Options.HasHealth)
+        if (!CurrentAbilities.HasHealth)
         {
             orig(self, eu);
             return;
@@ -215,7 +215,7 @@ public static class Health
 
         try
         {
-            if (Options.HasHealth)
+            if (CurrentAbilities.HasHealth)
             {
                 self.AddPart(new UI.HealthMeter(self));
                 Plugin.Log("Added health meter");

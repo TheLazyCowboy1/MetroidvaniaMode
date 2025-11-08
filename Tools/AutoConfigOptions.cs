@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace MetroidvaniaMode;
+namespace MetroidvaniaMode.Tools;
 
 public abstract class AutoConfigOptions : OptionInterface
 {
@@ -25,9 +25,9 @@ public abstract class AutoConfigOptions : OptionInterface
         public string[] dropdownOptions = null;
         public Config(string tab, string label, string desc) : base()
         {
-            this.Tab = tab;
-            this.Label = label;
-            this.Desc = desc;
+            Tab = tab;
+            Label = label;
+            Desc = desc;
         }
     }
 
@@ -36,8 +36,8 @@ public abstract class AutoConfigOptions : OptionInterface
         public float Min, Max;
         public LimitRange(float min, float max) : base()
         {
-            this.Min = min;
-            this.Max = max;
+            Min = min;
+            Max = max;
         }
     }
 
@@ -110,12 +110,12 @@ public abstract class AutoConfigOptions : OptionInterface
 
     public override void Initialize()
     {
-        this.Tabs = new OpTab[TabInfos.Length];
+        Tabs = new OpTab[TabInfos.Length];
         for (int i = 0; i < TabInfos.Length; i++)
         {
             TabInfo tInfo = TabInfos[i];
             string name = tInfo.name;
-            this.Tabs[i] = new(this, name);
+            Tabs[i] = new(this, name);
 
             float y = tInfo.startHeight;
 
@@ -155,7 +155,7 @@ public abstract class AutoConfigOptions : OptionInterface
                     }
                     el.description = cInfo.desc;
 
-                    this.Tabs[i].AddItems(new OpLabel(x + t, y, cInfo.label), el);
+                    Tabs[i].AddItems(new OpLabel(x + t, y, cInfo.label), el);
                     y -= tInfo.spacing + cInfo.spaceAfter;
                 }
             }
@@ -175,7 +175,7 @@ public abstract class AutoConfigOptions : OptionInterface
 
     public void SetValues()
     {
-        Type type = this.GetType();
+        Type type = GetType();
         foreach (ConfigInfo info in ConfigInfos)
         {
             try
