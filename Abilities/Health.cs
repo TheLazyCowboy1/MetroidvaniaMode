@@ -41,12 +41,12 @@ public static class Health
         {
             self.room.AddObject(new TemporaryLight(self.mainBodyChunk.pos, false, Color.red, self, 40, 10)
                 { blinkType = PlacedObject.LightSourceData.BlinkType.Fade, blinkRate = 1.005f, //blink every 5 ticks
-                setAlpha = 1f, colorAlpha = 2f, setRad = 60f * damage, affectedByPaletteDarkness = 0 }); //add a flashing red light for 1 second
+                setAlpha = 1f, colorAlpha = 2f, setRad = 80f * damage, affectedByPaletteDarkness = 0 }); //add a flashing red light for 1 second
 
             if (damage > 1)
-                self.room.PlaySound(SoundID.MENU_Start_New_Game, self.mainBodyChunk, false, 0.8f + damage * 0.2f, 1f + damage * 0.2f);
+                self.room.PlaySound(SoundID.MENU_Start_New_Game, self.mainBodyChunk, false, 0.8f + damage * 0.2f, 1.1f + damage * 0.2f);
             else
-                self.room.PlaySound(SoundID.HUD_Game_Over_Prompt, self.mainBodyChunk, false, 1f, 1.3f); //play an impactful sound
+                self.room.PlaySound(SoundID.HUD_Game_Over_Prompt, self.mainBodyChunk, false, 1f, 1.35f); //play an impactful sound
 
             CurrentHealth = Mathf.Max(0, CurrentHealth - damage);
 
@@ -80,8 +80,8 @@ public static class Health
                 this.Destroy();
             else if (lifeRemaining <= fadeTime)
             {
-                this.alpha *= 1f - 0.5f / fadeTime;
-                this.rad *= 1f - 0.5f / fadeTime;
+                this.alpha *= 1f - 2f / fadeTime;
+                this.rad *= 1f - 2f / fadeTime;
             }
         }
     }
@@ -122,6 +122,12 @@ public static class Health
             else
             {
                 Plugin.Log("Aborting player death. Health = " + CurrentHealth);
+
+                if (self.airInLungs < 0.5f)
+                    self.airInLungs += 0.1f; //add a little air if the player is almost out of breath
+                if (self.drown > 0)
+                    self.drown = 0; //stop the player from drowning
+
                 self.TakeDamage(2);
             }
             dieAnyway = false;

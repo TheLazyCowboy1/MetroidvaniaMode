@@ -175,7 +175,7 @@ public static class MovementLimiter
         if (!Options.CanSwim)
         {
             self.swimCycle = 0; //no swimming animation
-            return new Vector2(0, -0.3f); //swim down slightly if we can't swim
+            return new Vector2(0, -0.25f); //swim down slightly if we can't swim
         }
 
         Vector2 o = orig(self, normalize);
