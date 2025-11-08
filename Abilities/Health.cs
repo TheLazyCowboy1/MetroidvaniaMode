@@ -111,7 +111,10 @@ public static class Health
 
         try
         {
-            if ((dieAnyway || CurrentHealth < 2 || self.abstractCreature.InDen || self.playerState.permaDead) && self.GetInfo().iFrames <= 0)
+            if (dieAnyway
+                || ((CurrentHealth < 2 || self.abstractCreature.InDen || self.playerState.permaDead || (!Options.CanSwim && self.drown >= 1))
+                    && self.GetInfo().iFrames <= 0)
+                )
             {
                 Plugin.Log("Player died!");
                 orig(self);
@@ -123,7 +126,7 @@ public static class Health
             {
                 Plugin.Log("Aborting player death. Health = " + CurrentHealth);
 
-                if (self.airInLungs < 0.5f)
+                if (self.airInLungs < 0.2f)
                     self.airInLungs += 0.1f; //add a little air if the player is almost out of breath
                 if (self.drown > 0)
                     self.drown = 0; //stop the player from drowning

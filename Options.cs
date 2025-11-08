@@ -49,7 +49,7 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Dash Speed", "The player's set speed upon dashing")]
     public static float DashSpeed = 12f;
     [Config("Abilities", "Dash Strength", "How much of the player's speed is converted to the dash speed.\n1 = dash completely overrides player speed. 0 = dash does nothing.")]
-    public static float DashStrength = 0.9f;
+    public static float DashStrength = 0.95f;
 
     [Config("Abilities", "Extra Jumps", "Allows the player to double jump"), LimitRange(0, 100)]
     public static int ExtraJumps = 0;

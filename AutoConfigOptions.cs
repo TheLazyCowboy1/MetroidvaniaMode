@@ -58,7 +58,7 @@ public abstract class AutoConfigOptions : OptionInterface
     {
         public string name;
         public float startHeight = 550f, spacing = 40f, leftMargin = 50f,
-            textOffset = 90f, updownWidth = 80f, checkboxOffset = 55f,
+            textOffset = 90f, updownWidth = 80f, checkboxOffset = 50f,
             rightMargin = 300f, defaultHeight = 25f;
         public TabInfo(string name)
         {
