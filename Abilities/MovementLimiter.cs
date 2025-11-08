@@ -130,10 +130,19 @@ public static class MovementLimiter
         float jb = self.jumpBoost; //track jumpBoost before
 
         int y = self.input[0].y;
-        if (!Options.CanSwim && self.animation == Player.AnimationIndex.SurfaceSwim)
-            self.input[0].y = -1; //swim down if on surface of water and unable to float
-        else if (!Options.CanDive && y < 0 && self.bodyMode == Player.BodyModeIndex.Swimming)
-            self.input[0].y = 0; //do not swim down if unable to dive
+        if (self.bodyMode == Player.BodyModeIndex.Swimming) //swimming prevention
+        {
+            if (!Options.CanSwim)
+            {
+                self.input[0].x = 0;
+                self.input[0].jmp = false;
+                self.input[0].y = -1; //swim down if on surface of water and unable to float
+            }
+            else if (!Options.CanDive && y < 0)
+            {
+                self.input[0].y = 0; //do not swim down if unable to dive
+            }
+        }
 
         orig(self, eu);
 
@@ -166,7 +175,7 @@ public static class MovementLimiter
         if (!Options.CanSwim)
         {
             self.swimCycle = 0; //no swimming animation
-            return new Vector2(0, -0.1f); //swim down slightly if we can't swim
+            return new Vector2(0, -0.3f); //swim down slightly if we can't swim
         }
 
         Vector2 o = orig(self, normalize);

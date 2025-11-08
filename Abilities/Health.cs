@@ -34,7 +34,7 @@ public static class Health
     /// </summary>
     /// <param name="self">The player to deal damage to</param>
     /// <param name="damage">The amount of damage to deal</param>
-    public static void TakeDamage(Player self, int damage)
+    public static void TakeDamage(this Player self, int damage)
     {
         PlayerInfo info = self.GetInfo();
         if (info.iFrames <= 0)
@@ -43,8 +43,10 @@ public static class Health
                 { blinkType = PlacedObject.LightSourceData.BlinkType.Fade, blinkRate = 1.005f, //blink every 5 ticks
                 setAlpha = 1f, colorAlpha = 2f, setRad = 60f * damage, affectedByPaletteDarkness = 0 }); //add a flashing red light for 1 second
 
-            //self.room.PlaySound(SoundID.HUD_Game_Over_Prompt, self.mainBodyChunk, false, 1f, 1.3f); //play an impactful sound
-            self.room.PlaySound(SoundID.MENU_Start_New_Game, self.mainBodyChunk, false, 0.6f + damage * 0.2f, 1f + damage * 0.1f);
+            if (damage > 1)
+                self.room.PlaySound(SoundID.MENU_Start_New_Game, self.mainBodyChunk, false, 0.8f + damage * 0.2f, 1f + damage * 0.2f);
+            else
+                self.room.PlaySound(SoundID.HUD_Game_Over_Prompt, self.mainBodyChunk, false, 1f, 1.3f); //play an impactful sound
 
             CurrentHealth = Mathf.Max(0, CurrentHealth - damage);
 
@@ -115,12 +117,12 @@ public static class Health
                 orig(self);
 
                 if (CurrentHealth > 0)
-                    TakeDamage(self, CurrentHealth); //visually show the health bar at 0
+                    self.TakeDamage(CurrentHealth); //visually show the health bar at 0
             }
             else
             {
                 Plugin.Log("Aborting player death. Health = " + CurrentHealth);
-                TakeDamage(self, 2);
+                self.TakeDamage(2);
             }
             dieAnyway = false;
         } catch (Exception ex) { Plugin.Error(ex); orig(self); }
@@ -156,7 +158,7 @@ public static class Health
             if (CurrentHealth > 0 || info.iFrames > 0)
             {
                 info.ReleaseQueued = true;
-                TakeDamage(self, 1);
+                //TakeDamage(self, 1); //take damage on Player.Update() instead, so that lethal lizard bites deal 2 damage still
             }
         } catch (Exception ex) { Plugin.Error(ex); }
     }
@@ -184,6 +186,8 @@ public static class Health
                     g.grabber.LoseAllGrasps();
                 }
                 Plugin.Log("Released grasps on player");
+
+                self.TakeDamage(1);
             }
 
             //decrement iFrames
