@@ -41,20 +41,68 @@ public static class Collectibles
                     Collectible att = info.GetCustomAttribute<Collectible>();
                     if (att != null)
                     {
-                        Array arr = Array.CreateInstance(info.FieldType, att.Count); //initialize the field as an array
-                        Type elType = info.FieldType.GetElementType();
-                        arr.SetValue(Activator.CreateInstance(elType, PREFIX + info.Name, true), 0); //register set index 0
-                        debugList += info.Name + ";";
-
-                        for (int i = 1; i < att.Count; i++) //register any additional ones
+                        if (info.FieldType == typeof(SandboxUnlockID[]))
                         {
-                            arr.SetValue(Activator.CreateInstance(elType, info.Name + "_" + i, true), 0);
-                            debugList += info.Name + "_" + i + ";";
-                        }
+                            SandboxUnlockID[] arr = new SandboxUnlockID[att.Count];
+                            arr[0] = new(PREFIX + info.Name, true);
+                            debugList += PREFIX + info.Name + ";";
 
-                        info.SetValue(null, arr); //set the value of the actual field
+                            for (int i = 1; i < att.Count; i++) //register any additional ones
+                            {
+                                arr[i] = new(PREFIX + info.Name + "_" + i, true);
+                                debugList += PREFIX + info.Name + "_" + i + ";";
+                            }
+
+                            info.SetValue(null, arr); //set the value of the actual field
+                        }
+                        else if (info.FieldType == typeof(LevelUnlockID[]))
+                        {
+                            LevelUnlockID[] arr = new LevelUnlockID[att.Count];
+                            arr[0] = new(PREFIX + info.Name, true);
+                            debugList += PREFIX + info.Name + ";";
+
+                            for (int i = 1; i < att.Count; i++) //register any additional ones
+                            {
+                                arr[i] = new(PREFIX + info.Name + "_" + i, true);
+                                debugList += PREFIX + info.Name + "_" + i + ";";
+                            }
+
+                            info.SetValue(null, arr); //set the value of the actual field
+                        }
+                        else if (info.FieldType == typeof(SafariUnlockID[]))
+                        {
+                            SafariUnlockID[] arr = new SafariUnlockID[att.Count];
+                            arr[0] = new(PREFIX + info.Name, true);
+                            debugList += PREFIX + info.Name + ";";
+
+                            for (int i = 1; i < att.Count; i++) //register any additional ones
+                            {
+                                arr[i] = new(PREFIX + info.Name + "_" + i, true);
+                                debugList += PREFIX + info.Name + "_" + i + ";";
+                            }
+
+                            info.SetValue(null, arr); //set the value of the actual field
+                        }
+                        else if (info.FieldType == typeof(SlugcatUnlockID[]))
+                        {
+                            SlugcatUnlockID[] arr = new SlugcatUnlockID[att.Count];
+                            arr[0] = new(PREFIX + info.Name, true);
+                            debugList += PREFIX + info.Name + ";";
+
+                            for (int i = 1; i < att.Count; i++) //register any additional ones
+                            {
+                                arr[i] = new(PREFIX + info.Name + "_" + i, true);
+                                debugList += PREFIX + info.Name + "_" + i + ";";
+                            }
+
+                            info.SetValue(null, arr); //set the value of the actual field
+                        }
+                        else
+                        {
+                            Plugin.Error("Unsupported type: " + info.FieldType + ". Field: " + info.Name);
+                        }
                     }
-                } catch (Exception ex) { Plugin.Error(ex); }
+                } catch (Exception ex) { Plugin.Error("Problem with field " + info.Name); Plugin.Error(ex); }
             }
 
             Plugin.Log("Registered collectible ExtEnums: " + debugList);

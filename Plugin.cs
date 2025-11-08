@@ -82,7 +82,7 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.Health.ApplyHooks();
 
             SaveData.Hooks.ApplyHooks();
-            Collectibles.Hooks.RemoveHooks();
+            Collectibles.Hooks.ApplyHooks();
 
             
             //Set up config menu

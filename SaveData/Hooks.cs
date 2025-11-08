@@ -10,31 +10,37 @@ public static class Hooks
 {
     public static void ApplyHooks()
     {
-        On.PlayerProgression.SaveWorldStateAndProgression += PlayerProgression_SaveWorldStateAndProgression;
+        //On.PlayerProgression.SaveWorldStateAndProgression += PlayerProgression_SaveWorldStateAndProgression;
+        On.SaveState.BringUpToDate += SaveState_BringUpToDate;
         On.SaveState.LoadGame += SaveState_LoadGame;
     }
 
     public static void RemoveHooks()
     {
-        On.PlayerProgression.SaveWorldStateAndProgression -= PlayerProgression_SaveWorldStateAndProgression;
+        //On.PlayerProgression.SaveWorldStateAndProgression -= PlayerProgression_SaveWorldStateAndProgression;
+        On.SaveState.BringUpToDate -= SaveState_BringUpToDate;
         On.SaveState.LoadGame -= SaveState_LoadGame;
     }
 
 
-    private static bool PlayerProgression_SaveWorldStateAndProgression(On.PlayerProgression.orig_SaveWorldStateAndProgression orig, PlayerProgression self, bool malnourished)
+
+    private static void SaveState_BringUpToDate(On.SaveState.orig_BringUpToDate orig, SaveState self, RainWorldGame game)
     {
         try
         {
             //save WorldSaveData
-            if (WorldSaveData.CurrentInstance != null && WorldSaveData.CurrentInstance.Data == self.currentSaveState?.miscWorldSaveData)
+            if (WorldSaveData.CurrentInstance?.Data == self.miscWorldSaveData)
             {
-                self.currentSaveState.miscWorldSaveData.unrecognizedSaveStrings.RemoveAll(str => str.StartsWith(WorldSaveData.PREFIX));
-                self.currentSaveState.miscWorldSaveData.unrecognizedSaveStrings.Add(WorldSaveData.CurrentInstance.SaveData());
+                self.miscWorldSaveData.unrecognizedSaveStrings.RemoveAll(str => str.StartsWith(WorldSaveData.PREFIX));
+                string s = WorldSaveData.CurrentInstance.SaveData();
+                self.miscWorldSaveData.unrecognizedSaveStrings.Add(s);
+                Plugin.Log("WorldSaveData string: " + s);
             }
 
-        } catch (Exception ex) { Plugin.Error(ex); }
+        }
+        catch (Exception ex) { Plugin.Error(ex); }
 
-        return orig(self, malnourished);
+        orig(self, game);
     }
 
     //Clear current save data; new data is being loaded in
