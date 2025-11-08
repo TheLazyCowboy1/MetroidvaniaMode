@@ -14,12 +14,14 @@ public static class Hooks
     {
         On.CollectToken.Pop += CollectToken_Pop;
         On.SaveState.LoadGame += SaveState_LoadGame;
+        On.MoreSlugcats.CollectiblesTracker.ctor += CollectiblesTracker_ctor;
     }
 
     public static void RemoveHooks()
     {
         On.CollectToken.Pop -= CollectToken_Pop;
         On.SaveState.LoadGame -= SaveState_LoadGame;
+        On.MoreSlugcats.CollectiblesTracker.ctor -= CollectiblesTracker_ctor;
     }
 
 
@@ -69,5 +71,52 @@ public static class Hooks
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }
+    }
+
+    //Make collectibles tracker ONLY show our collectibles
+    private static void CollectiblesTracker_ctor(On.MoreSlugcats.CollectiblesTracker.orig_ctor orig, MoreSlugcats.CollectiblesTracker self, Menu.Menu menu, Menu.MenuObject owner, UnityEngine.Vector2 pos, FContainer container, SlugcatStats.Name saveSlot)
+    {
+        try
+        {
+            RainWorld rw = menu.manager.rainWorld;
+            List<string> regions = SlugcatStats.SlugcatStoryRegions(saveSlot).Union(SlugcatStats.SlugcatOptionalRegions(saveSlot)).ToList();
+            foreach (string r in regions)
+            {
+                for (int i = rw.regionBlueTokens[r].Count - 1; i >= 0; i--)
+                {
+                    if (!Collectibles.AllCollectibles.Contains(rw.regionBlueTokens[r][i]))
+                    {
+                        rw.regionBlueTokens[r].RemoveAt(i);
+                        rw.regionBlueTokensAccessibility[r].RemoveAt(i);
+                    }
+                }
+                for (int i = rw.regionGoldTokens[r].Count - 1; i >= 0; i--)
+                {
+                    if (!Collectibles.AllCollectibles.Contains(rw.regionGoldTokens[r][i]))
+                    {
+                        rw.regionGoldTokens[r].RemoveAt(i);
+                        rw.regionGoldTokensAccessibility[r].RemoveAt(i);
+                    }
+                }
+                for (int i = rw.regionRedTokens[r].Count - 1; i >= 0; i--)
+                {
+                    if (!Collectibles.AllCollectibles.Contains(rw.regionRedTokens[r][i]))
+                    {
+                        rw.regionRedTokens[r].RemoveAt(i);
+                        rw.regionRedTokensAccessibility[r].RemoveAt(i);
+                    }
+                }
+                for (int i = rw.regionGreenTokens[r].Count - 1; i >= 0; i--)
+                {
+                    if (!Collectibles.AllCollectibles.Contains(rw.regionGreenTokens[r][i]))
+                    {
+                        rw.regionGreenTokens[r].RemoveAt(i);
+                        rw.regionGreenTokensAccessibility[r].RemoveAt(i);
+                    }
+                }
+            }
+        } catch (Exception ex) { Plugin.Error(ex); }
+
+        orig(self, menu, owner, pos, container, saveSlot);
     }
 }
