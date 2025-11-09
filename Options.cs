@@ -14,6 +14,10 @@ public class Options : AutoConfigOptions
 
     }
 
+
+    [Config("General", "Log Level", "When this number is higher, less important logs are displayed."), LimitRange(0, 3)]
+    public static int LogLevel = 0;
+
     [Config("Abilities", "Jump Boost", "Multiplies the jump boost, which heavily affects jump height. Slugpup = 0.875"), LimitRange(0, 10f)]
     public static float JumpBoost = 1;
     [Config("Abilities", "Pole Jump Boost", "Further multiplies the jump boost when jumping off of a pole. Intended to make jumping from horizontal poles mostly useless.", rightSide = true), LimitRange(0, 10f)]

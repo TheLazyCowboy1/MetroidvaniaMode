@@ -116,8 +116,11 @@ public partial class Plugin : BaseUnityPlugin
 
     #region Tools
 
-    public static void Log(object o, [CallerFilePath] string file = "", [CallerMemberName] string name = "", [CallerLineNumber] int line = -1)
-        => Instance.Logger.LogDebug(logText(o, file, name, line));
+    public static void Log(object o, int logLevel = 1, [CallerFilePath] string file = "", [CallerMemberName] string name = "", [CallerLineNumber] int line = -1)
+    {
+        if (logLevel <= Options.LogLevel)
+            Instance.Logger.LogDebug(logText(o, file, name, line));
+    }
 
     public static void Error(object o, [CallerFilePath] string file = "", [CallerMemberName] string name = "", [CallerLineNumber] int line = -1)
         => Instance.Logger.LogError(logText(o, file, name, line));

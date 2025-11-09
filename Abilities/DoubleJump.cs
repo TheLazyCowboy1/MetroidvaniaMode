@@ -31,6 +31,8 @@ public static class DoubleJump
                     self.wantToJump = 0;
                     self.canJump = 0;
                     info.ExtraJumpsLeft--;
+
+                    Plugin.Log("Doubled jumped", 2);
                 }
             }
             else if (self.canJump > 1)

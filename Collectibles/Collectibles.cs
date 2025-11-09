@@ -62,7 +62,7 @@ public static class Collectibles
                         if (info.FieldType.IsArray)
                         {
                             Type elType = info.FieldType.GetElementType();
-                            Array arr = Array.CreateInstance(elType, att.Count);
+                            ExtEnumBase[] arr = Array.CreateInstance(elType, att.Count) as ExtEnumBase[];
 
                             //set index 0
                             arr.SetValue(Activator.CreateInstance(elType, PREFIX + info.Name, true), 0);
@@ -76,11 +76,15 @@ public static class Collectibles
                             }
 
                             info.SetValue(null, arr);
+                            AllCollectibles.AddRange(arr);
                         }
                         else
                         {
-                            info.SetValue(null, Activator.CreateInstance(info.FieldType, PREFIX + info.Name, true));
+                            ExtEnumBase en = Activator.CreateInstance(info.FieldType, PREFIX + info.Name, true) as ExtEnumBase;
+                            info.SetValue(null, en);
                             debugList += PREFIX + info.Name + ";";
+
+                            AllCollectibles.Add(en);
                         }
 
                     }

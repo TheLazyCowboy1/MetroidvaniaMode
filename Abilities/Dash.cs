@@ -62,7 +62,7 @@ public static class Dash
                 info.DashCooldown = true;
                 info.DashesLeft--;
 
-                Plugin.Log("Dashed!");
+                Plugin.Log("Dashed!", 2);
             }
             //The dash button is NOT pressed, and the player meets the qualifications to refresh the dash counter
             else if (self.canJump > 1 && (CurrentAbilities.ClimbVerticalPoles || self.animation != Player.AnimationIndex.ClimbOnBeam))

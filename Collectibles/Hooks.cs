@@ -34,9 +34,10 @@ public static class Hooks
         {
             CollectToken.CollectTokenData data = self.placedObj.data as CollectToken.CollectTokenData;
 
-            ExtEnumBase en = Collectibles.AllCollectibles.Find(c => c.value == data.tokenString);
-            if (en != null)
+            if (Collectibles.AllCollectibles.Any(c => c.value == data.tokenString))
             {
+                Plugin.Log("Collected collectible token " + data.tokenString);
+
                 WorldSaveData saveData = self.room.game.GetStorySession.saveState.miscWorldSaveData.GetData();
 
                 if (data.isBlue)
@@ -72,6 +73,7 @@ public static class Hooks
                     self.room.game.cameras[0].hud.textPrompt.AddMessage(
                         RWCustom.Custom.rainWorld.inGameTranslator.Translate(msg),
                         20, 160, true, true);
+                    Plugin.Log("Displaying token unlock message: " + msg, 2);
                 }
             }
         }
@@ -85,6 +87,8 @@ public static class Hooks
 
         try
         {
+            Plugin.Log("Fixing token data in PlayerProgression");
+
             //clear out any of my unlocks that shouldn't be there yet
             Collectibles.FixProgressionData(self.progression.miscProgressionData);
 
