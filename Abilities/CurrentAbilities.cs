@@ -23,6 +23,9 @@ public static class CurrentAbilities
     public static bool CanSwim = true;
     public static bool CanDive = true;
 
+    public static bool CanThrowObjects = true;
+    public static bool CanThrowSpears = true;
+
     public static int DashCount = 0;
     public static float DashSpeed = 12f;
     public static float DashStrength = 0.95f;
@@ -50,8 +53,54 @@ public static class CurrentAbilities
 
                 //blue unlocks
                 string[] b = data.UnlockedBlueTokens.Split(';');
-                DashCount += UnlockedCount(b, DashUnlock);
-                ExtraJumps += UnlockedCount(b, JumpUnlock);
+
+                JumpBoost += 0.02f * UnlockedCount(b, JumpBoostUnlocks);
+                PoleJumpBoost += (1f - PoleJumpBoost) * UnlockedCount(b, PoleJumpUnlocks); //1 pole jump unlock => PoleJumpBoost == 1
+                DashSpeed += 1f * UnlockedCount(b, DashSpeedUnlocks);
+
+                //red unlocks
+                string[] r = data.UnlockedRedTokens.Split(';');
+
+                if (!CanWallJump)
+                    CanWallJump = IsUnlocked(r, WallJumpUnlock);
+
+                int poleClimb = UnlockedCount(r, ClimbPolesUnlocks);
+                if (!CanGrabPoles && poleClimb > 0)
+                {
+                    CanGrabPoles = true;
+                    poleClimb--;
+                }
+                if (!ClimbVerticalPoles && poleClimb > 0)
+                {
+                    ClimbVerticalPoles = true;
+                    poleClimb--;
+                }
+
+                if (!ClimbVerticalCorridors)
+                    ClimbVerticalCorridors = IsUnlocked(r, ClimbPipesUnlock);
+                if (!CanUseShortcuts)
+                    CanUseShortcuts = IsUnlocked(r, UseShortcutsUnlock);
+
+                int swim = UnlockedCount(r, SwimUnlocks);
+                if (!CanSwim && swim > 0)
+                {
+                    CanSwim = true;
+                    swim--;
+                }
+                if (!CanDive && swim > 0)
+                {
+                    CanDive = true;
+                    swim--;
+                }
+
+                DashCount += UnlockedCount(r, DashUnlocks);
+                ExtraJumps += UnlockedCount(r, JumpUnlocks);
+
+
+                //green unlocks
+                string[] g = data.UnlockedGreenTokens.Split(';');
+
+                MaxHealth += UnlockedCount(g, HealthUnlocks);
 
             }
 
@@ -77,6 +126,9 @@ public static class CurrentAbilities
 
             CanSwim = false;
             CanDive = false;
+
+            CanThrowObjects = false;
+            CanThrowSpears = false;
 
             DashCount = 0;
             DashSpeed = 12f;

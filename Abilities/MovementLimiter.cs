@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace MetroidvaniaMode.Abilities;
@@ -25,7 +26,12 @@ public static class MovementLimiter
         //prevent using normal shortcuts
         On.Player.Update += Player_Update;
 
+        //prevent swimming or diving when underwater
         On.Player.SwimDir += Player_SwimDir;
+
+        //prevent throwing objects/spears
+        On.Player.ThrowObject += Player_ThrowObject;
+        On.Player.ThrowToGetFree += Player_ThrowToGetFree;
     }
 
     public static void RemoveHooks()
@@ -42,6 +48,9 @@ public static class MovementLimiter
         On.Player.Update -= Player_Update;
 
         On.Player.SwimDir -= Player_SwimDir;
+
+        On.Player.ThrowObject -= Player_ThrowObject;
+        On.Player.ThrowToGetFree -= Player_ThrowToGetFree;
     }
 
 
@@ -184,6 +193,43 @@ public static class MovementLimiter
             o.y = Mathf.Max(0.05f, o.y); //always swim slightly up if we can't dive
 
         return o;
+    }
+
+    //Prevents throwing spears, or prevents throwing objects entirely
+    private static void Player_ThrowObject(On.Player.orig_ThrowObject orig, Player self, int grasp, bool eu)
+    {
+        try
+        {
+            if (!CurrentAbilities.CanThrowObjects || (!CurrentAbilities.CanThrowSpears && self.grasps[grasp]?.grabbed is Spear))
+            {
+                self.TossObject(grasp, eu);
+                Plugin.Log("Tossing object instead of throwing", 2);
+                return; //toss the object; don't throw it
+            }
+        } catch (Exception ex) { Plugin.Error(ex); }
+
+        orig(self, grasp, eu); //throw the object; default behavior
+    }
+
+    //Prevents throwing objects/spears when in danger (usually in a creature's grasp)
+    private static void Player_ThrowToGetFree(On.Player.orig_ThrowToGetFree orig, Player self, bool eu)
+    {
+        try
+        {
+            if (!CurrentAbilities.CanThrowObjects || (!CurrentAbilities.CanThrowSpears && self.grasps.Any(g => g?.grabbed is Spear)))
+            {
+                for (int i = 0; i < self.grasps.Length; i++)
+                {
+                    if (self.grasps[i] != null)
+                        self.TossObject(i, eu);
+                }
+                Plugin.Log("Tossing object instead of throwing it (in danger)", 2);
+                return; //toss the object; don't throw it
+            }
+        }
+        catch (Exception ex) { Plugin.Error(ex); }
+
+        orig(self, eu); //throw the object; default behavior
     }
 
 }

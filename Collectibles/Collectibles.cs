@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using static MonoMod.Cil.RuntimeILReferenceBag.FastDelegateInvokers;
 using static MultiplayerUnlocks;
 
 namespace MetroidvaniaMode.Collectibles;
@@ -15,19 +11,66 @@ public static class Collectibles
     /**
      * Collectible color coding (tentative):
      * Blue (SandboxUnlockID) = Improved stats...? (e.g: Higher jumps)
-     * Yellow (LevelUnlockID) = Fast travel...?
+     * Yellow (LevelUnlockID) = Permanent item (e.g: sword item in inventory)
      * Red (SafariUnlockID) = Ability
      * Green (SlugcatUnlockID) = Health Upgrade
      */
 
-    [Collectible(3, "Unlocked Ability: Dash. Press D to perform a dash!", "Unlocked an additional dash: Perform more dashes without touching the ground!")]
-    public static SandboxUnlockID[] DashUnlock;
+    //public static float JumpBoost = 1;
+    [Collectible(10, "Increased jump height!")]
+    public static SandboxUnlockID[] JumpBoostUnlocks;
 
-    [Collectible(3, "Unlocked Ability: Double Jump. Jump again in the air!", "Unlocked an additional jump: Perform more jumps in the air!")]
-    public static SandboxUnlockID[] JumpUnlock;
+    //public static float PoleJumpBoost = 1;
+    [Collectible(2, "Unlocked Ability: Jump on Poles. Jumping on poles is much more effective now!", "Unlocked!... Wait, you can already pole jump. Heh, you unlocked nothing, loser.")]
+    public static SandboxUnlockID[] PoleJumpUnlocks; //make it blue, because it is a minor ability that is jump-related
 
+    //public static float JumpBoostDecrement = 1; //this probably shouldn't be an unlock anyway
+
+    //public static bool CanWallJump = true;
+    [Collectible(1, "Unlocked Ability: Wall Jump. Jump against walls to scale new heights!")]
+    public static SafariUnlockID WallJumpUnlock;
+
+    //public static bool CanGrabPoles = true;
+    //public static bool ClimbVerticalPoles = true;
+    [Collectible(2, "Unlocked Ability: Grab Poles. You can now grab and cling to poles! But you still cannot climb them.", "Unlocked Ability: Pole Climb. Shimmy up poles to scale the world!")]
+    public static SafariUnlockID[] ClimbPolesUnlocks;
+
+    //public static bool ClimbVerticalCorridors = true;
     [Collectible(1, "Unlocked Ability: Upward Pipe Crawl. Crawl up pipes and reach new places!")]
-    public static SandboxUnlockID ClimbPipesUnlock;
+    public static SafariUnlockID ClimbPipesUnlock;
+
+    //public static bool CanUseShortcuts = true;
+    [Collectible(1, "Unlocked Ability: Use Shortcuts. Travel through walls and space using shortcuts! ...so long as there is a shortcut that goes there...")]
+    public static SafariUnlockID UseShortcutsUnlock;
+
+    //public static bool CanSwim = true;
+    //public static bool CanDive = true;
+    [Collectible(2, "Unlocked Ability: Swim. The slugcat has gotten over his apparently crippling (quite literally) fear of water!", "Unlocked Ability: Dive. Swim down to reach hidden depths! Be careful not to drown!")]
+    public static SafariUnlockID[] SwimUnlocks;
+
+    //public static bool CanThrowObjects = true;
+    //public static bool CanThrowSpears = true;
+    [Collectible(2, "Unlocked Ability: Throw. Toss rocks and bombs at your foes! Spears are still too heavy for you, though.", "Unlocked Ability: Throw Spears. ALERT! ALERT! THE SLUGCAT IS ARMED! RUN FOR YOUR LIVES!")]
+    public static SafariUnlockID[] ThrowUnlocks;
+
+    //public static int DashCount = 0;
+    [Collectible(3, "Unlocked Ability: Dash. Press D to perform a dash!", "Unlocked an additional dash: Perform more dashes without touching the ground!")]
+    public static SafariUnlockID[] DashUnlocks;
+
+    //public static float DashSpeed = 12f;
+    //public static float DashStrength = 0.95f;
+    [Collectible(10, "Increased Dash Speed!")]
+    public static SandboxUnlockID[] DashSpeedUnlocks;
+
+    //public static int ExtraJumps = 0;
+    [Collectible(3, "Unlocked Ability: Double Jump. Jump again in the air!", "Unlocked an additional jump: Perform more jumps in the air!")]
+    public static SafariUnlockID[] JumpUnlocks;
+
+    //public static bool HasHealth = false;
+    //public static int MaxHealth = 3;
+    [Collectible(10, "Increased Maximum Health! Your health bar will be larger next cycle!")]
+    public static SlugcatUnlockID[] HealthUnlocks;
+
 
     private class Collectible : Attribute
     {
@@ -180,7 +223,7 @@ public static class Collectibles
     }
 
 
-    public static bool IsUnlocked(ExtEnumBase en, string[] splitSaveString) => splitSaveString.Contains(en.value);
+    public static bool IsUnlocked(string[] splitSaveString, ExtEnumBase en) => splitSaveString.Contains(en.value);
     public static int UnlockedCount(string[] splitSaveString, ExtEnumBase[] collectibleSet) => collectibleSet.Count(u => splitSaveString.Contains(u.value));
     public static int UnlockedCount(string[] splitSaveString, ExtEnumBase en) => UnlockedCount(splitSaveString, en.value);
     /// <summary>

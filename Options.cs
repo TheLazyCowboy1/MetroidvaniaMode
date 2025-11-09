@@ -44,6 +44,11 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Can Dive", "Allows the player to swim downwards in water")]
     public static bool CanDive = true;
 
+    [Config("Abilities", "Can Throw Objects", "Allows the player to throw objects, such as rocks and flashbangs. If false, all objects are tossed like blue fruits.")]
+    public static bool CanThrowObjects = true;
+    [Config("Abilities", "Can Throw Spears", "Allows the player to throw spears. If false, spears are tossed like Saint.", rightSide = true)]
+    public static bool CanThrowSpears = true;
+
     //[Config("Abilities", "Can Dash", "Allows the player to use a dash ability")]
     //public static bool CanDash = false;
     [Config("Abilities", "Dash Count", "The number of dashes that the player can do before touching the ground again"), LimitRange(0, 100)]
