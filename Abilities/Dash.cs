@@ -25,8 +25,9 @@ public static class Dash
             if (CurrentAbilities.DashCount <= 0) return; //don't run dash code if we can't dash!
 
             PlayerInfo info = self.GetInfo();
+
             //The dash button is being pressed
-            if (Input.GetKeyDown(Options.DashKeyCode))
+            if (Input.GetKeyDown(Options.DashKeyCode) || (Options.PressJumpToDash && self.wantToJump > 0 && self.canJump < 1))
             {
                 if (info.DashCooldown || info.DashesLeft < 1) return; //don't dash when on cooldown!
 

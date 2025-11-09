@@ -58,7 +58,7 @@ public partial class Plugin : BaseUnityPlugin
             SaveData.Hooks.RemoveHooks();
             Collectibles.Hooks.RemoveHooks();
 
-            //Collectibles.Collectibles.Unregister();
+            //Collectibles.CollectibleTokens.Unregister();
 
             IsInit = false;
         }
@@ -90,7 +90,7 @@ public partial class Plugin : BaseUnityPlugin
             //ConfigOptions.SetValues();
 
             //Register collectible ExtEnums
-            Collectibles.Collectibles.Register();
+            Collectibles.CollectibleTokens.Register();
 
             IsInit = true;
             Log("Applied hooks");

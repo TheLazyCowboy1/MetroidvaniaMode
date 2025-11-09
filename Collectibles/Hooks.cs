@@ -34,47 +34,13 @@ public static class Hooks
         {
             CollectToken.CollectTokenData data = self.placedObj.data as CollectToken.CollectTokenData;
 
-            if (Collectibles.AllCollectibles.Any(c => c.value == data.tokenString))
+            if (CollectibleTokens.AllCollectibles.Any(c => c.value == data.tokenString))
             {
                 Plugin.Log("Collected collectible token " + data.tokenString);
 
-                WorldSaveData saveData = self.room.game.GetStorySession.saveState.miscWorldSaveData.GetData();
-
-                if (data.isBlue)
-                {
-                    if (!saveData.UnlockedBlueTokens.Split(';').Contains(data.tokenString))
-                        saveData.UnlockedBlueTokens += data.tokenString + ";";
-                }
-                else if (data.isRed)
-                {
-                    if (!saveData.UnlockedRedTokens.Split(';').Contains(data.tokenString))
-                        saveData.UnlockedRedTokens += data.tokenString + ";";
-                }
-                else if (data.isGreen)
-                {
-                    if (!saveData.UnlockedGreenTokens.Split(';').Contains(data.tokenString))
-                        saveData.UnlockedGreenTokens += data.tokenString + ";";
-                }
-                else //gold
-                {
-                    if (!saveData.UnlockedGoldTokens.Split(';').Contains(data.tokenString))
-                        saveData.UnlockedGoldTokens += data.tokenString + ";";
-                }
-
-                //update current abilities
-                Abilities.CurrentAbilities.ResetAbilities(self.room.game);
+                CollectibleTokens.CollectToken(data, self.room.game);
 
                 self.anythingUnlocked = false; //stop the collectible from showing its own message "Sandbox Item Unlocked!"
-
-                //show unlock message
-                string msg = Collectibles.GetUnlockMessage(data.tokenString, saveData.CollectibleSplitSaveString);
-                if (msg != null)
-                {
-                    self.room.game.cameras[0].hud.textPrompt.AddMessage(
-                        RWCustom.Custom.rainWorld.inGameTranslator.Translate(msg),
-                        20, 160, true, true);
-                    Plugin.Log("Displaying token unlock message: " + msg, 2);
-                }
             }
         }
         catch (Exception ex) { Plugin.Error(ex); }
@@ -90,7 +56,7 @@ public static class Hooks
             Plugin.Log("Fixing token data in PlayerProgression");
 
             //clear out any of my unlocks that shouldn't be there yet
-            Collectibles.FixProgressionData(self.progression.miscProgressionData);
+            CollectibleTokens.FixProgressionData(self.progression.miscProgressionData);
 
             WorldSaveData data = self.miscWorldSaveData.GetData();
 
@@ -132,7 +98,7 @@ public static class Hooks
                     continue;
                 for (int i = rw.regionBlueTokens[r].Count - 1; i >= 0; i--)
                 {
-                    if (!Collectibles.AllCollectibles.Contains(rw.regionBlueTokens[r][i]))
+                    if (!CollectibleTokens.AllCollectibles.Contains(rw.regionBlueTokens[r][i]))
                     {
                         rw.regionBlueTokens[r].RemoveAt(i);
                         rw.regionBlueTokensAccessibility[r].RemoveAt(i);
@@ -140,7 +106,7 @@ public static class Hooks
                 }
                 for (int i = rw.regionGoldTokens[r].Count - 1; i >= 0; i--)
                 {
-                    if (!Collectibles.AllCollectibles.Contains(rw.regionGoldTokens[r][i]))
+                    if (!CollectibleTokens.AllCollectibles.Contains(rw.regionGoldTokens[r][i]))
                     {
                         rw.regionGoldTokens[r].RemoveAt(i);
                         rw.regionGoldTokensAccessibility[r].RemoveAt(i);
@@ -148,7 +114,7 @@ public static class Hooks
                 }
                 for (int i = rw.regionRedTokens[r].Count - 1; i >= 0; i--)
                 {
-                    if (!Collectibles.AllCollectibles.Contains(rw.regionRedTokens[r][i]))
+                    if (!CollectibleTokens.AllCollectibles.Contains(rw.regionRedTokens[r][i]))
                     {
                         rw.regionRedTokens[r].RemoveAt(i);
                         rw.regionRedTokensAccessibility[r].RemoveAt(i);
@@ -156,7 +122,7 @@ public static class Hooks
                 }
                 for (int i = rw.regionGreenTokens[r].Count - 1; i >= 0; i--)
                 {
-                    if (!Collectibles.AllCollectibles.Contains(rw.regionGreenTokens[r][i]))
+                    if (!CollectibleTokens.AllCollectibles.Contains(rw.regionGreenTokens[r][i]))
                     {
                         rw.regionGreenTokens[r].RemoveAt(i);
                         rw.regionGreenTokensAccessibility[r].RemoveAt(i);

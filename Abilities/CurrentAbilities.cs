@@ -1,4 +1,4 @@
-﻿using static MetroidvaniaMode.Collectibles.Collectibles;
+﻿using MetroidvaniaMode.Collectibles;
 using MetroidvaniaMode.SaveData;
 using MetroidvaniaMode.Tools;
 using System;
@@ -54,17 +54,17 @@ public static class CurrentAbilities
                 //blue unlocks
                 string[] b = data.UnlockedBlueTokens.Split(';');
 
-                JumpBoost += 0.02f * UnlockedCount(b, JumpBoostUnlocks);
-                PoleJumpBoost += (1f - PoleJumpBoost) * UnlockedCount(b, PoleJumpUnlocks); //1 pole jump unlock => PoleJumpBoost == 1
-                DashSpeed += 1f * UnlockedCount(b, DashSpeedUnlocks);
+                JumpBoost += 0.02f * CollectibleTokens.UnlockedCount(b, CollectibleTokens.JumpBoostUnlocks);
+                PoleJumpBoost += (1f - PoleJumpBoost) * CollectibleTokens.UnlockedCount(b, CollectibleTokens.PoleJumpUnlocks); //1 pole jump unlock => PoleJumpBoost == 1
+                DashSpeed += 1f * CollectibleTokens.UnlockedCount(b, CollectibleTokens.DashSpeedUnlocks);
 
                 //red unlocks
                 string[] r = data.UnlockedRedTokens.Split(';');
 
                 if (!CanWallJump)
-                    CanWallJump = IsUnlocked(r, WallJumpUnlock);
+                    CanWallJump = CollectibleTokens.IsUnlocked(r, CollectibleTokens.WallJumpUnlock);
 
-                int poleClimb = UnlockedCount(r, ClimbPolesUnlocks);
+                int poleClimb = CollectibleTokens.UnlockedCount(r, CollectibleTokens.ClimbPolesUnlocks);
                 if (!CanGrabPoles && poleClimb > 0)
                 {
                     CanGrabPoles = true;
@@ -77,11 +77,11 @@ public static class CurrentAbilities
                 }
 
                 if (!ClimbVerticalCorridors)
-                    ClimbVerticalCorridors = IsUnlocked(r, ClimbPipesUnlock);
+                    ClimbVerticalCorridors = CollectibleTokens.IsUnlocked(r, CollectibleTokens.ClimbPipesUnlock);
                 if (!CanUseShortcuts)
-                    CanUseShortcuts = IsUnlocked(r, UseShortcutsUnlock);
+                    CanUseShortcuts = CollectibleTokens.IsUnlocked(r, CollectibleTokens.UseShortcutsUnlock);
 
-                int swim = UnlockedCount(r, SwimUnlocks);
+                int swim = CollectibleTokens.UnlockedCount(r, CollectibleTokens.SwimUnlocks);
                 if (!CanSwim && swim > 0)
                 {
                     CanSwim = true;
@@ -93,14 +93,14 @@ public static class CurrentAbilities
                     swim--;
                 }
 
-                DashCount += UnlockedCount(r, DashUnlocks);
-                ExtraJumps += UnlockedCount(r, JumpUnlocks);
+                DashCount += CollectibleTokens.UnlockedCount(r, CollectibleTokens.DashUnlocks);
+                ExtraJumps += CollectibleTokens.UnlockedCount(r, CollectibleTokens.JumpUnlocks);
 
 
                 //green unlocks
                 string[] g = data.UnlockedGreenTokens.Split(';');
 
-                MaxHealth += UnlockedCount(g, HealthUnlocks);
+                MaxHealth += CollectibleTokens.UnlockedCount(g, CollectibleTokens.HealthUnlocks);
 
             }
 
@@ -137,7 +137,7 @@ public static class CurrentAbilities
             ExtraJumps = 0;
 
             HasHealth = true;
-            MaxHealth = 3;
+            MaxHealth = Math.Max(0, 3 + Options.ExtraHealth); //add extra health. Don't let MaxHealth be less than 0.
         }
         else
         {

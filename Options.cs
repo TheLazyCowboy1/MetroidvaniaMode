@@ -8,7 +8,8 @@ public class Options : AutoConfigOptions
     public Options() : base(new TabInfo[]
     {
         new("Abilities") { spacing = 30f },
-        new("General")
+        new("General"),
+        new("Accessibility")
     })
     {
         LogLevel = 3; //temporarily enable all logs
@@ -69,9 +70,17 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Max Health", "The maximum amount of health, and the default health", rightSide = true), LimitRange(0, 30)]
     public static int MaxHealth = 3;
 
+
     [Config("General", "Test String", "This is a test", width = 150f)]
     public static string TestString = "Hi!";
     [Config("General", "Test ComboBox", "This is also a test", width = 150f, dropdownOptions = new string[] {"Option1", "Option2", "Option3"})]
     public static string TestString2 = "Hi!";
+
+
+    [Config("Accessibility", "Press Jump to Dash", "Makes dashes be triggered by trying to jump in the air. This lessens the number of different buttons that need to be pressed.\n(However, it doesn't let you dash on the ground, but hopefully that's not a big deal.)")]
+    public static bool PressJumpToDash = false;
+
+    [Config("Accessibility", "Extra Health", "Increases your health in order to make the game easier. Increase this number if the game is too difficult for you."), LimitRange(-10, 20)]
+    public static int ExtraHealth = 0;
 
 }

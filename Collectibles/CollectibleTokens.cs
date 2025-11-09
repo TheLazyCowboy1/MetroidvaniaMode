@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MetroidvaniaMode.SaveData;
+using MetroidvaniaMode.Tools;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -6,7 +8,7 @@ using static MultiplayerUnlocks;
 
 namespace MetroidvaniaMode.Collectibles;
 
-public static class Collectibles
+public static class CollectibleTokens
 {
     /**
      * Collectible color coding (tentative):
@@ -68,18 +70,35 @@ public static class Collectibles
 
     //public static bool HasHealth = false;
     //public static int MaxHealth = 3;
-    [Collectible(10, "Increased Maximum Health! Your health bar will be larger next cycle!")]
+    [Collectible(10, msg = Collectible.SpecialMessage.HealthMessage)]
     public static SlugcatUnlockID[] HealthUnlocks;
 
 
     private class Collectible : Attribute
     {
+        public enum SpecialMessage
+        {
+            None,
+            HealthMessage
+        }
+
         public int Count;
-        public string[] UnlockMessages;
+        public string[] UnlockMessages = null;
+        public SpecialMessage msg = SpecialMessage.None;
         public Collectible(int count = 1, params string[] messages) : base()
         {
             Count = count;
             UnlockMessages = messages;
+        }
+
+        public string SpecialMessageString(int count)
+        {
+            switch (msg)
+            {
+                case Collectible.SpecialMessage.HealthMessage:
+                    return $"Increased Maximum Health! Next cycle, your health with be {Abilities.CurrentAbilities.MaxHealth}.";
+            }
+            return null;
         }
     }
 
@@ -94,7 +113,7 @@ public static class Collectibles
             AllCollectibles = new();
             string debugList = "";
 
-            FieldInfo[] infos = typeof(Collectibles).GetFields();
+            FieldInfo[] infos = typeof(CollectibleTokens).GetFields();
             foreach (FieldInfo info in infos)
             {
                 try //a second try block, because we want to try to keep going if there is only an error with one or two fields
@@ -147,7 +166,7 @@ public static class Collectibles
     {
         try
         {
-            FieldInfo[] infos = typeof(Collectibles).GetFields();
+            FieldInfo[] infos = typeof(CollectibleTokens).GetFields();
             foreach (FieldInfo info in infos)
             {
                 try //a second try block, because we want to try to keep going if there is only an error with one or two fields
@@ -182,12 +201,59 @@ public static class Collectibles
         } catch (Exception ex) { Plugin.Error(ex); }
     }
 
+    /// <summary>
+    /// Marks the token as collected and updates abilities and displays a message
+    /// </summary>
+    public static void CollectToken(CollectToken.CollectTokenData data, RainWorldGame game, bool displayMessage = true)
+    {
+        WorldSaveData saveData = game.GetStorySession.saveState.miscWorldSaveData.GetData();
+
+        if (data.isBlue)
+        {
+            if (!saveData.UnlockedBlueTokens.Split(';').Contains(data.tokenString))
+                saveData.UnlockedBlueTokens += data.tokenString + ";";
+        }
+        else if (data.isRed)
+        {
+            if (!saveData.UnlockedRedTokens.Split(';').Contains(data.tokenString))
+                saveData.UnlockedRedTokens += data.tokenString + ";";
+        }
+        else if (data.isGreen)
+        {
+            if (!saveData.UnlockedGreenTokens.Split(';').Contains(data.tokenString))
+                saveData.UnlockedGreenTokens += data.tokenString + ";";
+        }
+        else //gold
+        {
+            if (!saveData.UnlockedGoldTokens.Split(';').Contains(data.tokenString))
+                saveData.UnlockedGoldTokens += data.tokenString + ";";
+        }
+
+        //update current abilities
+        Abilities.CurrentAbilities.ResetAbilities(game);
+
+        //show unlock message
+        if (displayMessage)
+        {
+            string msg = CollectibleTokens.GetUnlockMessage(data.tokenString, saveData.CollectibleSplitSaveString);
+            if (msg != null)
+            {
+                game.cameras[0].hud.textPrompt.AddMessage(
+                    RWCustom.Custom.rainWorld.inGameTranslator.Translate(msg),
+                    20, 160, true, true);
+                Plugin.Log("Displaying token unlock message: " + msg, 2);
+            }
+        }
+
+        Plugin.Log("Marked token as collected: " + data.tokenString);
+    }
+
     public static string GetUnlockMessage(ExtEnumBase en, string[] splitSaveString) => GetUnlockMessage(en.value, splitSaveString);
     public static string GetUnlockMessage(string val, string[] splitSaveString)
     {
         try
         {
-            FieldInfo[] infos = typeof(Collectibles).GetFields();
+            FieldInfo[] infos = typeof(CollectibleTokens).GetFields();
             foreach (FieldInfo info in infos)
             {
                 try //a second try block, because we want to try to keep going if there is only an error with one or two fields
@@ -195,7 +261,7 @@ public static class Collectibles
                     Collectible att = info.GetCustomAttribute<Collectible>();
                     if (att != null)
                     {
-                        if (att.UnlockMessages == null || att.UnlockMessages.Length < 1)
+                        if ((att.UnlockMessages == null || att.UnlockMessages.Length < 1) && att.msg != Collectible.SpecialMessage.None)
                             continue; //this unlock doesn't have any unlock message, so skip it
 
                         ExtEnumBase[] arr;
@@ -207,10 +273,22 @@ public static class Collectibles
                         if (arr.Any(en => en.value == val))
                         {
                             int msgIdx = UnlockedCount(splitSaveString, arr);
-                            if (att.UnlockMessages.Length > msgIdx)
-                                return att.UnlockMessages[msgIdx]; //return the message for this unlock, if it's in the array
+                            string msg = att.SpecialMessageString(msgIdx);
+                            if (msg == null) //this is the default behavior
+                            {
+                                msgIdx--;
+                                if (msgIdx < 0)
+                                {
+                                    Plugin.Error("Unlock is not marked as unlocked whatsoever???");
+                                    return null;
+                                }
+                                if (att.UnlockMessages.Length > msgIdx)
+                                    return att.UnlockMessages[msgIdx]; //return the message for this unlock, if it's in the array
+                                else
+                                    return att.UnlockMessages[att.UnlockMessages.Length - 1]; //return the last message in the array if it's too small
+                            }
                             else
-                                return att.UnlockMessages[att.UnlockMessages.Length - 1]; //return the last message in the array if it's too small
+                                return msg;
                         }
                     }
                 }
@@ -236,7 +314,7 @@ public static class Collectibles
     {
         try
         {
-            FieldInfo[] infos = typeof(Collectibles).GetFields();
+            FieldInfo[] infos = typeof(CollectibleTokens).GetFields();
             foreach (FieldInfo info in infos)
             {
                 try //a second try block, because we want to try to keep going if there is only an error with one or two fields
