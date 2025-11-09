@@ -203,6 +203,19 @@ public static class MovementLimiter
             if (!CurrentAbilities.CanThrowObjects || (!CurrentAbilities.CanThrowSpears && self.grasps[grasp]?.grabbed is Spear))
             {
                 self.TossObject(grasp, eu);
+
+                //from base code
+                self.dontGrabStuff = (self.isNPC ? 45 : 15);
+                if (self.graphicsModule != null)
+                {
+                    (self.graphicsModule as PlayerGraphics).LookAtObject(self.grasps[grasp].grabbed);
+                }
+                if (self.grasps[grasp].grabbed is PlayerCarryableItem)
+                {
+                    (self.grasps[grasp].grabbed as PlayerCarryableItem).Forbid();
+                }
+                self.ReleaseGrasp(grasp);
+
                 Plugin.Log("Tossing object instead of throwing", 2);
                 return; //toss the object; don't throw it
             }
@@ -221,7 +234,10 @@ public static class MovementLimiter
                 for (int i = 0; i < self.grasps.Length; i++)
                 {
                     if (self.grasps[i] != null)
+                    {
                         self.TossObject(i, eu);
+                        self.ReleaseGrasp(i);
+                    }
                 }
                 Plugin.Log("Tossing object instead of throwing it (in danger)", 2);
                 return; //toss the object; don't throw it

@@ -87,6 +87,7 @@ public partial class Plugin : BaseUnityPlugin
             
             //Set up config menu
             MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
+            ConfigOptions.SetValues();
 
             //Register collectible ExtEnums
             Collectibles.Collectibles.Register();

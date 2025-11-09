@@ -67,7 +67,12 @@ public abstract class SaveManager
         try
         {
             //find the correct string
-            string s = strings.First(str => str.StartsWith(PREFIX));
+            string s = strings.Find(str => str.StartsWith(PREFIX));
+            if (s == null)
+            {
+                Plugin.Error("COULD NOT FIND SAVE DATA IN UNRECOGNIZED SAVE STRINGS!!!");
+                return;
+            }
             string[] d = s.Substring(PREFIX.Length).Split(DELIMITER); //don't include the prefix... stupid me; this took WAY TOO LONG TO SOLVE
 
             FieldInfo[] infos = this.GetType().GetFields();

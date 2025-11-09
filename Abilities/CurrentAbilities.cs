@@ -163,6 +163,9 @@ public static class CurrentAbilities
         CanSwim = Options.CanSwim;
         CanDive = Options.CanDive;
 
+        CanThrowObjects = Options.CanThrowObjects;
+        CanThrowSpears = Options.CanThrowSpears;
+
         DashCount = Options.DashCount;
         DashSpeed = Options.DashSpeed;
         DashStrength = Options.DashStrength;

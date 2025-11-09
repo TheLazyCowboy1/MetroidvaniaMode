@@ -11,7 +11,7 @@ public class Options : AutoConfigOptions
         new("General")
     })
     {
-
+        LogLevel = 3; //temporarily enable all logs
     }
 
 
