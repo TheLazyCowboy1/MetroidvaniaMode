@@ -50,6 +50,9 @@ public partial class Plugin : BaseUnityPlugin
         {
             On.RainWorldGame.ctor -= RainWorldGame_ctor;
 
+            FilePrefixModifier.RemoveHooks();
+            ArenaRoomFix.RemoveHooks();
+
             Abilities.MovementLimiter.RemoveHooks();
             Abilities.Dash.RemoveHooks();
             Abilities.DoubleJump.RemoveHooks();
@@ -76,6 +79,9 @@ public partial class Plugin : BaseUnityPlugin
             On.RainWorldGame.ctor += RainWorldGame_ctor;
 
             //APPLY HOOKS
+            FilePrefixModifier.ApplyHooks();
+            ArenaRoomFix.ApplyHooks();
+
             Abilities.MovementLimiter.ApplyHooks();
             Abilities.Dash.ApplyHooks();
             Abilities.DoubleJump.ApplyHooks();
@@ -109,6 +115,7 @@ public partial class Plugin : BaseUnityPlugin
 
         orig(self, manager);
 
+        FilePrefixModifier.SetEnabled(self);
         Abilities.CurrentAbilities.ResetAbilities(self);
     }
 

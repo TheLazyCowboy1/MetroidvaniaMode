@@ -111,7 +111,7 @@ public static class CurrentAbilities
     {
         if (slugcat == SlugcatStats.Name.White)
         {
-            JumpBoost = 0.85f;
+            JumpBoost = 0.8f;
             PoleJumpBoost = 0.7f;
             JumpBoostDecrement = 0.5f;
 
