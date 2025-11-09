@@ -79,7 +79,11 @@ public abstract class SaveManager
                     if (att != null)
                     {
                         string key = att.ID + KEYVALUESPLIT;
-                        info.SetValue(this, FromString(info.FieldType, UnsafenString(d.First(str => str.StartsWith(key)).Substring(key.Length))));
+                        string val = d.FirstOrDefault(str => str.StartsWith(key));
+                        if (val == default)
+                            Plugin.Log("Could not find save key " + key);
+                        else
+                            info.SetValue(this, FromString(info.FieldType, UnsafenString(val.Substring(key.Length))));
                     }
                 }
                 catch (Exception ex) { Plugin.Error("Problematic field: " + info.Name); Plugin.Error(ex); }

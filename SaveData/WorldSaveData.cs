@@ -15,6 +15,14 @@ public class WorldSaveData : SaveManager
 
     [SaveKey("UnlockedBlueTokens")]
     public string UnlockedBlueTokens = "";
+    [SaveKey("UnlockedGoldTokens")]
+    public string UnlockedGoldTokens = "";
+    [SaveKey("UnlockedRedTokens")]
+    public string UnlockedRedTokens = "";
+    [SaveKey("UnlockedGreenTokens")]
+    public string UnlockedGreenTokens = "";
+
+    public string[] CollectibleSplitSaveString => (UnlockedBlueTokens + UnlockedGoldTokens + UnlockedGreenTokens + UnlockedRedTokens).Split(';');
 
     public WorldSaveData(MiscWorldSaveData data)
     {

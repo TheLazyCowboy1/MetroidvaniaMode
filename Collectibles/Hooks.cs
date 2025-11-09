@@ -34,18 +34,45 @@ public static class Hooks
         {
             CollectToken.CollectTokenData data = self.placedObj.data as CollectToken.CollectTokenData;
 
-            if (data.isBlue && Collectibles.AllCollectibles.Contains(data.SandboxUnlock))
+            ExtEnumBase en = Collectibles.AllCollectibles.Find(c => c.value == data.tokenString);
+            if (en != null)
             {
                 WorldSaveData saveData = self.room.game.GetStorySession.saveState.miscWorldSaveData.GetData();
-                if (!saveData.UnlockedBlueTokens.Split(';').Contains(data.SandboxUnlock.ToString()))
-                    saveData.UnlockedBlueTokens += data.SandboxUnlock.ToString() + ";";
 
+                if (data.isBlue)
+                {
+                    if (!saveData.UnlockedBlueTokens.Split(';').Contains(data.tokenString))
+                        saveData.UnlockedBlueTokens += data.tokenString + ";";
+                }
+                else if (data.isRed)
+                {
+                    if (!saveData.UnlockedRedTokens.Split(';').Contains(data.tokenString))
+                        saveData.UnlockedRedTokens += data.tokenString + ";";
+                }
+                else if (data.isGreen)
+                {
+                    if (!saveData.UnlockedGreenTokens.Split(';').Contains(data.tokenString))
+                        saveData.UnlockedGreenTokens += data.tokenString + ";";
+                }
+                else //gold
+                {
+                    if (!saveData.UnlockedGoldTokens.Split(';').Contains(data.tokenString))
+                        saveData.UnlockedGoldTokens += data.tokenString + ";";
+                }
+
+                //update current abilities
                 Abilities.CurrentAbilities.ResetAbilities(self.room.game);
 
-                self.anythingUnlocked = false;
-                self.room.game.cameras[0].hud.textPrompt.AddMessage(
-                    RWCustom.Custom.rainWorld.inGameTranslator.Translate("Unlocked new cool ability. I'm not sure what."),
-                    20, 160, true, true);
+                self.anythingUnlocked = false; //stop the collectible from showing its own message "Sandbox Item Unlocked!"
+
+                //show unlock message
+                string msg = Collectibles.GetUnlockMessage(data.tokenString, saveData.CollectibleSplitSaveString);
+                if (msg != null)
+                {
+                    self.room.game.cameras[0].hud.textPrompt.AddMessage(
+                        RWCustom.Custom.rainWorld.inGameTranslator.Translate(msg),
+                        20, 160, true, true);
+                }
             }
         }
         catch (Exception ex) { Plugin.Error(ex); }
@@ -63,11 +90,26 @@ public static class Hooks
 
             WorldSaveData data = self.miscWorldSaveData.GetData();
 
-            //Set blues
+            //Set ACTUALLY unlocked tokens in WorldSaveData as unlocked in ProgressionData
             foreach (string s in data.UnlockedBlueTokens.Split(';'))
             {
                 if (s.Length > 0)
                     self.progression.miscProgressionData.sandboxTokens.Add(new(s));
+            }
+            foreach (string s in data.UnlockedGoldTokens.Split(';'))
+            {
+                if (s.Length > 0)
+                    self.progression.miscProgressionData.levelTokens.Add(new(s));
+            }
+            foreach (string s in data.UnlockedRedTokens.Split(';'))
+            {
+                if (s.Length > 0)
+                    self.progression.miscProgressionData.safariTokens.Add(new(s));
+            }
+            foreach (string s in data.UnlockedGreenTokens.Split(';'))
+            {
+                if (s.Length > 0)
+                    self.progression.miscProgressionData.classTokens.Add(new(s));
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }
