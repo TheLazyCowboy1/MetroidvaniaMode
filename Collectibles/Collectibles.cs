@@ -134,7 +134,7 @@ public static class Collectibles
                 } catch (Exception ex) { Plugin.Error("Problem with field " + info.Name); Plugin.Error(ex); }
             }
 
-            Plugin.Log("Registered collectible ExtEnums: " + debugList);
+            Plugin.Log("Registered collectible ExtEnums: " + debugList, 0); //always log this; I want to see this every time
 
         } catch (Exception ex) { Plugin.Error(ex); }
     }
