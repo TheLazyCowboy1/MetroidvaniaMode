@@ -15,6 +15,8 @@ public static class Health
         On.Player.Grabbed += Player_Grabbed;
         On.Player.Update += Player_Update;
 
+        On.RainWorldGame.Update += RainWorldGame_Update;
+
         On.HUD.HUD.InitSinglePlayerHud += HUD_InitSinglePlayerHud;
     }
 
@@ -25,6 +27,8 @@ public static class Health
         On.Player.Destroy -= Player_Destroy;
         On.Player.Grabbed -= Player_Grabbed;
         On.Player.Update -= Player_Update;
+
+        On.RainWorldGame.Update -= RainWorldGame_Update;
 
         On.HUD.HUD.InitSinglePlayerHud -= HUD_InitSinglePlayerHud;
     }
@@ -207,6 +211,21 @@ public static class Health
 
         orig(self, eu);
     }
+
+
+    //Set CoopAvailable during game updates so that PermaDie is used instead of just Die
+    private static void RainWorldGame_Update(On.RainWorldGame.orig_Update orig, RainWorldGame self)
+    {
+        if (CurrentAbilities.HasHealth && !ModManager.CoopAvailable)
+        {
+            ModManager.CoopAvailable = true;
+            orig(self);
+            ModManager.CoopAvailable = false;
+        }
+
+        orig(self);
+    }
+
 
     //Add the health meter
     private static void HUD_InitSinglePlayerHud(On.HUD.HUD.orig_InitSinglePlayerHud orig, HUD.HUD self, RoomCamera cam)

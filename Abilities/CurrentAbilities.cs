@@ -93,6 +93,18 @@ public static class CurrentAbilities
                     swim--;
                 }
 
+                int thr = CollectibleTokens.UnlockedCount(r, CollectibleTokens.ThrowUnlocks);
+                if (!CanThrowObjects && thr > 0)
+                {
+                    CanThrowObjects = true;
+                    thr--;
+                }
+                if (!CanThrowSpears && thr > 0)
+                {
+                    CanThrowSpears = true;
+                    thr--;
+                }
+
                 DashCount += CollectibleTokens.UnlockedCount(r, CollectibleTokens.DashUnlocks);
                 ExtraJumps += CollectibleTokens.UnlockedCount(r, CollectibleTokens.JumpUnlocks);
 
