@@ -40,7 +40,7 @@ public static class ArenaRoomFix
 
     private class DoorLocker : PhysicalObject
     {
-        private const int TimeUntilLock = 40 * 4; //4 seconds until lock
+        private const int TimeUntilLock = 40 * 3; //3 seconds until lock
         private const int MinTimeUntilUnlock = TimeUntilLock + 40 * 3; //must be locked for at least 3 seconds
 
         private List<VoidChain> chains;
