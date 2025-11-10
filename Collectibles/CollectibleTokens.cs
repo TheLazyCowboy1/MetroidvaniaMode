@@ -56,7 +56,7 @@ public static class CollectibleTokens
     public static SafariUnlockID[] ThrowUnlocks;
 
     //public static int DashCount = 0;
-    [Collectible(3, "Unlocked Ability: Dash. Press D to perform a dash!", "Unlocked an additional dash: Perform more dashes without touching the ground!")]
+    [Collectible(3, "Unlocked Ability: Dash. Press D to perform a dash!", "Thank you for beating this demo! I hope you can see its potential. (Oh, and have an extra dash for fun)", "Unlocked an additional dash: Perform more dashes without touching the ground!")]
     public static SafariUnlockID[] DashUnlocks;
 
     //public static float DashSpeed = 12f;

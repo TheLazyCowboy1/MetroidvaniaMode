@@ -15,9 +15,12 @@ public static class Health
         On.Player.Grabbed += Player_Grabbed;
         On.Player.Update += Player_Update;
 
-        On.RainWorldGame.Update += RainWorldGame_Update;
-
         On.HUD.HUD.InitSinglePlayerHud += HUD_InitSinglePlayerHud;
+
+        //specific permadeath instances
+        //On.Vulture.AccessSkyGate //might cause an issue; needs testing
+        On.WormGrass.WormGrassPatch.CreatureAndPull.Consume += CreatureAndPull_Consume;
+
     }
 
     public static void RemoveHooks()
@@ -28,9 +31,9 @@ public static class Health
         On.Player.Grabbed -= Player_Grabbed;
         On.Player.Update -= Player_Update;
 
-        On.RainWorldGame.Update -= RainWorldGame_Update;
-
         On.HUD.HUD.InitSinglePlayerHud -= HUD_InitSinglePlayerHud;
+
+        On.WormGrass.WormGrassPatch.CreatureAndPull.Consume -= CreatureAndPull_Consume;
     }
 
     /// <summary>
@@ -176,6 +179,7 @@ public static class Health
         } catch (Exception ex) { Plugin.Error(ex); }
     }
 
+    //Release player from grasps
     private static void Player_Update(On.Player.orig_Update orig, Player self, bool eu)
     {
         if (!CurrentAbilities.HasHealth)
@@ -209,21 +213,7 @@ public static class Health
 
         } catch (Exception ex) { Plugin.Error(ex); }
 
-        orig(self, eu);
-    }
-
-
-    //Set CoopAvailable during game updates so that PermaDie is used instead of just Die
-    private static void RainWorldGame_Update(On.RainWorldGame.orig_Update orig, RainWorldGame self)
-    {
-        if (CurrentAbilities.HasHealth && !ModManager.CoopAvailable)
-        {
-            ModManager.CoopAvailable = true;
-            orig(self);
-            ModManager.CoopAvailable = false;
-        }
-
-        orig(self);
+        orig(self, eu); //default behavior
     }
 
 
@@ -242,4 +232,21 @@ public static class Health
 
         } catch (Exception ex) { Plugin.Error(ex); }
     }
+
+
+    //Stupid worm grass doesn't destroy players; it just buries them forever
+    private static void CreatureAndPull_Consume(On.WormGrass.WormGrassPatch.CreatureAndPull.orig_Consume orig, WormGrass.WormGrassPatch.CreatureAndPull self)
+    {
+        orig(self);
+
+        if (CurrentAbilities.HasHealth)
+        {
+            if (self.creature is Player player)
+            {
+                player.playerState.permaDead = true;
+                player.Die(); //DIE DIE DIE pls
+            }
+        }
+    }
+
 }
