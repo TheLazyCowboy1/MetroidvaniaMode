@@ -95,7 +95,7 @@ public static class CollectibleTokens
         {
             switch (msg)
             {
-                case Collectible.SpecialMessage.HealthMessage:
+                case SpecialMessage.HealthMessage:
                     return $"Increased Maximum Health! Next cycle, your health with be {Abilities.CurrentAbilities.MaxHealth}.";
             }
             return null;
@@ -261,7 +261,7 @@ public static class CollectibleTokens
                     Collectible att = info.GetCustomAttribute<Collectible>();
                     if (att != null)
                     {
-                        if ((att.UnlockMessages == null || att.UnlockMessages.Length < 1) && att.msg != Collectible.SpecialMessage.None)
+                        if ((att.UnlockMessages == null || att.UnlockMessages.Length < 1) && att.msg == Collectible.SpecialMessage.None)
                             continue; //this unlock doesn't have any unlock message, so skip it
 
                         ExtEnumBase[] arr;

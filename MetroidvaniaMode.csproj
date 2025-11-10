@@ -21,11 +21,7 @@
 		<ItemGroup>
 			<OutputFolder Include="MetroidvaniaMode\*" />
 		</ItemGroup>
-		<ItemGroup>
-			<SUFolder Include="MetroidvaniaMode\world\SU\*" />
-		</ItemGroup>
 		<Copy SourceFiles="@(OutputFolder)" DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\StreamingAssets\mods\MetroidvaniaMode" />
-		<Copy SourceFiles="@(SUFolder)" DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\StreamingAssets\mods\MetroidvaniaMode\world\SU" />
 		<Copy SourceFiles="@(BuildFiles)" DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\StreamingAssets\mods\MetroidvaniaMode\plugins" />
 	</Target>
 

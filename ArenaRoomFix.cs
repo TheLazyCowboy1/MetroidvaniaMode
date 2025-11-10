@@ -1,5 +1,6 @@
 ﻿using MoreSlugcats;
 using RWCustom;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,22 +10,42 @@ public static class ArenaRoomFix
 {
     public static void ApplyHooks()
     {
-        On.Room.TriggerCombatArena += Room_TriggerCombatArena;
+        On.Room.NowViewed += Room_NowViewed;
+        //On.Room.TriggerCombatArena += Room_TriggerCombatArena;
     }
 
     public static void RemoveHooks()
     {
-        On.Room.TriggerCombatArena -= Room_TriggerCombatArena;
+        On.Room.NowViewed -= Room_NowViewed;
+        //On.Room.TriggerCombatArena -= Room_TriggerCombatArena;
     }
 
 
+    //Have battle arena rooms actually trigger
+    private static void Room_NowViewed(On.Room.orig_NowViewed orig, Room self)
+    {
+        orig(self);
+
+        try
+        {
+            if (self.abstractRoom.isBattleArena)
+            {
+                self.TriggerCombatArena();
+
+                Plugin.Log("Adding DoorLocker to room " + self.abstractRoom.name);
+                self.AddObject(new DoorLocker(
+                    new(self.world, new("FakeAbstractDoorLocker", false), null, new(self.abstractRoom.index, 0, 0, -1), self.game.GetNewID())
+                    , self));
+            }
+        } catch (Exception ex) { Plugin.Error(ex); }
+    }
     //Trigger combat arena properly!
     private static void Room_TriggerCombatArena(On.Room.orig_TriggerCombatArena orig, Room self)
     {
         orig(self);
 
+        Plugin.Log("Adding DoorLocker to room " + self.abstractRoom.name);
         self.AddObject(new DoorLocker(null, self));
-        Plugin.Log("Added DoorLocker to room " + self.abstractRoom.name);
     }
 
     private class DoorLocker : PhysicalObject
@@ -64,7 +85,7 @@ public static class ArenaRoomFix
                     chains.Add(c);
                 }
             }
-            room.PlaySound(MoreSlugcatsEnums.MSCSoundID.Chain_Lock, 0f, 1f, global::UnityEngine.Random.value * 0.5f + 0.8f);
+            room.PlaySound(MoreSlugcatsEnums.MSCSoundID.Chain_Lock, 0f, 1f, UnityEngine.Random.value * 0.5f + 0.8f);
 
             //actually lock shortcuts
             if (room.lockedShortcuts == null)

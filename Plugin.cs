@@ -112,10 +112,10 @@ public partial class Plugin : BaseUnityPlugin
     private void RainWorldGame_ctor(On.RainWorldGame.orig_ctor orig, RainWorldGame self, ProcessManager manager)
     {
         ConfigOptions.SetValues();
+        FilePrefixModifier.SetEnabled(manager);
 
         orig(self, manager);
 
-        FilePrefixModifier.SetEnabled(self);
         Abilities.CurrentAbilities.ResetAbilities(self);
     }
 

@@ -5,15 +5,15 @@ namespace MetroidvaniaMode;
 
 public static class FilePrefixModifier
 {
-    public static void SetEnabled(RainWorldGame game)
+    public static void SetEnabled(ProcessManager manager)
     {
         try
         {
-            if (!game.IsStorySession)
+            if (manager.arenaSitting != null)
                 Enabled = false;
             else
             {
-                SlugcatStats.Name slugcat = game.StoryCharacter;
+                SlugcatStats.Name slugcat = manager.rainWorld.progression.PlayingAsSlugcat;
                 Enabled = slugcat == SlugcatStats.Name.White;
             }
         } catch (Exception ex) { Plugin.Error(ex); Enabled = false; }
@@ -45,6 +45,7 @@ public static class FilePrefixModifier
                 if (idx >= 0)
                 {
                     string path2 = orig(path.Insert(idx + 1, PREFIX), skipMergedMods, skipConsoleFiles); //find a file with PREFIX
+                    Plugin.Log("Looking for file: " + path2, 3);
                     if (File.Exists(path2))
                         return path2; //return this file, if it actually exists
                 }
