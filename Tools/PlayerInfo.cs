@@ -9,6 +9,8 @@ public class PlayerInfo
 
     public int ExtraJumpsLeft = 0;
 
+    public bool Gliding = false;
+
     public bool ReleaseQueued = false;
     public int iFrames = 0;
 

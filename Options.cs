@@ -65,6 +65,19 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Extra Jumps", "Allows the player to double jump"), LimitRange(0, 100)]
     public static int ExtraJumps = 0;
 
+    [Config("Abilities", "Can Glide", "Allows the player to glide in the air to slow descents")]
+    public static bool CanGlide = false;
+    [Config("Abilities", "Glide Slowdown Var", "advanced", rightSide = true), LimitRange(0, 200)]
+    public static float GlideSlowdownVar = 25f;
+    [Config("Abilities", "Glide XConversion Efficiency", "advanced"), LimitRange(0, 10)]
+    public static float GlideXConversionEfficiency = 1f;
+    [Config("Abilities", "Glide YConversion Efficiency", "advanced", rightSide = true), LimitRange(0, 10)]
+    public static float GlideYConversionEfficiency = 4f;
+    [Config("Abilities", "Glide Max XConversion", "advanced"), LimitRange(0, 1)]
+    public static float GlideMaxXConversion = 0.04f;
+    [Config("Abilities", "Glide Max YConversion", "advanced", rightSide = true), LimitRange(0, 1)]
+    public static float GlideMaxYConversion = 0.06f;
+
     [Config("Abilities", "Has Health", "Enables the health bar system")]
     public static bool HasHealth = false;
     [Config("Abilities", "Max Health", "The maximum amount of health, and the default health", rightSide = true), LimitRange(0, 30)]

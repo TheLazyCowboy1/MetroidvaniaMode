@@ -32,6 +32,8 @@ public static class CurrentAbilities
 
     public static int ExtraJumps = 0;
 
+    public static bool CanGlide = false;
+
     public static bool HasHealth = false;
     public static int MaxHealth = 3;
 
@@ -148,6 +150,8 @@ public static class CurrentAbilities
 
             ExtraJumps = 0;
 
+            CanGlide = false;
+
             HasHealth = true;
             MaxHealth = Math.Max(0, 3 + Options.ExtraHealth); //add extra health. Don't let MaxHealth be less than 0.
         }
@@ -183,6 +187,8 @@ public static class CurrentAbilities
         DashStrength = Options.DashStrength;
 
         ExtraJumps = Options.ExtraJumps;
+
+        CanGlide = Options.CanGlide;
 
         HasHealth = Options.HasHealth;
         MaxHealth = Options.MaxHealth;

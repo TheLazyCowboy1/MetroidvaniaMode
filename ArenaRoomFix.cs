@@ -33,12 +33,13 @@ public static class ArenaRoomFix
                 //self.TriggerCombatArena();
 
                 Plugin.Log("Adding DoorLocker to room " + self.abstractRoom.name);
-                self.AddObject(new DoorLocker(new(self.world, new("FakeAbstractDoorLocker", false), null, new(self.abstractRoom.index, 0, 0, -1), self.game.GetNewID())));
+                self.AddObject(new DoorLocker());
+                //self.AddObject(new DoorLocker(new(self.world, new("FakeAbstractDoorLocker", false), null, new(self.abstractRoom.index, 0, 0, -1), self.game.GetNewID())));
             }
         } catch (Exception ex) { Plugin.Error(ex); }
     }
 
-    private class DoorLocker : PhysicalObject
+    private class DoorLocker : UpdatableAndDeletable
     {
         private const int TimeUntilLock = 40 * 3; //3 seconds until lock
         private const int MinTimeUntilUnlock = TimeUntilLock + 40 * 3; //must be locked for at least 3 seconds
@@ -47,24 +48,8 @@ public static class ArenaRoomFix
         private int viewedTime = 0;
         private bool locked = false;
 
-        public DoorLocker(AbstractPhysicalObject abstractPhysicalObject) : base(abstractPhysicalObject)
+        public DoorLocker() : base()
         {
-            //make it have no collision, like HRGuardManager
-            base.bodyChunks = new BodyChunk[1];
-            base.bodyChunks[0] = new BodyChunk(this, 0, new Vector2(-5000f, -5000f), 0f, 0f);
-            base.bodyChunks[0].collideWithTerrain = false;
-            base.bodyChunks[0].collideWithSlopes = false;
-            base.bodyChunks[0].collideWithObjects = false;
-            base.bodyChunks[0].restrictInRoomRange = 10000f;
-            base.bodyChunks[0].defaultRestrictInRoomRange = 10000f;
-            base.bodyChunkConnections = new BodyChunkConnection[0];
-            base.airFriction = 0f;
-            base.gravity = 0f;
-            base.bounce = 0f;
-            base.surfaceFriction = 0f;
-            base.collisionLayer = 0;
-            base.waterFriction = 0f;
-            base.buoyancy = 0f;
         }
 
         public override void Update(bool eu)

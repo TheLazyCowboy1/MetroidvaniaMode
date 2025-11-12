@@ -57,6 +57,7 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.Dash.RemoveHooks();
             Abilities.DoubleJump.RemoveHooks();
             Abilities.Health.RemoveHooks();
+            Abilities.Glide.RemoveHooks();
 
             SaveData.Hooks.RemoveHooks();
             Collectibles.Hooks.RemoveHooks();
@@ -86,6 +87,7 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.Dash.ApplyHooks();
             Abilities.DoubleJump.ApplyHooks();
             Abilities.Health.ApplyHooks();
+            Abilities.Glide.ApplyHooks();
 
             SaveData.Hooks.ApplyHooks();
             Collectibles.Hooks.ApplyHooks();

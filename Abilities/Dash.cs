@@ -49,6 +49,7 @@ public static class Dash
                 self.bodyChunks[0].vel = Vector2.LerpUnclamped(self.bodyChunks[0].vel, dir * CurrentAbilities.DashSpeed, CurrentAbilities.DashStrength);
                 self.bodyChunks[1].vel = Vector2.LerpUnclamped(self.bodyChunks[1].vel, dir * CurrentAbilities.DashSpeed, CurrentAbilities.DashStrength * 0.95f); //dash is weaker for tail
                 self.canJump = 0; //don't double-jump!
+                self.wantToJump = 0;
 
                 //sounds
                 self.room.PlaySound(SoundID.Slugcat_Throw_Rock, self.mainBodyChunk, false, 1f, 0.9f);
