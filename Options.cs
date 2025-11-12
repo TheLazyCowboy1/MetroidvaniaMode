@@ -9,7 +9,8 @@ public class Options : AutoConfigOptions
     {
         new("Abilities") { spacing = 30f },
         new("General"),
-        new("Accessibility")
+        new("Accessibility"),
+        new("Advanced") { spacing = 30f },
     })
     {
         LogLevel = 3; //temporarily enable all logs
@@ -67,16 +68,23 @@ public class Options : AutoConfigOptions
 
     [Config("Abilities", "Can Glide", "Allows the player to glide in the air to slow descents")]
     public static bool CanGlide = false;
-    [Config("Abilities", "Glide Slowdown Var", "advanced", rightSide = true), LimitRange(0, 200)]
+    [Config("Advanced", "Glide Slowdown Var", "advanced", rightSide = true), LimitRange(0, 200)]
     public static float GlideSlowdownVar = 25f;
-    [Config("Abilities", "Glide XConversion Efficiency", "advanced"), LimitRange(0, 10)]
+    [Config("Advanced", "Glide XConversion Efficiency", "advanced"), LimitRange(0, 10)]
     public static float GlideXConversionEfficiency = 1f;
-    [Config("Abilities", "Glide YConversion Efficiency", "advanced", rightSide = true), LimitRange(0, 10)]
+    [Config("Advanced", "Glide YConversion Efficiency", "advanced", rightSide = true), LimitRange(0, 10)]
     public static float GlideYConversionEfficiency = 4f;
-    [Config("Abilities", "Glide Max XConversion", "advanced"), LimitRange(0, 1)]
+    [Config("Advanced", "Glide Max XConversion", "advanced"), LimitRange(0, 1)]
     public static float GlideMaxXConversion = 0.04f;
-    [Config("Abilities", "Glide Max YConversion", "advanced", rightSide = true), LimitRange(0, 1)]
+    [Config("Advanced", "Glide Max YConversion", "advanced", rightSide = true), LimitRange(0, 1)]
     public static float GlideMaxYConversion = 0.06f;
+
+    [Config("Advanced", "Glide Drag X Coef", "= 1 / The maximum possible X speed", precision = 3), LimitRange(0, 1)]
+    public static float GlideDragXCoef = 1f / 50f;
+    [Config("Advanced", "Glide Drag Y Coef", "= 1 / The maximum possible Y speed", precision = 3, rightSide = true), LimitRange(0, 1)]
+    public static float GlideDragYCoef = 1f / 10f;
+    [Config("Advanced", "Glide Lift Coefficient", "advanced"), LimitRange(0, 1)]
+    public static float GlideLiftCoef = 0.2f;
 
     [Config("Abilities", "Has Health", "Enables the health bar system")]
     public static bool HasHealth = false;

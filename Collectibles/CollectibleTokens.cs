@@ -68,6 +68,11 @@ public static class CollectibleTokens
     [Collectible(3, "Unlocked Ability: Double Jump. Jump again in the air!", "Unlocked an additional jump: Perform more jumps in the air!")]
     public static SafariUnlockID[] JumpUnlocks;
 
+    [Collectible(1, "Unlocked Ability: Glide. Slugcat has now become airplane. NNYYOOOM!!")]
+    public static SafariUnlockID GlideUnlock;
+
+    //glide efficiency unlocks...? idk
+
     //public static bool HasHealth = false;
     //public static int MaxHealth = 3;
     [Collectible(10, msg = Collectible.SpecialMessage.HealthMessage)]

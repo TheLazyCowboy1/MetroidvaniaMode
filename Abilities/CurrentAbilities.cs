@@ -110,6 +110,9 @@ public static class CurrentAbilities
                 DashCount += CollectibleTokens.UnlockedCount(r, CollectibleTokens.DashUnlocks);
                 ExtraJumps += CollectibleTokens.UnlockedCount(r, CollectibleTokens.JumpUnlocks);
 
+                if (!CanGlide)
+                    CanGlide = CollectibleTokens.IsUnlocked(r, CollectibleTokens.GlideUnlock);
+
 
                 //green unlocks
                 string[] g = data.UnlockedGreenTokens.Split(';');
