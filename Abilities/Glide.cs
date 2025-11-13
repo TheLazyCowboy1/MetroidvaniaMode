@@ -40,13 +40,13 @@ public static class Glide
             PlayerInfo info = self.GetInfo();
 
             //check if we should stop gliding
-            if (info.Gliding && (!self.input[0].jmp || self.canJump <= 0))
+            if (info.Gliding && (!self.input[0].jmp || self.canJump > 0))
             {
                 info.Gliding = false; //stop gliding if we're not holding jump, or if we regain our ability to jump
             }
 
             //check if we should start gliding
-            if (!info.Gliding && self.wantToJump > 0
+            if (!info.Gliding && self.wantToJump > 0 && self.canJump <= 0 && self.input[0].jmp
                 && info.ExtraJumpsLeft <= 0 && (!Options.PressJumpToDash || info.DashesLeft <= 0)) //don't interrupt double-jumps
             {
                 info.Gliding = true; //start gliding
