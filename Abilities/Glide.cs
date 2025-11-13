@@ -83,8 +83,13 @@ public static class Glide
                     //physics-based formulas
 
                     //drag
-                    float dragX = Mathf.Min(chunk.vel.x, chunk.vel.x * chunk.vel.x * Options.GlideDragXCoef * dragXMod);
-                    float dragY = Mathf.Min(chunk.vel.y, chunk.vel.y * chunk.vel.y * Options.GlideDragYCoef * dragYMod);
+                    float dragX = chunk.vel.x * chunk.vel.x * Options.GlideDragXCoef * dragXMod;
+                    if (Mathf.Abs(dragX) > Mathf.Abs(chunk.vel.x))
+                        dragX = chunk.vel.x; //drag cannot be greater than velocity
+
+                    float dragY = chunk.vel.y * chunk.vel.y * Options.GlideDragYCoef * dragYMod;
+                    if (Mathf.Abs(dragY) > Mathf.Abs(chunk.vel.y))
+                        dragY = chunk.vel.y; //drag cannot be greater than velocity
                     if (chunk.vel.y > 0)
                         dragY = 0; //don't implement drag when going upwards
 
