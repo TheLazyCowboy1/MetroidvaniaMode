@@ -56,8 +56,8 @@ public static class Glide
                 foreach (BodyChunk chunk in self.bodyChunks)
                 {
                     //aggressively slow down y-speed
-                    
-                    chunk.vel.y -= YSlowdown(chunk.vel.y, Options.GlideSlowdownVar) * Mathf.Clamp01(1 + dir.y); //if y is straight down; just plummet
+                    if (chunk.vel.y < 0) //don't slow down going upwards just yet
+                        chunk.vel.y -= YSlowdown(chunk.vel.y, Options.GlideSlowdownVar) * Mathf.Clamp01(1 + dir.y); //if y is straight down; just plummet
 
                     //Vector2 vel = chunk.vel; //save it separately
 
