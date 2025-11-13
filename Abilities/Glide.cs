@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MonoMod.RuntimeDetour;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,14 +11,20 @@ namespace MetroidvaniaMode.Abilities;
 
 public static class Glide
 {
+    private static Hook PlayerGravHook;
     public static void ApplyHooks()
     {
         On.Player.MovementUpdate += Player_MovementUpdate;
+        try
+        {
+            PlayerGravHook = new(typeof(Player).GetProperty(nameof(Player.EffectiveRoomGravity)).GetGetMethod(), Player_EffectiveRoomGravity);
+        } catch (Exception ex) { Plugin.Error(ex); }
     }
 
     public static void RemoveHooks()
     {
         On.Player.MovementUpdate -= Player_MovementUpdate;
+        PlayerGravHook?.Undo();
     }
 
 
@@ -72,52 +79,11 @@ public static class Glide
                     float xConvert = Options.GlideMaxXConversion * Mathf.Clamp01(dir.x * Mathf.Sign(chunk.vel.x));
                     chunk.vel.x += Mathf.Abs(chunk.vel.y) * Mathf.Sign(chunk.vel.x) * xConvert * Options.GlideXConversionEfficiency;
                     chunk.vel.y -= chunk.vel.y * xConvert;
-                    
-                    /*
-                    //input //set each to 1 for proper physics sim
-                    float dragXMod = Mathf.Clamp01(Options.GlideBaseXDrag - (1 - Options.GlideBaseXDrag) * dir.x * Mathf.Sign(chunk.vel.x)); //full forward => no xDrag; full backward => full xDrag
-                    float dragYMod = Options.GlideMinYDrag + (1 - Options.GlideMinYDrag) * Mathf.Clamp01(1 + dir.y); //holding down => almost no yDrag
-                    //float liftMod = Mathf.Clamp01(dir.y);
-                    float liftMod = new Vector2(dir.x, Mathf.Clamp01(dir.y)).magnitude; //1 most of the time. 0 when neutral or straight down
-                    //float liftXMod = Mathf.Abs(dir.x);
-                    //float liftYMod = Mathf.Clamp01(dir.y + 0.5f);
 
-                    //physics-based formulas
-
-                    //drag
-                    float dragX = chunk.vel.x * chunk.vel.x * Options.GlideDragXCoef * dragXMod;
-                    if (Mathf.Abs(dragX) > Mathf.Abs(chunk.vel.x))
-                        dragX = chunk.vel.x; //drag cannot be greater than velocity
-
-                    float dragY = chunk.vel.y * chunk.vel.y * Options.GlideDragYCoef * dragYMod;
-                    if (Mathf.Abs(dragY) > Mathf.Abs(chunk.vel.y))
-                        dragY = chunk.vel.y; //drag cannot be greater than velocity
-                    //if (chunk.vel.y > 0)
-                        //dragY = 0; //don't implement drag when going upwards
-                       
-                    //apply drag now, to hopefully lessen lift
-                    chunk.vel.x -= dragX;
-                    chunk.vel.y -= dragY;
-
-                    //lift
-                    Vector2 lift = Vector2.Perpendicular(chunk.vel * chunk.vel.magnitude * Options.GlideLiftCoef * liftMod);
-                    if (lift.y < 0)
-                        lift = -lift; //ensure the lift doesn't pull us downwards
-                    //float liftX = chunk.vel.y * chunk.vel.y * Options.GlideLiftCoef * liftXMod * Mathf.Sign(chunk.vel.x);
-                    //if (chunk.vel.y > 0)
-                        //liftX = 0; //only add x lift if going down
-                    //float liftY = chunk.vel.x * chunk.vel.x * Options.GlideLiftCoef * liftYMod;
-
-
-                    //apply the forces
-                    chunk.vel += lift;
-                    //chunk.vel.x += liftX;
-                    //chunk.vel.y += liftY;
-                    */
                 }
 
                 //lower gravity
-                //self.customPlayerGravity = self.EffectiveRoomGravity * 0.25f;
+                self.customPlayerGravity = BaseCustomPlayerGravity * (1f - Options.GlideAntiGrav);
 
                 //appearance
                 self.standing = false;
@@ -130,4 +96,10 @@ public static class Glide
     }
 
     private static float YSlowdown(float y, float b) => (y < 0) ? (-y * y) / (-y + b) : (y * y) / (y + b);
+
+    private const float BaseCustomPlayerGravity = 0.9f;
+    private static float Player_EffectiveRoomGravity(Func<Player, float> orig, Player self)
+    {
+        return orig(self) * self.customPlayerGravity / BaseCustomPlayerGravity;
+    }
 }
