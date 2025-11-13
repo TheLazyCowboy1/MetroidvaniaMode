@@ -56,7 +56,7 @@ public static class Glide
                 foreach (BodyChunk chunk in self.bodyChunks)
                 {
                     //aggressively slow down y-speed
-                    /*
+                    
                     chunk.vel.y -= YSlowdown(chunk.vel.y, Options.GlideSlowdownVar) * Mathf.Clamp01(1 + dir.y); //if y is straight down; just plummet
 
                     //Vector2 vel = chunk.vel; //save it separately
@@ -72,15 +72,15 @@ public static class Glide
                     float xConvert = Options.GlideMaxXConversion * Mathf.Clamp01(dir.x * Mathf.Sign(chunk.vel.x));
                     chunk.vel.x += Mathf.Abs(chunk.vel.y) * Mathf.Sign(chunk.vel.x) * xConvert * Options.GlideXConversionEfficiency;
                     chunk.vel.y -= chunk.vel.y * xConvert;
-                    */
+                    
 
                     //input //set each to 1 for proper physics sim
-                    float dragXMod = Mathf.Clamp01(0.5f - 0.5f * dir.x * Mathf.Sign(chunk.vel.x)); //full forward => no xDrag; full backward => full xDrag
+                    /*float dragXMod = Mathf.Clamp01(0.5f - 0.5f * dir.x * Mathf.Sign(chunk.vel.x)); //full forward => no xDrag; full backward => full xDrag
                     float dragYMod = Mathf.Clamp01(1 + dir.y); //holding down => no yDrag
                     //float liftMod = Mathf.Clamp01(dir.y);
-                    //float liftMod = new Vector2(dir.x, Mathf.Clamp01(dir.y)).magnitude; //1 most of the time. 0 when neutral or straight down
-                    float liftXMod = Mathf.Abs(dir.x);
-                    float liftYMod = Mathf.Clamp01(dir.y + 0.5f);
+                    float liftMod = new Vector2(dir.x, Mathf.Clamp01(dir.y)).magnitude; //1 most of the time. 0 when neutral or straight down
+                    //float liftXMod = Mathf.Abs(dir.x);
+                    //float liftYMod = Mathf.Clamp01(dir.y + 0.5f);
 
                     //physics-based formulas
 
@@ -92,23 +92,25 @@ public static class Glide
                     float dragY = chunk.vel.y * chunk.vel.y * Options.GlideDragYCoef * dragYMod;
                     if (Mathf.Abs(dragY) > Mathf.Abs(chunk.vel.y))
                         dragY = chunk.vel.y; //drag cannot be greater than velocity
-                    if (chunk.vel.y > 0)
-                        dragY = 0; //don't implement drag when going upwards
+                    //if (chunk.vel.y > 0)
+                        //dragY = 0; //don't implement drag when going upwards
 
                     //lift
-                    //Vector2 lift = Vector2.Perpendicular(chunk.vel * chunk.vel.magnitude * Options.GlideLiftCoef * liftMod);
-                    //if (lift.y < 0)
-                    //lift = -lift; //ensure the lift doesn't pull us downwards
-                    float liftX = chunk.vel.y * chunk.vel.y * Options.GlideLiftCoef * liftXMod * Mathf.Sign(chunk.vel.x);
-                    float liftY = chunk.vel.x * chunk.vel.x * Options.GlideLiftCoef * liftYMod;
+                    Vector2 lift = Vector2.Perpendicular(chunk.vel * chunk.vel.magnitude * Options.GlideLiftCoef * liftMod);
+                    if (lift.y < 0)
+                        lift = -lift; //ensure the lift doesn't pull us downwards
+                    //float liftX = chunk.vel.y * chunk.vel.y * Options.GlideLiftCoef * liftXMod * Mathf.Sign(chunk.vel.x);
+                    //if (chunk.vel.y > 0)
+                        //liftX = 0; //only add x lift if going down
+                    //float liftY = chunk.vel.x * chunk.vel.x * Options.GlideLiftCoef * liftYMod;
 
 
                     //apply the forces
                     chunk.vel.x -= dragX;
                     chunk.vel.y -= dragY;
-                    //chunk.vel += lift;
-                    chunk.vel.x += liftX;
-                    chunk.vel.y += liftY;
+                    chunk.vel += lift;
+                    //chunk.vel.x += liftX;
+                    //chunk.vel.y += liftY;*/
 
                 }
 
