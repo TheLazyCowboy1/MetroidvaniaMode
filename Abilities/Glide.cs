@@ -56,7 +56,7 @@ public static class Glide
                 foreach (BodyChunk chunk in self.bodyChunks)
                 {
                     //aggressively slow down y-speed
-                    /*if (chunk.vel.y < 0) //don't slow down going upwards just yet
+                    if (chunk.vel.y < 0) //don't slow down going upwards just yet
                         chunk.vel.y -= YSlowdown(chunk.vel.y, Options.GlideSlowdownVar) * Mathf.Clamp01(1 + dir.y); //if y is straight down; just plummet
 
                     //Vector2 vel = chunk.vel; //save it separately
@@ -72,8 +72,8 @@ public static class Glide
                     float xConvert = Options.GlideMaxXConversion * Mathf.Clamp01(dir.x * Mathf.Sign(chunk.vel.x));
                     chunk.vel.x += Mathf.Abs(chunk.vel.y) * Mathf.Sign(chunk.vel.x) * xConvert * Options.GlideXConversionEfficiency;
                     chunk.vel.y -= chunk.vel.y * xConvert;
-                    */
-
+                    
+                    /*
                     //input //set each to 1 for proper physics sim
                     float dragXMod = Mathf.Clamp01(Options.GlideBaseXDrag - (1 - Options.GlideBaseXDrag) * dir.x * Mathf.Sign(chunk.vel.x)); //full forward => no xDrag; full backward => full xDrag
                     float dragYMod = Options.GlideMinYDrag + (1 - Options.GlideMinYDrag) * Mathf.Clamp01(1 + dir.y); //holding down => almost no yDrag
@@ -113,7 +113,7 @@ public static class Glide
                     chunk.vel += lift;
                     //chunk.vel.x += liftX;
                     //chunk.vel.y += liftY;
-
+                    */
                 }
 
                 //lower gravity
