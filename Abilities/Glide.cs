@@ -40,9 +40,9 @@ public static class Glide
             PlayerInfo info = self.GetInfo();
 
             //check if we should stop gliding
-            if (info.Gliding && !self.input[0].jmp)
+            if (info.Gliding && (!self.input[0].jmp || self.canJump <= 0))
             {
-                info.Gliding = false; //stop gliding if we're not holding jump
+                info.Gliding = false; //stop gliding if we're not holding jump, or if we regain our ability to jump
             }
 
             //check if we should start gliding
@@ -83,6 +83,7 @@ public static class Glide
                 }
 
                 //lower gravity
+                float antiGrav = Options.GlideAntiGrav * Mathf.Clamp01(1 + dir.y);
                 self.customPlayerGravity = BaseCustomPlayerGravity * (1f - Options.GlideAntiGrav);
 
                 //appearance
@@ -100,6 +101,8 @@ public static class Glide
     private const float BaseCustomPlayerGravity = 0.9f;
     private static float Player_EffectiveRoomGravity(Func<Player, float> orig, Player self)
     {
-        return orig(self) * self.customPlayerGravity / BaseCustomPlayerGravity;
+        if (!CurrentAbilities.CanGlide) return orig(self);
+
+        return orig(self) * self.customPlayerGravity / BaseCustomPlayerGravity; //apply customPlayerGravity
     }
 }

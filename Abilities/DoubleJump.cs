@@ -22,7 +22,9 @@ public static class DoubleJump
         {
             if (CurrentAbilities.ExtraJumps <= 0) return; //don't even run this code if it doesn't apply!
 
-            if (self.wantToJump > 0 && self.canJump <= 0)
+            if (self.canJump <= 0
+                && (self.wantToJump > 0 //usually, check wantToJump. However, sometimes things like flips make wantToJump always 0
+                    || (self.jumpBoost <= 0 && self.input[0].jmp && !self.input[1].jmp && self.animation != Player.AnimationIndex.None && self.bodyMode != Player.BodyModeIndex.Default)))
             {
                 PlayerInfo info = self.GetInfo();
                 if (info.ExtraJumpsLeft > 0)

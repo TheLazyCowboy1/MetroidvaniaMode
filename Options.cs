@@ -77,10 +77,10 @@ public class Options : AutoConfigOptions
     public static float GlideXConversionEfficiency = 1f;
     [Config("Advanced", "Glide YConversion Efficiency", "advanced", rightSide = true), LimitRange(0, 10)]
     public static float GlideYConversionEfficiency = 4f;
-    [Config("Advanced", "Glide Max XConversion", "advanced"), LimitRange(0, 1)]
-    public static float GlideMaxXConversion = 0.04f;
-    [Config("Advanced", "Glide Max YConversion", "advanced", rightSide = true), LimitRange(0, 1)]
-    public static float GlideMaxYConversion = 0.06f;
+    [Config("Advanced", "Glide Max XConversion", "advanced", precision = 3), LimitRange(0, 1)]
+    public static float GlideMaxXConversion = 0.03f;
+    [Config("Advanced", "Glide Max YConversion", "advanced", rightSide = true, precision = 3), LimitRange(0, 1)]
+    public static float GlideMaxYConversion = 0.03f;
 
     [Config("Abilities", "Has Health", "Enables the health bar system")]
     public static bool HasHealth = false;
