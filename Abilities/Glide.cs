@@ -56,7 +56,7 @@ public static class Glide
                 foreach (BodyChunk chunk in self.bodyChunks)
                 {
                     //aggressively slow down y-speed
-                    if (chunk.vel.y < 0) //don't slow down going upwards just yet
+                    /*if (chunk.vel.y < 0) //don't slow down going upwards just yet
                         chunk.vel.y -= YSlowdown(chunk.vel.y, Options.GlideSlowdownVar) * Mathf.Clamp01(1 + dir.y); //if y is straight down; just plummet
 
                     //Vector2 vel = chunk.vel; //save it separately
@@ -72,11 +72,11 @@ public static class Glide
                     float xConvert = Options.GlideMaxXConversion * Mathf.Clamp01(dir.x * Mathf.Sign(chunk.vel.x));
                     chunk.vel.x += Mathf.Abs(chunk.vel.y) * Mathf.Sign(chunk.vel.x) * xConvert * Options.GlideXConversionEfficiency;
                     chunk.vel.y -= chunk.vel.y * xConvert;
-                    
+                    */
 
                     //input //set each to 1 for proper physics sim
-                    /*float dragXMod = Mathf.Clamp01(0.5f - 0.5f * dir.x * Mathf.Sign(chunk.vel.x)); //full forward => no xDrag; full backward => full xDrag
-                    float dragYMod = Mathf.Clamp01(1 + dir.y); //holding down => no yDrag
+                    float dragXMod = Mathf.Clamp01(Options.GlideBaseXDrag - (1 - Options.GlideBaseXDrag) * dir.x * Mathf.Sign(chunk.vel.x)); //full forward => no xDrag; full backward => full xDrag
+                    float dragYMod = Options.GlideMinYDrag + (1 - Options.GlideMinYDrag) * Mathf.Clamp01(1 + dir.y); //holding down => almost no yDrag
                     //float liftMod = Mathf.Clamp01(dir.y);
                     float liftMod = new Vector2(dir.x, Mathf.Clamp01(dir.y)).magnitude; //1 most of the time. 0 when neutral or straight down
                     //float liftXMod = Mathf.Abs(dir.x);
@@ -94,6 +94,10 @@ public static class Glide
                         dragY = chunk.vel.y; //drag cannot be greater than velocity
                     //if (chunk.vel.y > 0)
                         //dragY = 0; //don't implement drag when going upwards
+                       
+                    //apply drag now, to hopefully lessen lift
+                    chunk.vel.x -= dragX;
+                    chunk.vel.y -= dragY;
 
                     //lift
                     Vector2 lift = Vector2.Perpendicular(chunk.vel * chunk.vel.magnitude * Options.GlideLiftCoef * liftMod);
@@ -106,11 +110,9 @@ public static class Glide
 
 
                     //apply the forces
-                    chunk.vel.x -= dragX;
-                    chunk.vel.y -= dragY;
                     chunk.vel += lift;
                     //chunk.vel.x += liftX;
-                    //chunk.vel.y += liftY;*/
+                    //chunk.vel.y += liftY;
 
                 }
 
