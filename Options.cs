@@ -83,7 +83,7 @@ public class Options : AutoConfigOptions
     public static float GlideDragXCoef = 1f / 50f;
     [Config("Advanced", "Glide Drag Y Coef", "= 1 / The maximum possible Y speed", precision = 3, rightSide = true), LimitRange(0, 1)]
     public static float GlideDragYCoef = 1f / 10f;
-    [Config("Advanced", "Glide Lift Coefficient", "advanced"), LimitRange(0, 1)]
+    [Config("Advanced", "Glide Lift Coefficient", "advanced", precision = 3), LimitRange(0, 1)]
     public static float GlideLiftCoef = 0.2f;
 
     [Config("Abilities", "Has Health", "Enables the health bar system")]
