@@ -71,6 +71,9 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 10)]
     public static float GlideThrust = 0;
 
+    [Config("Accessibility", "Easier Glide Mode", "Enables code that attempts to make gliding easier, at the expense of taking away some of your fine control. Disable this if you want to be an aviation pro.")]
+    public static bool EasierGlideMode = false;
+
     [Config("Advanced", "Glide Slowdown Var", "Kind of the max falling speed...?"), LimitRange(0, 200)]
     public static float GlideSlowdownVar = 10f;
     [Config("Advanced", "Glide Anti-Gravity", "How much to subtract from gravity.", rightSide = true), LimitRange(0, 2)]

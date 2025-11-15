@@ -89,16 +89,20 @@ public static class Glide
                     //calc drag
                     Vector2 nVel = chunk.vel.normalized;
                     Vector2 dragDir = Perpendicular(dir); //this is the proper one, but not easy to fly with
-                    //shift dragDir to feel more natural to fly with.
-                    //shift dragDir down slightly (so that the slugcat normally moves forward)
-                    dragDir.y += Options.GlideBaseDirY;
-                    //if dragDir.magnitude < 1, lerp it towards (0, 1)
-                    dragDir = Vector2.LerpUnclamped(new(0, 1), dragDir, dragDir.magnitude);
-                    //if dir is up and vel is down, lerp dragDir up
-                    if (nVel.y < 0)
-                        dragDir = Vector2.LerpUnclamped(dragDir, new(nVel.x, nVel.y*nVel.y), dir.y*dir.y);
-                    //normalize dragDir
-                    dragDir.Normalize();
+                    if (Options.EasierGlideMode)
+                    {
+                        //shift dragDir to feel more natural to fly with.
+                        //shift dragDir down slightly (so that the slugcat normally moves forward)
+                        dragDir.y += Options.GlideBaseDirY;
+                        //if dragDir.magnitude < 1, lerp it towards (0, 1)
+                        dragDir = Vector2.LerpUnclamped(new(0, 1), dragDir, dragDir.magnitude);
+                        //if dir is up and vel is down, lerp dragDir up
+                        if (nVel.y < 0 && dir.y > 0)
+                            dragDir = Vector2.LerpUnclamped(dragDir, new(nVel.x, -nVel.y), dir.y * dir.y * nVel.y);
+
+                        //normalize dragDir
+                        dragDir.Normalize();
+                    }
 
                     float dragFac = (dragDir.x * nVel.x + dragDir.y * nVel.y) * Options.GlideDragCoef; 
                     Vector2 drag = (dragDir.y > 0 ? dragDir : -dragDir) * (chunk.vel * dragFac).sqrMagnitude;
