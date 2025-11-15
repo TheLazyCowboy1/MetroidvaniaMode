@@ -68,7 +68,7 @@ public class Options : AutoConfigOptions
 
     [Config("Abilities", "Can Glide", "Allows the player to glide in the air to slow descents")]
     public static bool CanGlide = false;
-    [Config("Abilities", "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 10)]
+    [Config("Abilities", "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 1)]
     public static float GlideThrust = 0;
 
     [Config("Accessibility", "Easier Glide Mode", "Enables code that attempts to make gliding easier, at the expense of taking away some of your fine control. Disable this if you want to be an aviation pro.")]
@@ -88,11 +88,11 @@ public class Options : AutoConfigOptions
     public static float GlideMaxYConversion = 0.03f;
 
     [Config("Advanced", precision = 3)]
-    public static float GlideDragCoef = 0.2f;
+    public static float GlideDragCoef = 0.25f;
     [Config("Advanced", precision = 3, rightSide = true)]
-    public static float GlideOmniDragCoef = 0.03f;
+    public static float GlideOmniDragCoef = 0.04f;
     [Config("Advanced", precision = 3)]
-    public static float GlideLiftCoef = 0.1f;
+    public static float GlideLiftCoef = 0.2f;
     [Config("Advanced", precision = 3, rightSide = true)]
     public static float GlideMaxLift = 0.2f;
     [Config("Advanced")]
