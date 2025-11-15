@@ -55,9 +55,16 @@ public static class Glide
             if (info.Gliding)
             {
                 //input
-                Vector2 dir = self.input[0].analogueDir; //NOT normalized
-                if (dir.sqrMagnitude < 0.01f)
-                    dir = self.input[0].IntVec.ToVector2().normalized;
+                Vector2 dir;
+                if (self.input[0].gamePad)
+                    dir = self.input[0].analogueDir; //NOT normalized
+                else //keyboard logic
+                {
+                    if (self.input[0].x == 0)
+                        dir = new Vector2(0, self.input[0].y);
+                    else
+                        dir = new Vector2(self.input[0].x, self.input[0].y * Options.GlideKeyboardYFac).normalized; //multiply y by 0.5
+                }
 
                 //glide physics
                 foreach (BodyChunk chunk in self.bodyChunks)
@@ -106,8 +113,8 @@ public static class Glide
                     else
                         dragDir = Perpendicular(dir); //this is the proper one, but not easy to fly with
 
-                    float dragFac = (dragDir.x * nVel.x + dragDir.y * nVel.y) * Options.GlideDragCoef; 
-                    Vector2 drag = (dragDir.y > 0 ? dragDir : -dragDir) * (chunk.vel * dragFac).sqrMagnitude;
+                    float dragFac = -(dragDir.x * nVel.x + dragDir.y * nVel.y) * Options.GlideDragCoef; 
+                    Vector2 drag = (dragFac < 0 ? -dragDir : dragDir) * (chunk.vel * dragFac).sqrMagnitude;
 
                     //apply drag
                     if (drag.sqrMagnitude > chunk.vel.sqrMagnitude)

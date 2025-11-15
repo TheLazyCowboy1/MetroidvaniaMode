@@ -39,7 +39,7 @@ public static class Dash
                 if (input.analogueDir.sqrMagnitude > 0.02)
                     dir = input.analogueDir.normalized;
                 else if (input.x != 0 || input.y != 0)
-                    dir = new Vector2(input.x, input.y).normalized;
+                    dir = new Vector2(input.x, input.y).normalized; //this shouldn't actually be possible to run; but it's here just in case
                 else
                     return; //there is no dash direction, so don't use up the dash
 

@@ -97,6 +97,8 @@ public class Options : AutoConfigOptions
     public static float GlideMaxLift = 0.2f;
     [Config("Advanced")]
     public static float GlideBaseDirY = -0.1f;
+    [Config("Advanced", rightSide = true)]
+    public static float GlideKeyboardYFac = 0.5f;
 
     [Config("Abilities", "Has Health", "Enables the health bar system")]
     public static bool HasHealth = false;
