@@ -71,33 +71,19 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 1)]
     public static float GlideThrust = 0;
 
-    [Config("Accessibility", "Easier Glide Mode", "Enables code that attempts to make gliding easier, at the expense of taking away some of your fine control. Disable this if you want to be an aviation pro.")]
-    public static bool EasierGlideMode = true;
-
-    [Config("Advanced", "Glide Slowdown Var", "Kind of the max falling speed...?"), LimitRange(0, 200)]
-    public static float GlideSlowdownVar = 10f;
-    [Config("Advanced", "Glide Anti-Gravity", "How much to subtract from gravity.", rightSide = true), LimitRange(0, 2)]
+    [Config("Advanced", "Glide Anti-Gravity", "How much to subtract from gravity."), LimitRange(0, 2)]
     public static float GlideAntiGrav = 0.5f;
-    [Config("Advanced", "Glide XConversion Efficiency", "advanced"), LimitRange(0, 10)]
-    public static float GlideXConversionEfficiency = 1f;
-    [Config("Advanced", "Glide YConversion Efficiency", "advanced", rightSide = true), LimitRange(0, 10)]
-    public static float GlideYConversionEfficiency = 4f;
-    [Config("Advanced", "Glide Max XConversion", "advanced", precision = 3), LimitRange(0, 1)]
-    public static float GlideMaxXConversion = 0.03f;
-    [Config("Advanced", "Glide Max YConversion", "advanced", rightSide = true, precision = 3), LimitRange(0, 1)]
-    public static float GlideMaxYConversion = 0.03f;
-
-    [Config("Advanced", precision = 3)]
+    [Config("Advanced", "Glide Drag Coef", "How much air resistance the slugcat has in the perpendicular direction. Setting this low makes gliding less effective; setting it high makes the motion rigid.", precision = 3), LimitRange(0, 1)]
     public static float GlideDragCoef = 0.25f;
-    [Config("Advanced", precision = 3, rightSide = true)]
+    [Config("Advanced", "Glide Omni Drag Coef", "How much air resistance the slugcat has in ALL directions. Increasing this will decrease the slugcat's max speed.", precision = 3, rightSide = true), LimitRange(0, 1)]
     public static float GlideOmniDragCoef = 0.04f;
-    [Config("Advanced", precision = 3)]
-    public static float GlideLiftCoef = 0.2f;
-    [Config("Advanced", precision = 3, rightSide = true)]
-    public static float GlideMaxLift = 0.2f;
-    [Config("Advanced")]
+    [Config("Advanced", "Glide Lift Coef", "How much lift the slugcat generated when flying. This allows the slugcat to pull up when going fast, and it makes the controls feel more responsive.\nHowever, setting this too high will allow the slugcat to literally fly upwards, which is cheating. As funny as it is, we don't want to make a literal slugcat airplane.", precision = 3), LimitRange(0, 1)]
+    public static float GlideLiftCoef = 0.25f;
+    [Config("Advanced", "Glide Max Lift", "Caps the amount of lift, preventing the slugcat from exploding when going too fast.", rightSide = true), LimitRange(0, 1)]
+    public static float GlideMaxLift = 0.6f;
+    [Config("Advanced", "Glide Base Y Angle", "(EasierGlideMode only) Adjusts the glide direction for drag slightly downwards, because this is what players probably expect."), LimitRange(-1, 1)]
     public static float GlideBaseDirY = -0.1f;
-    [Config("Advanced", rightSide = true)]
+    [Config("Advanced", "Glide Keyboard Y Mult", "Multiplies the y for the keyboard, so that instead of trying to move perfectly diagonally (1,1), the slugcat moves more smoothly (e.g: (1,0.5)).\nMakes flying much easier on a keyboard.", rightSide = true), LimitRange(0, 1)]
     public static float GlideKeyboardYFac = 0.5f;
 
     [Config("Abilities", "Has Health", "Enables the health bar system")]
@@ -114,6 +100,9 @@ public class Options : AutoConfigOptions
 
     [Config("Accessibility", "Press Jump to Dash", "Makes dashes be triggered by trying to jump in the air. This lessens the number of different buttons that need to be pressed.\n(However, it doesn't let you dash on the ground, but hopefully that's not a big deal.)")]
     public static bool PressJumpToDash = false;
+
+    [Config("Accessibility", "Easier Glide Mode", "Enables code that attempts to make gliding easier, at the expense of taking away some of your fine control. Disable this if you want to call yourself an aviation pro.")]
+    public static bool EasierGlideMode = true;
 
     [Config("Accessibility", "Extra Health", "Increases your health in order to make the game easier. Increase this number if the game is too difficult for you."), LimitRange(-10, 20)]
     public static int ExtraHealth = 0;

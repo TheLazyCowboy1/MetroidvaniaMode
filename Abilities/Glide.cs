@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -69,24 +70,6 @@ public static class Glide
                 //glide physics
                 foreach (BodyChunk chunk in self.bodyChunks)
                 {
-                    //aggressively slow down y-speed
-                    /*if (chunk.vel.y < 0) //don't slow down going upwards just yet
-                        chunk.vel.y -= YSlowdown(chunk.vel.y, Options.GlideSlowdownVar) * Mathf.Clamp01(1 + dir.y); //if y is straight down; just plummet
-
-                    //Vector2 vel = chunk.vel; //save it separately
-
-                    //convert x-speed into y-speed
-                    //float yConvert = Options.GlideMaxConversion * Mathf.Clamp01(0.5f + 0.5f * (dir.y - dir.x * Mathf.Sign(vel.x)));
-                    float yConvert = Options.GlideMaxYConversion * Mathf.Clamp01(dir.y);
-                    chunk.vel.y += Mathf.Abs(chunk.vel.x) * yConvert * Options.GlideYConversionEfficiency;
-                    chunk.vel.x -= chunk.vel.x * yConvert;
-
-                    //convert y-speed into x-speed
-                    //float xConvert = Options.GlideMaxConversion * Mathf.Clamp01(0.5f + 0.5f * (dir.x - dir.y * Mathf.Sign(vel.y)));
-                    float xConvert = Options.GlideMaxXConversion * Mathf.Clamp01(dir.x * Mathf.Sign(chunk.vel.x));
-                    chunk.vel.x += Mathf.Abs(chunk.vel.y) * Mathf.Sign(chunk.vel.x) * xConvert * Options.GlideXConversionEfficiency;
-                    chunk.vel.y -= chunk.vel.y * xConvert;
-                    */
 
                     //add thrust lol
                     chunk.vel += dir * Options.GlideThrust;
@@ -100,7 +83,10 @@ public static class Glide
                     {
                         //shift dragDir to feel more natural to fly with.
                         //shift dir down slightly (so that the slugcat normally moves forward)
-                        dragDir = Perpendicular(dir + new Vector2(0, Options.GlideBaseDirY));
+                        Vector2 dir2 = dir + new Vector2(0, Options.GlideBaseDirY);
+                        if (dir2.sqrMagnitude > 0.0001f) //don't let it explode by dividing by 0
+                            dir2 *= Mathf.Sqrt(dir.sqrMagnitude / dir2.sqrMagnitude); //set dir2's magnitude to dir1's
+                        dragDir = Perpendicular(dir2);
                         //if dragDir.magnitude < 1, lerp it towards (0, 1)
                         dragDir = Vector2.LerpUnclamped(new(0, 1), dragDir, dragDir.magnitude);
                         //if dir is up and vel is down, lerp dragDir up
@@ -157,6 +143,7 @@ public static class Glide
 
         } catch (Exception ex) { Plugin.Error(ex); }
     }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Vector2 Perpendicular(Vector2 v) => new Vector2(-v.y, v.x); //made as my own function so I know it's correct
 
     private static float YSlowdown(float y, float b) => (y < 0) ? (-y * y) / (-y + b) : (y * y) / (y + b);
