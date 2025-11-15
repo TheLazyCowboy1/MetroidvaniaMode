@@ -25,6 +25,8 @@ public partial class Plugin : BaseUnityPlugin
     public static Plugin Instance;
     private static Options ConfigOptions;
 
+    public static string PluginPath = "";
+
     #region Setup
     public Plugin()
     {
@@ -75,6 +77,7 @@ public partial class Plugin : BaseUnityPlugin
         try
         {
             if (IsInit) return;
+            IsInit = true; //set IsInit first, in case there is an error
 
             //Keep config menu options up to date
             On.RainWorldGame.ctor += RainWorldGame_ctor;
@@ -100,8 +103,10 @@ public partial class Plugin : BaseUnityPlugin
             //Register collectible ExtEnums
             Collectibles.CollectibleTokens.Register();
 
-            IsInit = true;
-            Log("Applied hooks");
+            //find the plugin path
+            PluginPath = ModManager.ActiveMods.Find(m => m.id == MOD_ID).path;
+
+            Log("Applied hooks", 0);
         }
         catch (Exception ex)
         {

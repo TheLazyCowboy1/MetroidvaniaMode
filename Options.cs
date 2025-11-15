@@ -13,7 +13,7 @@ public class Options : AutoConfigOptions
         new("Advanced") { spacing = 30f },
     })
     {
-        LogLevel = 3; //temporarily enable all logs
+        //LogLevel = 3; //temporarily enable all logs
     }
 
 
