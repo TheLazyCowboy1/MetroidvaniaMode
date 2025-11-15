@@ -11,7 +11,7 @@ public abstract class AutoConfigOptions : OptionInterface
 {
     public class Config : Attribute
     {
-        public string Tab, Label, Desc;
+        public string Tab, Label = "", Desc = "";
         public bool rightSide = false;
         public bool hide = false;
         public float width = -1f, spaceBefore = 0f, spaceAfter = 0f, height = -1f;
@@ -23,7 +23,7 @@ public abstract class AutoConfigOptions : OptionInterface
         /// Used for string configs. Makes the config a dropdown choice-selection box instead of a textbox.
         /// </summary>
         public string[] dropdownOptions = null;
-        public Config(string tab, string label, string desc) : base()
+        public Config(string tab, string label = "", string desc = "") : base()
         {
             Tab = tab;
             Label = label;
@@ -92,7 +92,7 @@ public abstract class AutoConfigOptions : OptionInterface
                             configBase.info.acceptable = (ConfigAcceptableBase)Activator.CreateInstance(typeof(ConfigAcceptableRange<>).MakeGenericType(info.FieldType), rangeAtt.Min, rangeAtt.Max);
                     }
 
-                    configs.Add(new() { config = configBase, tab = att.Tab, label = att.Label, desc = att.Desc,
+                    configs.Add(new() { config = configBase, tab = att.Tab, label = att.Label.Length > 0 ? att.Label : FieldNameToLabel(info.Name), desc = att.Desc,
                         hide = att.hide, rightSide = att.rightSide, width = att.width, spaceBefore = att.spaceBefore,
                         spaceAfter = att.spaceAfter, height = att.height, precision = att.precision,
                         dropdownOptions = att.dropdownOptions
@@ -103,6 +103,15 @@ public abstract class AutoConfigOptions : OptionInterface
 
         ConfigInfos = configs.ToArray();
         Plugin.Log("Found " + ConfigInfos.Length + " configs");
+    }
+    private static string FieldNameToLabel(string n)
+    {
+        for (int i = n.Length-1; i >= 1; i--)
+        {
+            if (char.IsUpper(n[i]) && !char.IsUpper(n[i - 1]))
+                n.Insert(i, " "); //insert a space before uppercase characters, if they are after lowercase characters
+        }
+        return n;
     }
 
     private ConfigInfo[] ConfigInfos;

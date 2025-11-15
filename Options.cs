@@ -68,6 +68,8 @@ public class Options : AutoConfigOptions
 
     [Config("Abilities", "Can Glide", "Allows the player to glide in the air to slow descents")]
     public static bool CanGlide = false;
+    [Config("Abilities", "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 10)]
+    public static float GlideThrust = 0;
 
     [Config("Advanced", "Glide Slowdown Var", "Kind of the max falling speed...?"), LimitRange(0, 200)]
     public static float GlideSlowdownVar = 10f;
@@ -81,6 +83,17 @@ public class Options : AutoConfigOptions
     public static float GlideMaxXConversion = 0.03f;
     [Config("Advanced", "Glide Max YConversion", "advanced", rightSide = true, precision = 3), LimitRange(0, 1)]
     public static float GlideMaxYConversion = 0.03f;
+
+    [Config("Advanced", precision = 3)]
+    public static float GlideDragCoef = 0.2f;
+    [Config("Advanced", precision = 3, rightSide = true)]
+    public static float GlideOmniDragCoef = 0.03f;
+    [Config("Advanced", precision = 3)]
+    public static float GlideLiftCoef = 0.1f;
+    [Config("Advanced", precision = 3, rightSide = true)]
+    public static float GlideMaxLift = 0.2f;
+    [Config("Advanced")]
+    public static float GlideBaseDirY = -0.1f;
 
     [Config("Abilities", "Has Health", "Enables the health bar system")]
     public static bool HasHealth = false;
