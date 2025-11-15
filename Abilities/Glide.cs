@@ -93,12 +93,12 @@ public static class Glide
                     {
                         //shift dragDir to feel more natural to fly with.
                         //shift dir down slightly (so that the slugcat normally moves forward)
-                        dragDir = Perpendicular(dir - new Vector2(0, Options.GlideBaseDirY));
+                        dragDir = Perpendicular(dir + new Vector2(0, Options.GlideBaseDirY));
                         //if dragDir.magnitude < 1, lerp it towards (0, 1)
                         dragDir = Vector2.LerpUnclamped(new(0, 1), dragDir, dragDir.magnitude);
                         //if dir is up and vel is down, lerp dragDir up
                         if (nVel.y < 0 && dir.y > 0)
-                            dragDir = Vector2.LerpUnclamped(dragDir, -nVel, dir.y * dir.y * -nVel.y);
+                            dragDir = Vector2.LerpUnclamped(dragDir, -nVel, dir.y * -nVel.y);
 
                         //normalize dragDir
                         dragDir.Normalize();
