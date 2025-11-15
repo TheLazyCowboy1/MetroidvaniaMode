@@ -72,7 +72,7 @@ public class Options : AutoConfigOptions
     public static float GlideThrust = 0;
 
     [Config("Accessibility", "Easier Glide Mode", "Enables code that attempts to make gliding easier, at the expense of taking away some of your fine control. Disable this if you want to be an aviation pro.")]
-    public static bool EasierGlideMode = false;
+    public static bool EasierGlideMode = true;
 
     [Config("Advanced", "Glide Slowdown Var", "Kind of the max falling speed...?"), LimitRange(0, 200)]
     public static float GlideSlowdownVar = 10f;

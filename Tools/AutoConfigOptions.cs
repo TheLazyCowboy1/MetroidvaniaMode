@@ -109,7 +109,7 @@ public abstract class AutoConfigOptions : OptionInterface
         for (int i = n.Length-1; i >= 1; i--)
         {
             if (char.IsUpper(n[i]) && !char.IsUpper(n[i - 1]))
-                n.Insert(i, " "); //insert a space before uppercase characters, if they are after lowercase characters
+                n = n.Insert(i, " "); //insert a space before uppercase characters, if they are after lowercase characters
         }
         return n;
     }
