@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace MetroidvaniaMode.Abilities;
@@ -6,6 +7,14 @@ namespace MetroidvaniaMode.Abilities;
 public static class Health
 {
     public static int CurrentHealth = 0;
+
+    private static CreatureTemplate.Type[] GrabAllowedCreatures =
+    {
+        CreatureTemplate.Type.CicadaA, CreatureTemplate.Type.CicadaB,
+        CreatureTemplate.Type.Leech, CreatureTemplate.Type.SeaLeech, DLCSharedEnums.CreatureTemplateType.JungleLeech,
+        CreatureTemplate.Type.Slugcat, MoreSlugcats.MoreSlugcatsEnums.CreatureTemplateType.SlugNPC,
+        CreatureTemplate.Type.TubeWorm
+    };
 
     public static void ApplyHooks()
     {
@@ -44,7 +53,7 @@ public static class Health
     public static void TakeDamage(this Player self, int damage)
     {
         PlayerInfo info = self.GetInfo();
-        if (info.iFrames <= 0)
+        if (info.iFrames <= 0 || self.playerState.dead) //still take damage when dead
         {
             self.room.AddObject(new TemporaryLight(self.mainBodyChunk.pos, false, Color.red, self, 40, 10)
                 { blinkType = PlacedObject.LightSourceData.BlinkType.Fade, blinkRate = 1.005f, //blink every 5 ticks
@@ -118,9 +127,10 @@ public static class Health
 
         try
         {
-            if (dieAnyway
-                || ((CurrentHealth < 2 || self.abstractCreature.InDen || self.playerState.permaDead || (!CurrentAbilities.CanSwim && self.drown >= 1))
-                    && self.GetInfo().iFrames <= 0)
+            if (dieAnyway || self.abstractCreature.InDen || self.playerState.permaDead //respect permaDeath scenarios
+                || self.isNPC //don't apply to NPCs
+                || (!CurrentAbilities.CanSwim && self.drown >= 1) //speed up drowning if we can't swim
+                || (CurrentHealth < 2 && self.GetInfo().iFrames <= 0) //die if low health and no i-frames
                 )
             {
                 Plugin.Log("Player died!");
@@ -139,6 +149,8 @@ public static class Health
                     self.drown = 0; //stop the player from drowning
 
                 self.TakeDamage(2);
+
+                self.GetInfo().ReleaseQueued = true; //also caused creatures to release grasp, such as leeches
             }
             dieAnyway = false;
         } catch (Exception ex) { Plugin.Error(ex); orig(self); }
@@ -160,16 +172,16 @@ public static class Health
 
     private static void Player_Grabbed(On.Player.orig_Grabbed orig, Player self, Creature.Grasp grasp)
     {
-        if (!CurrentAbilities.HasHealth)
-        {
-            orig(self, grasp);
-            return;
-        }
-
         orig(self, grasp);
 
         try
         {
+            if (!CurrentAbilities.HasHealth || self.isNPC //don't save NPCs
+                || GrabAllowedCreatures.Contains(grasp.grabber.Template.type)) //don't stop grabs from allowed creatures
+            {
+                return;
+            }
+
             PlayerInfo info = self.GetInfo();
             if (CurrentHealth > 0 || info.iFrames > 0)
             {
@@ -196,7 +208,7 @@ public static class Health
                 info.ReleaseQueued = false;
 
                 Creature.Grasp[] tempList = self.grabbedBy.ToArray();
-                foreach (var g in tempList)
+                foreach (Creature.Grasp g in tempList)
                 {
                     g.grabber.Stun(40);
                     //self.room.AddObject(new CreatureSpasmer(g.grabber, false, g.grabber.stun));
@@ -241,7 +253,7 @@ public static class Health
 
         if (CurrentAbilities.HasHealth)
         {
-            if (self.creature is Player player)
+            if (self.creature is Player player && player.playerState.alive)
             {
                 player.playerState.permaDead = true;
                 player.Die(); //DIE DIE DIE pls
