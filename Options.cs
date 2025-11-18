@@ -63,16 +63,19 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Dash Strength", "How much of the player's speed is converted to the dash speed.\n1 = dash completely overrides player speed. 0 = dash does nothing.")]
     public static float DashStrength = 0.95f;
 
+    [Config("Advanced", "/40 Dash Cooldown", "The minimum time between dashes, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 200)]
+    public static int DashCooldown = 0;
+
     [Config("Abilities", "Extra Jumps", "Allows the player to double jump"), LimitRange(0, 100)]
     public static int ExtraJumps = 0;
 
     [Config("Abilities", "Can Glide", "Allows the player to glide in the air to slow descents")]
     public static bool CanGlide = false;
+
+    [Config("Advanced", "Glide Anti-Gravity", "How much to subtract from gravity"), LimitRange(0, 2)]
+    public static float GlideAntiGrav = 0.5f;
     [Config("Abilities", "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 1)]
     public static float GlideThrust = 0;
-
-    [Config("Advanced", "Glide Anti-Gravity", "How much to subtract from gravity."), LimitRange(0, 2)]
-    public static float GlideAntiGrav = 0.5f;
     [Config("Advanced", "Glide Drag Coef", "How much air resistance the slugcat has in the perpendicular direction. Setting this low makes gliding less effective; setting it high makes the motion rigid.", precision = 3), LimitRange(0, 1)]
     public static float GlideDragCoef = 0.25f;
     [Config("Advanced", "Glide Omni Drag Coef", "How much air resistance the slugcat has in ALL directions. Increasing this will decrease the slugcat's max speed.", precision = 3, rightSide = true), LimitRange(0, 1)]
@@ -90,6 +93,13 @@ public class Options : AutoConfigOptions
     public static bool HasHealth = false;
     [Config("Abilities", "Max Health", "The maximum amount of health, and the default health", rightSide = true), LimitRange(0, 30)]
     public static int MaxHealth = 3;
+
+    [Config("Abilities", "Has Inventory", "Enables the inventory wheel")]
+    public static bool HasInventory = false;
+    [Config("Abilities", "Unlock All Inventory Items", "Makes all inventory items available")]
+    public static bool UnlockAllInventoryItems = false;
+    [Config("Accessibility", "/40 Inventory Open Time", "How long it takes for the inventory wheel to open.")]
+    public static int InventoryOpenTime = 10;
 
 
     [Config("General", "Test String", "This is a test", width = 150f)]

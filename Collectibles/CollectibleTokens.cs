@@ -79,17 +79,32 @@ public static class CollectibleTokens
     public static SlugcatUnlockID[] HealthUnlocks;
 
 
+    //Item Unlocks
+    [Collectible(5, msg = Collectible.SpecialMessage.ItemMessage, specialMessageInfo = new string[] { "Spear" })]
+    public static LevelUnlockID[] SpearItem;
+    [Collectible(5, msg = Collectible.SpecialMessage.ItemMessage, specialMessageInfo = new string[] { "Grenade" })]
+    public static LevelUnlockID[] GrenadeItem;
+    [Collectible(5, msg = Collectible.SpecialMessage.ItemMessage, specialMessageInfo = new string[] { "Bubble Weed" })]
+    public static LevelUnlockID[] BubbleWeedItem;
+    [Collectible(5, msg = Collectible.SpecialMessage.ItemMessage, specialMessageInfo = new string[] { "Flashbang" })]
+    public static LevelUnlockID[] FlashbangItem;
+    [Collectible(5, msg = Collectible.SpecialMessage.ItemMessage, specialMessageInfo = new string[] { "Heal Fruit" })]
+    public static LevelUnlockID[] HealFruitItem;
+
+
     private class Collectible : Attribute
     {
         public enum SpecialMessage
         {
             None,
-            HealthMessage
+            HealthMessage,
+            ItemMessage
         }
 
         public int Count;
         public string[] UnlockMessages = null;
         public SpecialMessage msg = SpecialMessage.None;
+        public string[] specialMessageInfo;
         public Collectible(int count = 1, params string[] messages) : base()
         {
             Count = count;
@@ -102,6 +117,13 @@ public static class CollectibleTokens
             {
                 case SpecialMessage.HealthMessage:
                     return $"Increased Maximum Health! Next cycle, your health with be {Abilities.CurrentAbilities.MaxHealth}.";
+                case SpecialMessage.ItemMessage:
+                    if (specialMessageInfo != null && specialMessageInfo.Length > 0)
+                        return count > 2 ? $"Unlocked Inventory Item: {specialMessageInfo[0]}. Hold GRAB to select and pull out a {specialMessageInfo[0]} at any time! Hold GRAB to store it back."
+                            : $"Unlocked an Additional {specialMessageInfo[0]}! You can now hold {count} {specialMessageInfo[0]}s in your inventory!";
+                    else
+                        return count < 2 ? "Unlocked a new Inventory Item! Hold GRAB to select and pull it out at any time! Hold GRAB to store it back."
+                            : $"Unlocked an Additional Inventory Item! You can now hold {count} of it.";
             }
             return null;
         }
@@ -236,6 +258,7 @@ public static class CollectibleTokens
 
         //update current abilities
         Abilities.CurrentAbilities.ResetAbilities(game);
+        Items.CurrentItems.ResetItems(game);
 
         //show unlock message
         if (displayMessage)

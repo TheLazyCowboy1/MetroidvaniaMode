@@ -4,8 +4,9 @@ namespace MetroidvaniaMode;
 
 public class PlayerInfo
 {
-    public bool DashCooldown = false;
+    public bool DashedSincePress = false;
     public int DashesLeft = 0;
+    public int DashCooldown = 0;
 
     public int ExtraJumpsLeft = 0;
 
@@ -13,6 +14,8 @@ public class PlayerInfo
 
     public bool ReleaseQueued = false;
     public int iFrames = 0;
+
+    public int HoldGrabTime = 0;
 
 
     private static ConditionalWeakTable<Player, PlayerInfo> playerInfos = new();

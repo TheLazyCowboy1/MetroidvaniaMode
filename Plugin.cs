@@ -61,6 +61,8 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.Health.RemoveHooks();
             Abilities.Glide.RemoveHooks();
 
+            Items.Inventory.RemoveHooks();
+
             SaveData.Hooks.RemoveHooks();
             Collectibles.Hooks.RemoveHooks();
 
@@ -92,6 +94,8 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.Health.ApplyHooks();
             Abilities.Glide.ApplyHooks();
 
+            Items.Inventory.ApplyHooks();
+
             SaveData.Hooks.ApplyHooks();
             Collectibles.Hooks.ApplyHooks();
 
@@ -102,6 +106,7 @@ public partial class Plugin : BaseUnityPlugin
 
             //Register collectible ExtEnums
             Collectibles.CollectibleTokens.Register();
+            Items.CustomItems.Register();
 
             //find the plugin path
             PluginPath = ModManager.ActiveMods.Find(m => m.id == MOD_ID).path;
@@ -124,6 +129,8 @@ public partial class Plugin : BaseUnityPlugin
         orig(self, manager);
 
         Abilities.CurrentAbilities.ResetAbilities(self);
+        Items.CurrentItems.ResetItems(self);
+        Items.CurrentItems.RestockItems();
     }
 
     #endregion

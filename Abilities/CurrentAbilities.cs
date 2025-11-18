@@ -7,6 +7,9 @@ namespace MetroidvaniaMode.Abilities;
 
 public static class CurrentAbilities
 {
+    public static bool CountCollectibles(SlugcatStats.Name slugcat) => slugcat == SlugcatStats.Name.White;
+
+
     public static float JumpBoost = 1;
     public static float PoleJumpBoost = 1;
     public static float JumpBoostDecrement = 1;
@@ -36,6 +39,8 @@ public static class CurrentAbilities
 
     public static bool HasHealth = false;
     public static int MaxHealth = 3;
+
+    public static bool HasInventory = false;
 
     public static void ResetAbilities(RainWorldGame game)
     {
@@ -157,6 +162,8 @@ public static class CurrentAbilities
 
             HasHealth = true;
             MaxHealth = Math.Max(0, 3 + Options.ExtraHealth); //add extra health. Don't let MaxHealth be less than 0.
+
+            HasInventory = true;
         }
         else
         {
@@ -195,7 +202,7 @@ public static class CurrentAbilities
 
         HasHealth = Options.HasHealth;
         MaxHealth = Options.MaxHealth;
-    }
 
-    private static bool CountCollectibles(SlugcatStats.Name slugcat) => slugcat == SlugcatStats.Name.White;
+        HasInventory = Options.HasInventory;
+    }
 }
