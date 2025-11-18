@@ -59,7 +59,7 @@ public static class Inventory
                 {
                     //closing inventory after opening, so we should grab or store an item!
                     int selection = Array.IndexOf(UI.InventoryWheel.IntVecs, self.input[0].IntVec);
-                    if (selection > 0)
+                    if (selection >= 0)
                     {
                         AbstractPhysicalObject.AbstractObjectType item = WheelItems[selection];
                         if (item != null)
@@ -86,7 +86,11 @@ public static class Inventory
                                     itemInfo.count++;
 
                                     self.noPickUpOnRelease = 10; //briefly prevents picking up objects
+
+                                    Plugin.Log("Storing item in inventory: " + item, 2);
                                 }
+                                else
+                                    Plugin.Log("Inventory closed trying to store an item we already have the max of", 2);
                             }
                             else
                             {
@@ -110,11 +114,19 @@ public static class Inventory
                                         itemInfo.count--;
 
                                         self.noPickUpOnRelease = 10; //briefly prevents picking up objects
+
+                                        Plugin.Log("Pulling item out of inventory: " + item, 2);
                                     }
                                 }
+                                else
+                                    Plugin.Log("Inventory closed trying to pull out an item without any empty hands", 2);
                             }
                         }
+                        else
+                            Plugin.Log("Inventory closed with a blank slot selected", 2);
                     }
+                    else
+                        Plugin.Log("Inventory closed with no selection", 2);
                 }
 
                 info.HoldGrabTime = 0;

@@ -130,43 +130,47 @@ public abstract class AutoConfigOptions : OptionInterface
 
             foreach (ConfigInfo cInfo in ConfigInfos)
             {
-                if (cInfo.tab == name)
+                try
                 {
-                    float x = cInfo.rightSide ? tInfo.rightMargin : tInfo.leftMargin;
-                    float w = cInfo.width >= 0 ? cInfo.width : tInfo.updownWidth;
-                    float h = cInfo.height >= 0 ? cInfo.height : tInfo.defaultHeight;
-                    float t = tInfo.textOffset + w - tInfo.updownWidth; //updownWidth is the default
-
-                    if (cInfo.rightSide)
-                        y += tInfo.spacing; //keep on same height... a janky method to do so, but oh well
-                    y -= cInfo.spaceBefore;
-
-                    UIelement el;
-                    if (cInfo.config is Configurable<bool> cb)
-                        el = new OpCheckBox(cb, x + tInfo.checkboxOffset, y);
-                    else if (cInfo.config is Configurable<float> cf)
-                        el = new OpUpdown(cf, new(x, y), w, cInfo.precision);
-                    else if (cInfo.config is Configurable<int> ci)
-                        el = new OpUpdown(ci, new(x, y), w);
-                    else if (cInfo.config is Configurable<KeyCode> ck)
-                        el = new OpKeyBinder(ck, new(x, y), new(w, h));
-                    else if (cInfo.config is Configurable<string> cs)
+                    if (cInfo.tab == name)
                     {
-                        if (cInfo.dropdownOptions != null)
-                            el = new OpComboBox(cs, new(x, y), w, cInfo.dropdownOptions);
+                        float x = cInfo.rightSide ? tInfo.rightMargin : tInfo.leftMargin;
+                        float w = cInfo.width >= 0 ? cInfo.width : tInfo.updownWidth;
+                        float h = cInfo.height >= 0 ? cInfo.height : tInfo.defaultHeight;
+                        float t = tInfo.textOffset + w - tInfo.updownWidth; //updownWidth is the default
+
+                        if (cInfo.rightSide)
+                            y += tInfo.spacing; //keep on same height... a janky method to do so, but oh well
+                        y -= cInfo.spaceBefore;
+
+                        UIelement el;
+                        if (cInfo.config is Configurable<bool> cb)
+                            el = new OpCheckBox(cb, x + tInfo.checkboxOffset, y);
+                        else if (cInfo.config is Configurable<float> cf)
+                            el = new OpUpdown(cf, new(x, y), w, cInfo.precision);
+                        else if (cInfo.config is Configurable<int> ci)
+                            el = new OpUpdown(ci, new(x, y), w);
+                        else if (cInfo.config is Configurable<KeyCode> ck)
+                            el = new OpKeyBinder(ck, new(x, y), new(w, h));
+                        else if (cInfo.config is Configurable<string> cs)
+                        {
+                            if (cInfo.dropdownOptions != null)
+                                el = new OpComboBox(cs, new(x, y), w, cInfo.dropdownOptions);
+                            else
+                                el = new OpTextBox(cs, new(x, y), w);
+                        }
                         else
-                            el = new OpTextBox(cs, new(x, y), w);
-                    }
-                    else
-                    {
-                        Plugin.Error("This config type is not yet supported: " + cInfo.config.GetType().FullName);
-                        continue;
-                    }
-                    el.description = cInfo.desc;
+                        {
+                            Plugin.Error("This config type is not yet supported: " + cInfo.config.GetType().FullName);
+                            continue;
+                        }
+                        el.description = cInfo.desc;
 
-                    Tabs[i].AddItems(new OpLabel(x + t, y, cInfo.label), el);
-                    y -= tInfo.spacing + cInfo.spaceAfter;
+                        Tabs[i].AddItems(new OpLabel(x + t, y, cInfo.label), el);
+                        y -= tInfo.spacing + cInfo.spaceAfter;
+                    }
                 }
+                catch (Exception ex) { Plugin.Error("Error with " + cInfo.label); Plugin.Error(ex); }
             }
         }
 

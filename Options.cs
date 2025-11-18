@@ -96,9 +96,10 @@ public class Options : AutoConfigOptions
 
     [Config("Abilities", "Has Inventory", "Enables the inventory wheel")]
     public static bool HasInventory = false;
-    [Config("Abilities", "Unlock All Inventory Items", "Makes all inventory items available")]
+    [Config("Abilities", "Unlock All Inventory Items", "Makes all inventory items available", rightSide = true)]
     public static bool UnlockAllInventoryItems = false;
-    [Config("Accessibility", "/40 Inventory Open Time", "How long it takes for the inventory wheel to open.")]
+
+    [Config("Accessibility", "/40 Inventory Open Time", "How long it takes for the inventory wheel to open."), LimitRange(0, 40)]
     public static int InventoryOpenTime = 10;
 
 

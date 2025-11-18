@@ -34,7 +34,8 @@ public class InventoryWheel : HudPart
         {
             circles[i] = new(Futile.whiteElement);
             circles[i].shader = hud.rainWorld.Shaders["VectorCircleFadable"];
-            circles[i].scale = CircleDiameter;
+            circles[i].width = CircleDiameter;
+            circles[i].height = CircleDiameter;
             circles[i].color = new(0.5f, 0.5f, 0.5f);
             circles[i].alpha = 0;
             circles[i].isVisible = false;
@@ -60,12 +61,14 @@ public class InventoryWheel : HudPart
             //apply alpha to sprites
             for (int i = 0; i < circles.Length; i++)
             {
-                circles[i].isVisible = alpha > 0;
+                if (circles[i].isVisible != alpha > 0)
+                    circles[i].isVisible = alpha > 0;
                 circles[i].alpha = alpha * (selection == i ? selectedCircleAlpha : baseCircleAlpha);
 
                 if (items[i] != null)
                 {
-                    items[i].isVisible = alpha > 0;
+                    if (items[i].isVisible != alpha > 0)
+                        items[i].isVisible = alpha > 0;
                     items[i].alpha = alpha;
                 }
             }
