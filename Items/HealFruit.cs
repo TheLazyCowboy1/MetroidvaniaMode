@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MetroidvaniaMode.Items;
@@ -33,6 +29,7 @@ public class HealFruit : DangleFruit
             //ADD HEALTH
             if (Abilities.Health.CurrentHealth < Abilities.CurrentAbilities.MaxHealth)
                 Abilities.Health.CurrentHealth++;
+            Plugin.Log("Ate heal fruit!");
 
             (grasp.grabber as Player).ObjectEaten(this);
             grasp.Release();

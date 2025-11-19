@@ -82,6 +82,10 @@ public partial class Plugin : BaseUnityPlugin
             if (IsInit) return;
             IsInit = true; //set IsInit first, in case there is an error
 
+            //Register ExtEnums
+            Collectibles.CollectibleTokens.Register();
+            Items.CustomItems.Register();
+
             //Keep config menu options up to date
             On.RainWorldGame.ctor += RainWorldGame_ctor;
 
@@ -105,10 +109,6 @@ public partial class Plugin : BaseUnityPlugin
             //Set up config menu
             MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
             //ConfigOptions.SetValues();
-
-            //Register collectible ExtEnums
-            Collectibles.CollectibleTokens.Register();
-            Items.CustomItems.Register();
 
             //find the plugin path
             PluginPath = ModManager.ActiveMods.Find(m => m.id == MOD_ID).path;

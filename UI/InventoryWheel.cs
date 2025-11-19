@@ -134,6 +134,8 @@ public class InventoryWheel : HudPart
                     items[i].isVisible = alpha > 0;
                     items[i].scale = Mathf.Min(SymbolSize / items[i].width, SymbolSize / items[i].height);
                     fContainer.AddChild(items[i]);
+
+                    Plugin.Log("Set up inventory symbol for item: " + Inventory.WheelItems[i], 2);
                 }
                 else if (items[i] != null && Inventory.WheelItems[i] == null)
                 {
@@ -149,6 +151,8 @@ public class InventoryWheel : HudPart
                     //the item has changed!
                     items[i].element = Futile.atlasManager.GetElementWithName(spriteName);
                     items[i].scale = Mathf.Min(SymbolSize / items[i].width, SymbolSize / items[i].height);
+
+                    Plugin.Log("Switched inventory symbol for item: " + Inventory.WheelItems[i], 2);
                 }
 
                 //set color
@@ -176,6 +180,7 @@ public class InventoryWheel : HudPart
                         fContainer.AddChild(labels[i]);
                     }
                     labels[i].text = info.count.ToString();
+                    labels[i].color = info.count >= info.max ? new(0.2f, 1f, 0.2f) : Color.white; //show as green when at max
                 }
             }
             catch (Exception ex) { Plugin.Error(ex); }

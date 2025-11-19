@@ -4,7 +4,6 @@ using MetroidvaniaMode.Collectibles;
 using System;
 using System.Collections.Generic;
 using static MultiplayerUnlocks;
-using UnityEngine;
 
 namespace MetroidvaniaMode.Items;
 
@@ -57,14 +56,10 @@ public static class CurrentItems
 
                 foreach (ItemInfo info in ItemInfos.Values)
                 {
-                    //ItemInfo info = ItemInfos[i];
-
                     int oldMax = info.max;
                     info.max += CollectibleTokens.UnlockedCount(g, info.Collectible());
                     info.count += info.max - oldMax; //increase/decrease count with max
                     if (info.count < 0) info.count = 0; //don't go negative, though!
-
-                    //ItemInfos[i] = info;
                 }
             }
         }
