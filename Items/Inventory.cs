@@ -1,5 +1,6 @@
 ﻿using MetroidvaniaMode.Abilities;
 using System;
+using System.Linq;
 
 namespace MetroidvaniaMode.Items;
 
@@ -38,6 +39,10 @@ public static class Inventory
 
         try
         {
+            //check if there are any items to pull out
+            if (!CurrentItems.ItemInfos.Values.Any(i => i.max > 0))
+                return; //no eligible items for inventory, so don't open inventory!
+
             PlayerInfo info = self.GetInfo();
 
             bool open = false;
@@ -146,6 +151,8 @@ public static class Inventory
         AbstractPhysicalObject abObj;
         if (item == AbstractPhysicalObject.AbstractObjectType.Spear)
             abObj = new AbstractSpear(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), false);
+        else if (item == AbstractPhysicalObject.AbstractObjectType.BubbleGrass)
+            abObj = new BubbleGrass.AbstractBubbleGrass(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), 1f, -1, -1, null);
         else
             abObj = new(self.abstractPhysicalObject.world, item, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID());
         abObj.RealizeInRoom();

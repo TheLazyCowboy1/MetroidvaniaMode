@@ -16,6 +16,8 @@ public class InventoryWheel : HudPart
     private const float selectedCircleAlpha = 1f;
     public bool visible = false;
 
+    public bool anyItems = false;
+
     public int selection = -1;
 
     private FContainer fContainer => this.hud.fContainers[1];
@@ -101,7 +103,7 @@ public class InventoryWheel : HudPart
                 offset *= WheelRadius;
 
                 circles[i].SetPosition(pos + offset);
-                items[i]?.SetPosition(pos + offset + new Vector2(0.5f * (CircleDiameter - SymbolSize), 0.5f * (CircleDiameter - SymbolSize))); //center item
+                items[i]?.SetPosition(pos + offset);// + new Vector2(0.5f * (CircleDiameter - SymbolSize), 0.5f * (CircleDiameter - SymbolSize))); //center item
             }
             catch (Exception ex) { Plugin.Error(ex); }
         }
