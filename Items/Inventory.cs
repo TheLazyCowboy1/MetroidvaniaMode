@@ -15,6 +15,7 @@ public static class Inventory
         WheelItems[1] = AbstractPhysicalObject.AbstractObjectType.ScavengerBomb;
         WheelItems[2] = AbstractPhysicalObject.AbstractObjectType.BubbleGrass;
         WheelItems[3] = AbstractPhysicalObject.AbstractObjectType.FlareBomb;
+        WheelItems[7] = CustomItems.HealFruit;
 
         On.Player.GrabUpdate += Player_GrabUpdate;
 
@@ -155,10 +156,16 @@ public static class Inventory
             abObj = new BubbleGrass.AbstractBubbleGrass(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), 1f, -1, -1, null);
         else if (item == AbstractPhysicalObject.AbstractObjectType.FlareBomb)
             abObj = new AbstractConsumable(self.abstractPhysicalObject.world, item, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), -1, -1, null);
+        else if (item == CustomItems.HealFruit)
+            abObj = new DangleFruit.AbstractDangleFruit(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), -1, -1, false, null) { type = CustomItems.HealFruit }; //manually re-assign the type
         else
             abObj = new(self.abstractPhysicalObject.world, item, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID());
         abObj.RealizeInRoom();
         self.SlugcatGrab(abObj.realizedObject, grasp);
+
+        //visual thingy; move item towards hand?
+        if (self.graphicsModule != null)
+            abObj.realizedObject.firstChunk.MoveFromOutsideMyUpdate(self.abstractPhysicalObject.world.game.evenUpdate, (self.graphicsModule as PlayerGraphics).hands[grasp].pos);
 
         self.room.PlaySound(SoundID.Slugcat_Pick_Up_Spear, self.mainBodyChunk);
         itemInfo.count--;

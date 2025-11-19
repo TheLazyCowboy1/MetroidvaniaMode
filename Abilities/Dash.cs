@@ -31,7 +31,7 @@ public static class Dash
                 info.DashCooldown--;
 
             //The dash button is being pressed
-            if (Input.GetKeyDown(Options.DashKeyCode)
+            if (Input.GetKey(Options.DashKeyCode) //tried GetKeyDown; maybe GetKey is better?
                 || (Options.PressJumpToDash && self.wantToJump > 0 && self.canJump < 1 && info.ExtraJumpsLeft < 1)
                 )
             {

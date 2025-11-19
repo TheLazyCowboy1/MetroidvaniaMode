@@ -1,23 +1,105 @@
-﻿using System;
+﻿using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using System;
 using System.Reflection;
 
 namespace MetroidvaniaMode.Items;
 
 public static class CustomItems
 {
-    [ItemID("HealFruit")]
-    public static PlacedObject.Type HealFruit;
-    [ItemID("HealFruit")]
-    public static AbstractPhysicalObject.AbstractObjectType AbHealFruit;
+    [ItemID]
+    public static AbstractPhysicalObject.AbstractObjectType HealFruit;
+
+    public static void ApplyHooks()
+    {
+        On.AbstractPhysicalObject.Realize += AbstractPhysicalObject_Realize;
+        On.ItemSymbol.SpriteNameForItem += ItemSymbol_SpriteNameForItem;
+        On.ItemSymbol.ColorForItem += ItemSymbol_ColorForItem;
+
+        //heal fruit
+        IL.Player.GrabUpdate += Player_GrabUpdate;
+    }
+
+    public static void RemoveHooks()
+    {
+        On.AbstractPhysicalObject.Realize -= AbstractPhysicalObject_Realize;
+        On.ItemSymbol.SpriteNameForItem -= ItemSymbol_SpriteNameForItem;
+        On.ItemSymbol.ColorForItem -= ItemSymbol_ColorForItem;
+
+        IL.Player.GrabUpdate -= Player_GrabUpdate;
+    }
+
+    //Object realizing
+    private static void AbstractPhysicalObject_Realize(On.AbstractPhysicalObject.orig_Realize orig, AbstractPhysicalObject self)
+    {
+        try
+        {
+            if (self.type == HealFruit)
+            {
+                self.realizedObject = new HealFruit(self);
+                return;
+            }
+        } catch (Exception ex) { Plugin.Error(ex); }
+
+        orig(self);
+    }
+
+    //Sprite names
+    private static string ItemSymbol_SpriteNameForItem(On.ItemSymbol.orig_SpriteNameForItem orig, AbstractPhysicalObject.AbstractObjectType itemType, int intData)
+    {
+        try
+        {
+            if (itemType == HealFruit)
+            {
+                return orig(AbstractPhysicalObject.AbstractObjectType.DangleFruit, intData); //use DangleFruit sprite
+            }
+        }
+        catch (Exception ex) { Plugin.Error(ex); }
+
+        return orig(itemType, intData);
+    }
+    //Sprite colors
+    private static UnityEngine.Color ItemSymbol_ColorForItem(On.ItemSymbol.orig_ColorForItem orig, AbstractPhysicalObject.AbstractObjectType itemType, int intData)
+    {
+        try
+        {
+            if (itemType == HealFruit)
+            {
+                return new(0, 1, 0);
+            }
+        }
+        catch (Exception ex) { Plugin.Error(ex); }
+
+        return orig(itemType, intData);
+    }
+
+
+    //Make Heal Fruit always edible, just like Mushrooms
+    private static void Player_GrabUpdate(ILContext il)
+    {
+        try
+        {
+            ILCursor c = new(il);
+            if (c.TryGotoNext(MoveType.After, x => x.MatchIsinst<Mushroom>()))
+            {
+                c.Emit(OpCodes.Ldarg_0); //load player
+                c.Emit(OpCodes.Ldloc_S, 6); //load grasp idx
+                c.EmitDelegate((Player self, int grasp) => self.grasps[grasp].grabbed is HealFruit);
+                c.Emit(OpCodes.Or); //mushroom OR heal fruit works
+
+                Plugin.Log("Heal Fruit IL hook successful! ...I hope");
+            }
+        } catch (Exception ex) { Plugin.Error(ex); }
+    }
 
 
     private class ItemID : Attribute
     {
-        public string ID;
-        public ItemID(string iD) : base()
-        {
-            ID = iD;
-        }
+        //public string ID;
+        //public ItemID(string iD) : base()
+        //{
+            //ID = iD;
+        //}
     }
 
     private const string PREFIX = "MVM_";
@@ -35,8 +117,8 @@ public static class CustomItems
                     ItemID att = info.GetCustomAttribute<ItemID>();
                     if (att != null)
                     {
-                        info.SetValue(null, Activator.CreateInstance(info.FieldType, PREFIX + att.ID, true));
-                        debug += att.ID + ", ";
+                        info.SetValue(null, Activator.CreateInstance(info.FieldType, PREFIX + info.Name, true));
+                        debug += PREFIX + info.Name + ", ";
                     }
                 } catch (Exception ex) { Plugin.Error("Error with field " + info.Name); Plugin.Error(ex); }
             }

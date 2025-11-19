@@ -62,6 +62,7 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.Glide.RemoveHooks();
 
             Items.Inventory.RemoveHooks();
+            Items.CustomItems.RemoveHooks();
 
             SaveData.Hooks.RemoveHooks();
             Collectibles.Hooks.RemoveHooks();
@@ -95,6 +96,7 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.Glide.ApplyHooks();
 
             Items.Inventory.ApplyHooks();
+            Items.CustomItems.ApplyHooks();
 
             SaveData.Hooks.ApplyHooks();
             Collectibles.Hooks.ApplyHooks();

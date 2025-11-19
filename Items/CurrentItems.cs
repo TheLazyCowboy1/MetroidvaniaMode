@@ -17,7 +17,7 @@ public static class CurrentItems
         new(AbstractPhysicalObject.AbstractObjectType.ScavengerBomb, new(() => CollectibleTokens.GrenadeItem)),
         new(AbstractPhysicalObject.AbstractObjectType.BubbleGrass, new(() => CollectibleTokens.BubbleWeedItem)),
         new(AbstractPhysicalObject.AbstractObjectType.FlareBomb, new(() => CollectibleTokens.FlashbangItem)),
-        new(CustomItems.AbHealFruit, new(() => CollectibleTokens.HealFruitItem)),
+        new(CustomItems.HealFruit, new(() => CollectibleTokens.HealFruitItem)),
     });
 
     public class ItemInfo
