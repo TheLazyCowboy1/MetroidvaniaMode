@@ -1,9 +1,5 @@
 ﻿using MetroidvaniaMode.Abilities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MetroidvaniaMode.Items;
 
@@ -64,62 +60,37 @@ public static class Inventory
                         AbstractPhysicalObject.AbstractObjectType item = WheelItems[selection];
                         if (item != null)
                         {
-                            int graspIdx = -1;
-                            if (self.grasps[0] != null && self.grasps[0].grabbed.abstractPhysicalObject.type == item)
-                                graspIdx = 0;
-                            else if (self.grasps[1] != null && self.grasps[1].grabbed.abstractPhysicalObject.type == item)
-                                graspIdx = 1;
-
-                            if (graspIdx >= 0) //we already have the item
+                            int canPullOut = CanPullOutItem(self, item);
+                            if (canPullOut >= 0)
                             {
-                                CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[item];
-                                if (itemInfo.count < itemInfo.max)
-                                {
-                                    //store the item
-                                    PhysicalObject obj = self.grasps[graspIdx].grabbed;
-                                    self.ReleaseGrasp(graspIdx);
-                                    obj.RemoveFromRoom();
-                                    obj.abstractPhysicalObject.Destroy();
-                                    obj.Destroy();
-
-                                    self.room.PlaySound(SoundID.Slugcat_Stash_Spear_On_Back, self.mainBodyChunk);
-                                    itemInfo.count++;
-
-                                    self.noPickUpOnRelease = 10; //briefly prevents picking up objects
-
-                                    Plugin.Log("Storing item in inventory: " + item, 2);
-                                }
-                                else
-                                    Plugin.Log("Inventory closed trying to store an item we already have the max of", 2);
+                                PullOutItem(self, item, canPullOut);
                             }
-                            else
+                            else //couldn't pull it out
                             {
-                                //check for empty hand
-                                if (self.grasps[0] == null)
-                                    graspIdx = 0;
-                                else if (self.grasps[1] == null)
-                                    graspIdx = 1;
-
-                                if (graspIdx >= 0)
+                                Plugin.Log("Failed to pull out the item. Attempting to store it.", 2);
+                                int canStore = CanStoreItem(self, item);
+                                if (canStore >= 0)
                                 {
-                                    CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[item];
-                                    if (itemInfo.count > 0)
+                                    StoreItem(self, canStore);
+                                }
+                                else //couldn't store it either!
+                                {
+                                    Plugin.Log("Failed to store the item. Attempting to swap it.", 2);
+                                    for (int i = 0; i < self.grasps.Length; i++)
                                     {
-                                        //create the item
-                                        AbstractPhysicalObject abObj = new(self.abstractPhysicalObject.world, item, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID());
-                                        abObj.RealizeInRoom();
-                                        self.SlugcatGrab(abObj.realizedObject, graspIdx);
-
-                                        self.room.PlaySound(SoundID.Slugcat_Pick_Up_Spear, self.mainBodyChunk);
-                                        itemInfo.count--;
-
-                                        self.noPickUpOnRelease = 10; //briefly prevents picking up objects
-
-                                        Plugin.Log("Pulling item out of inventory: " + item, 2);
+                                        if (self.grasps[i] != null)
+                                        {
+                                            int canStore2 = CanStoreGrasp(self, i);
+                                            int canPullOut2 = CanPullOutItem(self, item, canStore2);
+                                            if (canPullOut2 >= 0)
+                                            {
+                                                StoreItem(self, canStore2);
+                                                PullOutItem(self, item, canPullOut2);
+                                                break;
+                                            }
+                                        }
                                     }
                                 }
-                                else
-                                    Plugin.Log("Inventory closed trying to pull out an item without any empty hands", 2);
                             }
                         }
                         else
@@ -141,6 +112,102 @@ public static class Inventory
 
         
         orig(self, eu);
+    }
+    private static int CanPullOutItem(Player self, AbstractPhysicalObject.AbstractObjectType item, int artificiallyEmptyGrasp = -1)
+    {
+        if (!CurrentItems.ItemInfos.ContainsKey(item))
+            return -1;
+        CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[item];
+
+        //check for empty hand
+        int grasp = -1;
+        for (int i = 0; i < self.grasps.Length; i++)
+        {
+            if (self.grasps[i] == null || i == artificiallyEmptyGrasp) //find the first EMPTY grasp
+            {
+                grasp = i;
+                break;
+            }
+        }
+
+        if (grasp >= 0 && itemInfo.count > 0
+            && (item != AbstractPhysicalObject.AbstractObjectType.Spear || self.grasps[1 - grasp] == null || 1 - grasp == artificiallyEmptyGrasp) //can't pull out two spears
+            ) //able to pull item out
+        {
+            return grasp;
+        }
+        return -1;
+    }
+    private static void PullOutItem(Player self, AbstractPhysicalObject.AbstractObjectType item, int grasp)
+    {
+        CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[item];
+
+        //create the item
+        AbstractPhysicalObject abObj;
+        if (item == AbstractPhysicalObject.AbstractObjectType.Spear)
+            abObj = new AbstractSpear(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), false);
+        else
+            abObj = new(self.abstractPhysicalObject.world, item, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID());
+        abObj.RealizeInRoom();
+        self.SlugcatGrab(abObj.realizedObject, grasp);
+
+        self.room.PlaySound(SoundID.Slugcat_Pick_Up_Spear, self.mainBodyChunk);
+        itemInfo.count--;
+
+        self.noPickUpOnRelease = 10; //briefly prevents picking up objects
+
+        Plugin.Log("Pulling item out of inventory: " + item, 2);
+    }
+    private static int CanStoreItem(Player self, AbstractPhysicalObject.AbstractObjectType item)
+    {
+        if (!CurrentItems.ItemInfos.ContainsKey(item))
+            return -1;
+        CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[item];
+
+        //check if we already have item in hand
+        int grasp = -1;
+        for (int i = 0; i < self.grasps.Length; i++)
+        {
+            if (self.grasps[i] != null && self.grasps[i].grabbed.abstractPhysicalObject.type == item)
+            {
+                grasp = i;
+                break;
+            }
+        }
+
+        if (grasp >= 0 && itemInfo.count < itemInfo.max)
+        {
+            
+            return grasp;
+        }
+        return -1;
+    }
+    private static int CanStoreGrasp(Player self, int grasp)
+    {
+        AbstractPhysicalObject ab = self.grasps[grasp].grabbed.abstractPhysicalObject;
+        if (ab is AbstractSpear spear && (spear.explosive || spear.electric))
+            return -1; //don't store explosive spears; that'd be annoying
+
+        return CanStoreItem(self, ab.type);
+    }
+    private static void StoreItem(Player self, int grasp)
+    {
+        PhysicalObject obj = self.grasps[grasp].grabbed;
+        CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[obj.abstractPhysicalObject.type];
+
+        //store the item
+        self.ReleaseGrasp(grasp);
+        obj.RemoveFromRoom();
+        obj.abstractPhysicalObject.Room.RemoveEntity(obj.abstractPhysicalObject);
+        obj.abstractPhysicalObject.Destroy();
+        obj.Destroy();
+
+        self.room.PlaySound(SoundID.Slugcat_Stash_Spear_On_Back, self.mainBodyChunk);
+        itemInfo.count++;
+
+        self.noPickUpOnRelease = 10; //briefly prevents picking up objects
+
+        Plugin.Log("Storing item in inventory: " + obj.abstractPhysicalObject.type, 2);
     }
 
 

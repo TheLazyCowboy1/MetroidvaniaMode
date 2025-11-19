@@ -12,16 +12,16 @@ public class InventoryWheel : HudPart
 
     public float alpha = 0;
     private const float alphaStep = 1f / 0.1f / 40f; //0.1 second
-    private const float baseCircleAlpha = 0.5f;
-    private const float selectedCircleAlpha = 0.8f;
+    private const float baseCircleAlpha = 0.3f;
+    private const float selectedCircleAlpha = 1f;
     public bool visible = false;
 
     public int selection = -1;
 
     private FContainer fContainer => this.hud.fContainers[1];
 
-    private const float WheelRadius = 60f;
-    private const float CircleDiameter = 30f;
+    private const float WheelRadius = 90f;
+    private const float CircleDiameter = 45f;
     private const float SymbolSize = 25f;
     //private HUDCircle[] circles;
     private FSprite[] circles;
@@ -33,7 +33,7 @@ public class InventoryWheel : HudPart
         for (int i = 0; i < circles.Length; i++)
         {
             circles[i] = new(Futile.whiteElement);
-            circles[i].shader = hud.rainWorld.Shaders["VectorCircleFadable"];
+            circles[i].shader = hud.rainWorld.Shaders["VectorCircle"];
             circles[i].width = CircleDiameter;
             circles[i].height = CircleDiameter;
             circles[i].color = new(0.5f, 0.5f, 0.5f);
@@ -55,7 +55,7 @@ public class InventoryWheel : HudPart
         {
             if (visible && alpha < 1)
                 alpha += alphaStep;
-            else
+            else if (!visible)
                 alpha -= alphaStep;
 
             //apply alpha to sprites
