@@ -80,7 +80,7 @@ public static class CustomItems
         try
         {
             ILCursor c = new(il);
-            while (c.TryGotoNext(MoveType.Before, x => x.MatchIsinst<Mushroom>())) //do this for EVERY "is Mushroom"
+            while (c.TryGotoNext(MoveType.After, x => x.MatchIsinst<Mushroom>())) //do this for EVERY "is Mushroom"
             {
                 //"is Mushroom" is ALREADY loaded onto the stack, so we must reference it
                 c.Emit(OpCodes.Ldarg_0); //load player
