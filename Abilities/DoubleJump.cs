@@ -38,7 +38,7 @@ public static class DoubleJump
                     Plugin.Log("Doubled jumped", 2);
                 }
             }
-            else if (self.canJump > 1)
+            else if (self.canJump > 1 || (CurrentAbilities.WallDashReset && self.canJump > 0))
             {
                 self.GetInfo().ExtraJumpsLeft = CurrentAbilities.ExtraJumps;
             }

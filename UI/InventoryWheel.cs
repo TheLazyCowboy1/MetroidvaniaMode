@@ -27,9 +27,11 @@ public class InventoryWheel : HudPart
     private const float WheelRadius = 90f;
     private const float CircleDiameter = 45f;
     private const float SymbolSize = 25f;
+    private const float LabelHeight = 15f;
     //private HUDCircle[] circles;
     private FSprite[] circles;
     private FSprite[] items;
+    private FLabel[] labels;
 
     public InventoryWheel(HUD.HUD hud) : base(hud)
     {
@@ -47,6 +49,7 @@ public class InventoryWheel : HudPart
         }
 
         items = new FSprite[8];
+        labels = new FLabel[8];
 
         LastInstance = this;
     }
@@ -65,15 +68,18 @@ public class InventoryWheel : HudPart
             //apply alpha to sprites
             for (int i = 0; i < circles.Length; i++)
             {
-                if (circles[i].isVisible != alpha > 0)
-                    circles[i].isVisible = alpha > 0;
+                circles[i].isVisible = alpha > 0;
                 circles[i].alpha = alpha * (selection == i ? SelectedCircleAlpha : BaseCircleAlpha);
 
                 if (items[i] != null)
                 {
-                    if (items[i].isVisible != alpha > 0)
-                        items[i].isVisible = alpha > 0;
+                    items[i].isVisible = alpha > 0;
                     items[i].alpha = alpha;
+                }
+                if (labels[i] != null)
+                {
+                    labels[i].isVisible = alpha > 0;
+                    labels[i].alpha = alpha;
                 }
             }
         }
@@ -87,6 +93,7 @@ public class InventoryWheel : HudPart
         {
             circles[i].RemoveFromContainer();
             items[i]?.RemoveFromContainer();
+            labels[i]?.RemoveFromContainer();
         }
 
         LastInstance = null; //it got cleared, so it's no longer active
@@ -106,6 +113,7 @@ public class InventoryWheel : HudPart
 
                 circles[i].SetPosition(pos + offset);
                 items[i]?.SetPosition(pos + offset);// + new Vector2(0.5f * (CircleDiameter - SymbolSize), 0.5f * (CircleDiameter - SymbolSize))); //center item
+                labels[i]?.SetPosition(pos + offset + new Vector2(SymbolSize * 0.5f, -SymbolSize * 0.5f));
             }
             catch (Exception ex) { Plugin.Error(ex); }
         }
@@ -132,6 +140,9 @@ public class InventoryWheel : HudPart
                     //remove the item sprite
                     items[i].RemoveFromContainer();
                     items[i] = null;
+                    //also remove label
+                    labels[i]?.RemoveFromContainer();
+                    labels[i] = null;
                 }
                 else if (items[i] != null && items[i].element.name != spriteName)
                 {
@@ -143,8 +154,9 @@ public class InventoryWheel : HudPart
                 //set color
                 if (items[i] != null && Inventory.WheelItems[i] != null)
                 {
+                    CurrentItems.ItemInfo info = CurrentItems.ItemInfos[Inventory.WheelItems[i]];
                     Color col = ItemSymbol.ColorForItem(Inventory.WheelItems[i], 0);
-                    if (CurrentItems.ItemInfos[Inventory.WheelItems[i]].count < 1)
+                    if (info.count < 1)
                     {
                         items[i].color = new(col.r * 0.5f, col.g * 0.5f, col.b * 0.5f, 0.5f); //grey out the item if there's none left of it
                     }
@@ -152,6 +164,18 @@ public class InventoryWheel : HudPart
                     {
                         items[i].color = col;
                     }
+
+                    //set label
+                    if (labels[i] == null)
+                    {
+                        //create label
+                        labels[i] = new(Custom.GetFont(), "0");
+                        labels[i].alpha = alpha;
+                        labels[i].isVisible = alpha > 0;
+                        labels[i].scale = LabelHeight / labels[i].FontLineHeight;
+                        fContainer.AddChild(labels[i]);
+                    }
+                    labels[i].text = info.count.ToString();
                 }
             }
             catch (Exception ex) { Plugin.Error(ex); }

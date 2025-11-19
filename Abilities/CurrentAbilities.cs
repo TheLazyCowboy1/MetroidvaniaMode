@@ -15,6 +15,7 @@ public static class CurrentAbilities
     public static float JumpBoostDecrement = 1;
 
     public static bool CanWallJump = true;
+    public static bool WallDashReset = false;
 
     public static bool CanGrabPoles = true;
     public static bool ClimbVerticalPoles = true;
@@ -70,6 +71,8 @@ public static class CurrentAbilities
 
                 if (!CanWallJump)
                     CanWallJump = CollectibleTokens.IsUnlocked(r, CollectibleTokens.WallJumpUnlock);
+                if (!WallDashReset)
+                    WallDashReset = CollectibleTokens.IsUnlocked(r, CollectibleTokens.WallDashResetUnlock);
 
                 int poleClimb = CollectibleTokens.UnlockedCount(r, CollectibleTokens.ClimbPolesUnlocks);
                 if (!CanGrabPoles && poleClimb > 0)
@@ -138,6 +141,7 @@ public static class CurrentAbilities
             JumpBoostDecrement = 0.5f;
 
             CanWallJump = false;
+            WallDashReset = false;
 
             CanGrabPoles = false;
             ClimbVerticalPoles = false;
@@ -178,6 +182,7 @@ public static class CurrentAbilities
         JumpBoostDecrement = Options.JumpBoostDecrement;
 
         CanWallJump = Options.CanWallJump;
+        WallDashReset = Options.WallDashReset;
 
         CanGrabPoles = Options.CanGrabPoles;
         ClimbVerticalPoles = Options.ClimbVerticalPoles;

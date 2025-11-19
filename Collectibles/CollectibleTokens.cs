@@ -31,6 +31,8 @@ public static class CollectibleTokens
     //public static bool CanWallJump = true;
     [Collectible(1, "Unlocked Ability: Wall Jump. Jump against walls to scale new heights!")]
     public static SafariUnlockID WallJumpUnlock;
+    [Collectible(1, "Unlocked Ability: Reset Dashes on Walls. With your dashes and jumps refreshable anywhere, you can probably climb anywhere!")]
+    public static SafariUnlockID WallDashResetUnlock;
 
     //public static bool CanGrabPoles = true;
     //public static bool ClimbVerticalPoles = true;

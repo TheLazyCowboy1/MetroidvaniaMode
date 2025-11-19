@@ -30,6 +30,8 @@ public class Options : AutoConfigOptions
 
     [Config("Abilities", "Can Wall Jump", "Allows the slugcat to wall jump")]
     public static bool CanWallJump = true;
+    [Config("Abilities", "Wall Dash Reset", "Lets the slugcat reset dashes and extra jumps by clinging to a wall", rightSide = true)]
+    public static bool WallDashReset = false;
 
     [Config("Abilities", "Can Grab Poles", "Allows the slugcat to grab poles, both horizontal and vertical")]
     public static bool CanGrabPoles = true;

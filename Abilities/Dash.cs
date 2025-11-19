@@ -63,7 +63,7 @@ public static class Dash
                 for (int i = 0; i < 12; i++)
                 {
                     Spark spark = new Spark(self.mainBodyChunk.pos + Custom.RNV() * 10f - self.mainBodyChunk.vel * 3f, self.mainBodyChunk.vel * 0.6f, new(0.8f, 0.8f, 0.9f), null, 15, 20);
-                    spark.gravity *= 0.4f; //half the variation between
+                    spark.gravity *= 0.4f; //half the variation between extremes
                     spark.gravity += 0.1f; //gravity is in range 0.26 to 0.46
                     self.room.AddObject(spark);
                 }
@@ -75,7 +75,8 @@ public static class Dash
                 Plugin.Log("Dashed!", 2);
             }
             //The dash button is NOT pressed, and the player meets the qualifications to refresh the dash counter
-            else if (self.canJump > 1 && (CurrentAbilities.ClimbVerticalPoles || self.animation != Player.AnimationIndex.ClimbOnBeam))
+            else if ((self.canJump > 1 || (CurrentAbilities.WallDashReset && self.canJump > 0)) //don't dashes on wall, unless we have that ability
+                && (CurrentAbilities.ClimbVerticalPoles || self.animation != Player.AnimationIndex.ClimbOnBeam)) //don't refresh dashes on poles unless we can climb
             {
                 info.DashedSincePress = false;
                 info.DashesLeft = CurrentAbilities.DashCount;

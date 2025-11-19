@@ -136,7 +136,7 @@ public static class Inventory
         }
 
         if (grasp >= 0 && itemInfo.count > 0
-            && (item != AbstractPhysicalObject.AbstractObjectType.Spear || self.grasps[1 - grasp] == null || 1 - grasp == artificiallyEmptyGrasp) //can't pull out two spears
+            && (item != AbstractPhysicalObject.AbstractObjectType.Spear || self.grasps[1 - grasp] == null || 1 - grasp == artificiallyEmptyGrasp || self.Grabability(self.grasps[1 - grasp].grabbed) < Player.ObjectGrabability.BigOneHand) //can't pull out two spears
             ) //able to pull item out
         {
             return grasp;
