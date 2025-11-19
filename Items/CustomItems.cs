@@ -80,15 +80,21 @@ public static class CustomItems
         try
         {
             ILCursor c = new(il);
-            if (c.TryGotoNext(MoveType.After, x => x.MatchIsinst<Mushroom>()))
+            while (c.TryGotoNext(MoveType.Before, x => x.MatchIsinst<Mushroom>())) //do this for EVERY "is Mushroom"
             {
-                c.Emit(OpCodes.Ldarg_0); //load player
+                /*c.Emit(OpCodes.Ldarg_0); //load player
                 c.Emit(OpCodes.Ldloc_S, 6); //load grasp idx
-                c.EmitDelegate((Player self, int grasp) => self.grasps[grasp].grabbed is HealFruit);
+                c.EmitDelegate<Func<Player, int, bool>>((Player self, int grasp) => self.grasps[grasp].grabbed is HealFruit);
                 c.Emit(OpCodes.Or); //mushroom OR heal fruit works
+                */
+                c.Emit(OpCodes.Dup); //duplicate the self.grasps[i].grabbed object, so we can test it twice
+                c.Index++; //skip IsInst<Mushroom>
+                c.Emit(OpCodes.Isinst, typeof(HealFruit));
+                c.Emit(OpCodes.Or);
 
                 Plugin.Log("Heal Fruit IL hook successful! ...I hope");
             }
+
         } catch (Exception ex) { Plugin.Error(ex); }
     }
 
