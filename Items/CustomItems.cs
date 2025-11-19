@@ -82,15 +82,16 @@ public static class CustomItems
             ILCursor c = new(il);
             while (c.TryGotoNext(MoveType.Before, x => x.MatchIsinst<Mushroom>())) //do this for EVERY "is Mushroom"
             {
-                /*c.Emit(OpCodes.Ldarg_0); //load player
+                //"is Mushroom" is ALREADY loaded onto the stack, so we must reference it
+                c.Emit(OpCodes.Ldarg_0); //load player
                 c.Emit(OpCodes.Ldloc_S, 6); //load grasp idx
-                c.EmitDelegate<Func<Player, int, bool>>((Player self, int grasp) => self.grasps[grasp].grabbed is HealFruit);
-                c.Emit(OpCodes.Or); //mushroom OR heal fruit works
-                */
-                c.Emit(OpCodes.Dup); //duplicate the self.grasps[i].grabbed object, so we can test it twice
-                c.Index++; //skip IsInst<Mushroom>
-                c.Emit(OpCodes.Isinst, typeof(HealFruit));
-                c.Emit(OpCodes.Or);
+                c.EmitDelegate<Func<bool, Player, int, bool>>((bool isMush, Player self, int grasp) => isMush || self.grasps[grasp].grabbed is HealFruit);
+                //c.Emit(OpCodes.Or); //mushroom OR heal fruit works
+                
+                //c.Emit(OpCodes.Dup); //duplicate the self.grasps[i].grabbed object, so we can test it twice
+                //c.Emit(OpCodes.Isinst, typeof(HealFruit));
+                //c.Index++; //skip IsInst<Mushroom>
+                //c.Emit(OpCodes.Or);
 
                 Plugin.Log("Heal Fruit IL hook successful! ...I hope");
             }
