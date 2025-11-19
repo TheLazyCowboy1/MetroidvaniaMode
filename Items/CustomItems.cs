@@ -65,7 +65,7 @@ public static class CustomItems
         {
             if (itemType == HealFruit)
             {
-                return new(0, 1, 0);
+                return new(0, 0.9f, 0);
             }
         }
         catch (Exception ex) { Plugin.Error(ex); }
