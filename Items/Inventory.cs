@@ -59,7 +59,7 @@ public static class Inventory
                 if (info.HoldGrabTime > Options.InventoryOpenTime)
                 {
                     //closing inventory after opening, so we should grab or store an item!
-                    int selection = Array.IndexOf(UI.InventoryWheel.IntVecs, self.input[0].IntVec);
+                    int selection = UI.InventoryWheel.GetSelection();//Array.IndexOf(UI.InventoryWheel.IntVecs, self.input[0].IntVec);
                     if (selection >= 0)
                     {
                         AbstractPhysicalObject.AbstractObjectType item = WheelItems[selection];
@@ -153,6 +153,8 @@ public static class Inventory
             abObj = new AbstractSpear(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), false);
         else if (item == AbstractPhysicalObject.AbstractObjectType.BubbleGrass)
             abObj = new BubbleGrass.AbstractBubbleGrass(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), 1f, -1, -1, null);
+        else if (item == AbstractPhysicalObject.AbstractObjectType.FlareBomb)
+            abObj = new AbstractConsumable(self.abstractPhysicalObject.world, item, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), -1, -1, null);
         else
             abObj = new(self.abstractPhysicalObject.world, item, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID());
         abObj.RealizeInRoom();

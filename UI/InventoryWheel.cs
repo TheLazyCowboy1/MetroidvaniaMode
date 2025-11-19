@@ -11,14 +11,16 @@ public class InventoryWheel : HudPart
     private static InventoryWheel LastInstance;
 
     public float alpha = 0;
-    private const float alphaStep = 1f / 0.1f / 40f; //0.1 second
-    private const float baseCircleAlpha = 0.3f;
-    private const float selectedCircleAlpha = 1f;
+    private const float AlphaStep = 1f / 0.1f / 40f; //0.1 second
+    private const float BaseCircleAlpha = 0.3f;
+    private const float SelectedCircleAlpha = 1f;
     public bool visible = false;
 
     public bool anyItems = false;
 
     public int selection = -1;
+    public int notSelectedTimer = 0;
+    private const int StaySelectedTime = 5;
 
     private FContainer fContainer => this.hud.fContainers[1];
 
@@ -56,16 +58,16 @@ public class InventoryWheel : HudPart
         if (visible || alpha > 0)
         {
             if (visible && alpha < 1)
-                alpha += alphaStep;
+                alpha += AlphaStep;
             else if (!visible)
-                alpha -= alphaStep;
+                alpha -= AlphaStep;
 
             //apply alpha to sprites
             for (int i = 0; i < circles.Length; i++)
             {
                 if (circles[i].isVisible != alpha > 0)
                     circles[i].isVisible = alpha > 0;
-                circles[i].alpha = alpha * (selection == i ? selectedCircleAlpha : baseCircleAlpha);
+                circles[i].alpha = alpha * (selection == i ? SelectedCircleAlpha : BaseCircleAlpha);
 
                 if (items[i] != null)
                 {
@@ -187,8 +189,25 @@ public class InventoryWheel : HudPart
             return;
         }
 
-        LastInstance.selection = Array.IndexOf(IntVecs, direction);
+        int selection = Array.IndexOf(IntVecs, direction);
+        if (selection >= 0 || LastInstance.notSelectedTimer > StaySelectedTime) //don't select -1 until several ticks have passed
+        {
+            LastInstance.selection = selection;
+            LastInstance.notSelectedTimer = 0;
+        }
+        else
+            LastInstance.notSelectedTimer++;
     }
     public static IntVector2[] IntVecs => new IntVector2[] { new(0, 1), new(1, 1), new(1, 0), new(1, -1), new(0, -1), new(-1, -1), new(-1, 0), new(-1, 1) };
+
+    public static int GetSelection()
+    {
+        if (LastInstance == null)
+        {
+            Plugin.Error("Inventory Wheel does not exist!");
+            return -1;
+        }
+        return LastInstance.selection;
+    }
 
 }
