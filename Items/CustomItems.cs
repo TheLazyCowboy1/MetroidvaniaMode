@@ -18,6 +18,7 @@ public static class CustomItems
 
         //heal fruit
         //IL.Player.GrabUpdate += Player_GrabUpdate;
+        On.Player.GrabUpdate += Player_GrabUpdate;
     }
 
     public static void RemoveHooks()
@@ -27,6 +28,7 @@ public static class CustomItems
         On.ItemSymbol.ColorForItem -= ItemSymbol_ColorForItem;
 
         //IL.Player.GrabUpdate -= Player_GrabUpdate;
+        On.Player.GrabUpdate -= Player_GrabUpdate;
     }
 
     //Object realizing
@@ -76,7 +78,7 @@ public static class CustomItems
 
     //Make Heal Fruit always edible, just like Mushrooms
     [Obsolete]
-    private static void Player_GrabUpdate(ILContext il)
+    private static void IL_Player_GrabUpdate(ILContext il)
     {
         try
         {
@@ -98,6 +100,34 @@ public static class CustomItems
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }
+    }
+    //Pretend player isn't full when attempting to eat heal fruits
+    private static void Player_GrabUpdate(On.Player.orig_GrabUpdate orig, Player self, bool eu)
+    {
+        try
+        {
+            if (self.FoodInStomach >= self.MaxFoodInStomach)
+            {
+                bool firstFoodIsHealFruit = false;
+                for (int i = 0; i < self.grasps.Length; i++)
+                {
+                    if (self.grasps[i] != null && self.grasps[i].grabbed is IPlayerEdible ed && ed.Edible) //...make sure it's actually edible
+                    {
+                        firstFoodIsHealFruit = self.grasps[i].grabbed is HealFruit;
+                        break;
+                    }
+                }
+                if (firstFoodIsHealFruit)
+                {
+                    self.playerState.foodInStomach--; //temporarily let the player eat
+                    orig(self, eu);
+                    self.playerState.foodInStomach = self.MaxFoodInStomach;
+                    return;
+                }
+            }
+        } catch (Exception ex) { Plugin.Error(ex); }
+
+        orig(self, eu);
     }
 
 

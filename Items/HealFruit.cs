@@ -74,7 +74,7 @@ public class HealFruit : DangleFruit, IDrawable, IPlayerEdible
             if (Abilities.Health.CurrentHealth < Abilities.CurrentAbilities.MaxHealth)
                 Abilities.Health.CurrentHealth++;
             Plugin.Log("Ate heal fruit!");
-            base.room.PlaySound(SoundID.MENU_Karma_Ladder_Increase_Bump, base.firstChunk);
+            base.room.PlaySound(SoundID.MENU_Karma_Ladder_Hit_Upper_Cap, base.firstChunk);
 
             (grasp.grabber as Player).ObjectEaten(this);
             grasp.Release();
