@@ -17,7 +17,7 @@ public static class CustomItems
         On.ItemSymbol.ColorForItem += ItemSymbol_ColorForItem;
 
         //heal fruit
-        IL.Player.GrabUpdate += Player_GrabUpdate;
+        //IL.Player.GrabUpdate += Player_GrabUpdate;
     }
 
     public static void RemoveHooks()
@@ -26,7 +26,7 @@ public static class CustomItems
         On.ItemSymbol.SpriteNameForItem -= ItemSymbol_SpriteNameForItem;
         On.ItemSymbol.ColorForItem -= ItemSymbol_ColorForItem;
 
-        IL.Player.GrabUpdate -= Player_GrabUpdate;
+        //IL.Player.GrabUpdate -= Player_GrabUpdate;
     }
 
     //Object realizing
@@ -75,6 +75,7 @@ public static class CustomItems
 
 
     //Make Heal Fruit always edible, just like Mushrooms
+    [Obsolete]
     private static void Player_GrabUpdate(ILContext il)
     {
         try
