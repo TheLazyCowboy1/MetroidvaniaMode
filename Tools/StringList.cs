@@ -64,7 +64,7 @@ public class StringList : IEnumerable<string>
         int searchIdx = 0;
         for (int i = 0; i < idx; i++)
         {
-            searchIdx += Unsafe(Array[i]).Length + Delimiter.Length;
+            searchIdx += Safe(Array[i]).Length + Delimiter.Length;
         }
         String = String.Insert(searchIdx, Safe(s) + Delimiter);
 
@@ -113,14 +113,14 @@ public class StringList : IEnumerable<string>
         int i = 0;
         while (i < idx)
         {
-            searchIdx += Unsafe(Array[i]).Length + Delimiter.Length;
+            searchIdx += Safe(Array[i]).Length + Delimiter.Length;
             i++;
         }
 
         if (i >= Array.Length - 1)
             String = String.Remove(searchIdx - Delimiter.Length); //remove it and the delimiter before
         else
-            String = String.Remove(searchIdx, Unsafe(Array[i]).Length + Delimiter.Length); //remove it and the delimiter after
+            String = String.Remove(searchIdx, Safe(Array[i]).Length + Delimiter.Length); //remove it and the delimiter after
 
         dirty = true;
         return true;
