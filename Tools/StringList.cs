@@ -39,12 +39,16 @@ public class StringList : IEnumerable<string>
     }
     public StringList(string s)
     {
+        if (s.Length > 0 && !s.EndsWith(Delimiter))
+            s += Delimiter; //for compatibility with past attempts that did not use Delimiter as a terminator
         String = s;
     }
     public StringList(string s, string delimiter)
     {
-        String = s;
         Delimiter = delimiter;
+        if (s.Length > 0 && !s.EndsWith(Delimiter))
+            s += Delimiter; //for compatibility with past attempts that did not use Delimiter as a terminator
+        String = s;
     }
 
     private string Safe(string s) => s == null ? "<NULL>" : s.Replace(Delimiter, "<ldel>");

@@ -12,6 +12,7 @@ public class InventoryWheel : HudPart
 
     public float lastAlpha = 0;
     public float alpha = 0;
+    public float drawnAlpha = 0;
     public const int OpenTime = 4; //4 ticks = 0.1 second
     private const float AlphaStep = 1f / OpenTime;
     private const float BaseCircleAlpha = 0.3f;
@@ -60,34 +61,35 @@ public class InventoryWheel : HudPart
     {
         base.Update();
 
+        //update target alpha for wheel
         lastAlpha = alpha;
         if (visible && alpha < 1)
-            alpha += AlphaStep;
+            alpha = Mathf.Clamp01(alpha + AlphaStep);
         else if (!visible && alpha > 0)
-            alpha -= AlphaStep;
+            alpha = Mathf.Clamp01(alpha - AlphaStep);
     }
     public override void Draw(float timeStacker)
     {
         base.Draw(timeStacker);
 
-        if (alpha > 0 || lastAlpha > 0)
+        if (alpha > 0 || lastAlpha > 0 || drawnAlpha > 0)
         {
-            float a = Mathf.LerpUnclamped(lastAlpha, alpha, timeStacker);
+            drawnAlpha = Mathf.LerpUnclamped(lastAlpha, alpha, timeStacker);
             //apply alpha to sprites
             for (int i = 0; i < circles.Length; i++)
             {
-                circles[i].isVisible = a > 0;
-                circles[i].alpha = a * (selection == i ? SelectedCircleAlpha : BaseCircleAlpha);
+                circles[i].isVisible = drawnAlpha > 0;
+                circles[i].alpha = drawnAlpha * (selection == i ? SelectedCircleAlpha : BaseCircleAlpha);
 
                 if (items[i] != null)
                 {
-                    items[i].isVisible = a > 0;
-                    items[i].alpha = a;
+                    items[i].isVisible = drawnAlpha > 0;
+                    items[i].alpha = drawnAlpha;
                 }
                 if (labels[i] != null)
                 {
-                    labels[i].isVisible = a > 0;
-                    labels[i].alpha = a;
+                    labels[i].isVisible = drawnAlpha > 0;
+                    labels[i].alpha = drawnAlpha;
                 }
             }
         }

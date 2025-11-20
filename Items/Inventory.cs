@@ -61,34 +61,55 @@ public static class Inventory
                         AbstractPhysicalObject.AbstractObjectType item = CurrentItems.WheelItems[selection];
                         if (item != null)
                         {
+                            CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[item];
+
                             //attempt to store the item first
                             int canStore = CanStoreItem(self, item);
                             if (canStore >= 0)
                             {
                                 StoreItem(self, canStore);
                             }
-                            else //couldn't store it
+                            else if (itemInfo.count < 1) //don't try to pull it out if we don't have any to pull out
                             {
-                                Plugin.Log("Failed to store the item. Attempting to pull it out.", 2); int canPullOut = CanPullOutItem(self, item);
+                                Plugin.Log($"Failed to store {item}. NOT attempting to pull it out: We have 0 of it.");
+                            }
+                            else //couldn't store it; attempt to pull it out
+                            {
+                                Plugin.Log($"Failed to store {item}. Attempting to pull it out.", 2); int canPullOut = CanPullOutItem(self, item);
                                 if (canPullOut >= 0)
                                 {
                                     PullOutItem(self, item, canPullOut);
                                 }
                                 else //couldn't pull it out, either
                                 {
-                                    Plugin.Log("Failed to pull out the item. Attempting to swap it.", 2);
+                                    Plugin.Log($"Failed to pull out {item}. Attempting to swap it.", 2);
+                                    bool success = false;
                                     for (int i = 0; i < self.grasps.Length; i++)
                                     {
-                                        if (self.grasps[i] != null) //look for an item that can be stored
+                                        if (CanStoreGrasp(self, i)) //look for an item that can be stored
                                         {
-                                            //int canStore2 = CanStoreGrasp(self, i);
-                                            if (CanStoreGrasp(self, i))
+                                            int canPullOut2 = CanPullOutItem(self, item, i);
+                                            if (canPullOut2 >= 0)
                                             {
-                                                int canPullOut2 = CanPullOutItem(self, item, i);
-                                                if (canPullOut2 >= 0)
+                                                StoreItem(self, i);
+                                                PullOutItem(self, item, canPullOut2);
+                                                success = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (!success) //couldn't swap it; last-ditch effort now!
+                                    {
+                                        Plugin.Log($"Failed to swap {item}. Attempting to drop the currently held item.", 2);
+                                        for (int i = 0; i < self.grasps.Length; i++)
+                                        {
+                                            if (self.grasps[i] != null) //can't drop null grasps, silly
+                                            {
+                                                int canPullOut3 = CanPullOutItem(self, item, i);
+                                                if (canPullOut3 >= 0)
                                                 {
-                                                    StoreItem(self, i);
-                                                    PullOutItem(self, item, canPullOut2);
+                                                    self.ReleaseGrasp(i); //drop it
+                                                    PullOutItem(self, item, canPullOut3);
                                                     break;
                                                 }
                                             }
@@ -182,6 +203,9 @@ public static class Inventory
     }
     private static bool CanStoreGrasp(Player self, int grasp)
     {
+        if (self.grasps[grasp] == null)
+            return false; //duh
+
         AbstractPhysicalObject ab = self.grasps[grasp].grabbed.abstractPhysicalObject;
         if (ab is AbstractSpear spear && (spear.explosive || spear.electric))
             return false; //don't store explosive spears; that'd be annoying
