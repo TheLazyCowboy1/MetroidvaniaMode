@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MetroidvaniaMode.SaveData;
 
-public class WorldSaveData : SaveManager
+public class WorldSaveData : SimpleSaveData
 {
     public static WorldSaveData CurrentInstance;
 
@@ -25,7 +25,7 @@ public class WorldSaveData : SaveManager
     {
         this.Data = data;
 
-        LoadData(data.unrecognizedSaveStrings);
+        Load(data.unrecognizedSaveStrings);
         Plugin.Log("Loaded WorldSaveData. UnlockedRedTokens = " + UnlockedRedTokens);
 
         CurrentInstance = this;

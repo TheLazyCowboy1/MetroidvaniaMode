@@ -47,8 +47,8 @@ public class StringList : IEnumerable<string>
         Delimiter = delimiter;
     }
 
-    private string Safe(string s) => s.Replace(Delimiter, "<sdel>");
-    private string Unsafe(string s) => s.Replace("<sdel>", Delimiter);
+    private string Safe(string s) => s == null ? "<NULL>" : s.Replace(Delimiter, "<sdel>");
+    private string Unsafe(string s) => s == "<NULL>" ? null : s.Replace("<sdel>", Delimiter);
 
     public StringList Add(string s)
     {

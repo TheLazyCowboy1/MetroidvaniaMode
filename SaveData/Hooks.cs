@@ -32,9 +32,18 @@ public static class Hooks
             if (WorldSaveData.CurrentInstance?.Data == self.miscWorldSaveData)
             {
                 self.miscWorldSaveData.unrecognizedSaveStrings.RemoveAll(str => str.StartsWith(WorldSaveData.PREFIX));
-                string s = WorldSaveData.CurrentInstance.SaveData();
+                string s = WorldSaveData.CurrentInstance.Save();
                 self.miscWorldSaveData.unrecognizedSaveStrings.Add(s);
                 Plugin.Log("WorldSaveData string: " + s);
+            }
+
+            //save DeathSaveData
+            if (DeathSaveData.CurrentInstance?.Data == self.deathPersistentSaveData)
+            {
+                self.deathPersistentSaveData.unrecognizedSaveStrings.RemoveAll(str => str.StartsWith(DeathSaveData.PREFIX));
+                string s = DeathSaveData.CurrentInstance.Save();
+                self.deathPersistentSaveData.unrecognizedSaveStrings.Add(s);
+                Plugin.Log("DeathSaveData string: " + s);
             }
 
         }
@@ -47,6 +56,7 @@ public static class Hooks
     private static void SaveState_LoadGame(On.SaveState.orig_LoadGame orig, SaveState self, string str, RainWorldGame game)
     {
         WorldSaveData.CurrentInstance = null;
+        DeathSaveData.CurrentInstance = null;
 
         orig(self, str, game);
     }

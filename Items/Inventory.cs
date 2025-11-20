@@ -6,17 +6,9 @@ namespace MetroidvaniaMode.Items;
 
 public static class Inventory
 {
-    public static AbstractPhysicalObject.AbstractObjectType[] WheelItems = new AbstractPhysicalObject.AbstractObjectType[8];
 
     public static void ApplyHooks()
     {
-        //TEMPORARILY SET WHEEL ITEMS
-        WheelItems[0] = AbstractPhysicalObject.AbstractObjectType.Spear;
-        WheelItems[1] = AbstractPhysicalObject.AbstractObjectType.ScavengerBomb;
-        WheelItems[2] = AbstractPhysicalObject.AbstractObjectType.BubbleGrass;
-        WheelItems[3] = AbstractPhysicalObject.AbstractObjectType.FlareBomb;
-        WheelItems[7] = CustomItems.HealFruit;
-
         On.Player.GrabUpdate += Player_GrabUpdate;
 
         On.HUD.HUD.InitSinglePlayerHud += HUD_InitSinglePlayerHud;
@@ -66,7 +58,7 @@ public static class Inventory
                     int selection = UI.InventoryWheel.GetSelection();//Array.IndexOf(UI.InventoryWheel.IntVecs, self.input[0].IntVec);
                     if (selection >= 0)
                     {
-                        AbstractPhysicalObject.AbstractObjectType item = WheelItems[selection];
+                        AbstractPhysicalObject.AbstractObjectType item = CurrentItems.WheelItems[selection];
                         if (item != null)
                         {
                             //attempt to store the item first

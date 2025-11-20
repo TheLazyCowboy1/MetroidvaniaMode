@@ -3,12 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MetroidvaniaMode.Tools;
 
-public abstract class SaveManager
+public abstract class SimpleSaveData
 {
     public class SaveKey : Attribute
     {
@@ -21,9 +19,9 @@ public abstract class SaveManager
 
     public const string PREFIX = "MVM_DATA_";
     private const string KEYVALUESPLIT = "=";
-    private const char DELIMITER = '@';
+    private const string DELIMITER = "@";
 
-    public string SaveData()
+    public string Save()
     {
         string data = PREFIX;
 
@@ -51,18 +49,18 @@ public abstract class SaveManager
     {
         s = s.Replace("~", "<sqg>"); //~ is used by vanilla to split up save string
         s = s.Replace(KEYVALUESPLIT, "<kv>");
-        s = s.Replace(DELIMITER.ToString(), "<del>"); //DELIMITER is used by us to split up save strings
+        s = s.Replace(DELIMITER, "<del>"); //DELIMITER is used by us to split up save strings
         return s;
     }
     private static string UnsafenString(string s) //undo SafeString
     {
         s = s.Replace("<sqg>", "~");
         s = s.Replace("<kv>", KEYVALUESPLIT);
-        s = s.Replace("<del>", DELIMITER.ToString());
+        s = s.Replace("<del>", DELIMITER);
         return s;
     }
 
-    public void LoadData(List<string> strings)
+    public void Load(List<string> strings)
     {
         try
         {
@@ -73,7 +71,7 @@ public abstract class SaveManager
                 Plugin.Error("COULD NOT FIND SAVE DATA IN UNRECOGNIZED SAVE STRINGS!!!");
                 return;
             }
-            string[] d = s.Substring(PREFIX.Length).Split(DELIMITER); //don't include the prefix... stupid me; this took WAY TOO LONG TO SOLVE
+            string[] d = s.Substring(PREFIX.Length).Split(new string[] { DELIMITER }, StringSplitOptions.None); //don't include the prefix... stupid me; this took WAY TOO LONG TO SOLVE
 
             FieldInfo[] infos = this.GetType().GetFields();
             foreach (FieldInfo info in infos)
@@ -116,4 +114,7 @@ public static class SaveExt
 {
     public static WorldSaveData GetData(this MiscWorldSaveData self)
         => WorldSaveData.CurrentInstance?.Data == self ? WorldSaveData.CurrentInstance : new(self); //give the current instance if it's right; otherwise make a new one
+    
+    public static DeathSaveData GetData(this DeathPersistentSaveData self)
+        => DeathSaveData.CurrentInstance?.Data == self ? DeathSaveData.CurrentInstance : new(self); //give the current instance if it's right; otherwise make a new one
 }

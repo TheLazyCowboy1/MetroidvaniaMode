@@ -126,10 +126,10 @@ public class InventoryWheel : HudPart
             try
             {
                 //set item sprite
-                string spriteName = Inventory.WheelItems[i] == null ? null : ItemSymbol.SpriteNameForItem(Inventory.WheelItems[i], 0);
-                CurrentItems.ItemInfo info = Inventory.WheelItems[i] == null ? null : CurrentItems.ItemInfos[Inventory.WheelItems[i]];
+                string spriteName = CurrentItems.WheelItems[i] == null ? null : ItemSymbol.SpriteNameForItem(CurrentItems.WheelItems[i], 0);
+                CurrentItems.ItemInfo info = CurrentItems.WheelItems[i] == null ? null : CurrentItems.ItemInfos[CurrentItems.WheelItems[i]];
 
-                bool shouldShowSprite = Inventory.WheelItems[i] != null && info.max > 0;
+                bool shouldShowSprite = CurrentItems.WheelItems[i] != null && info.max > 0;
                 if (items[i] == null && shouldShowSprite)
                 {
                     //initiate the item sprite
@@ -139,7 +139,7 @@ public class InventoryWheel : HudPart
                     items[i].scale = Mathf.Min(SymbolSize / items[i].width, SymbolSize / items[i].height);
                     fContainer.AddChild(items[i]);
 
-                    Plugin.Log("Set up inventory symbol for item: " + Inventory.WheelItems[i], 2);
+                    Plugin.Log("Set up inventory symbol for item: " + CurrentItems.WheelItems[i], 2);
                 }
                 else if (items[i] != null && !shouldShowSprite)
                 {
@@ -150,7 +150,7 @@ public class InventoryWheel : HudPart
                     labels[i]?.RemoveFromContainer();
                     labels[i] = null;
 
-                    Plugin.Log("Removed inventory symbol for item: " + Inventory.WheelItems[i], 2);
+                    Plugin.Log("Removed inventory symbol for item: " + CurrentItems.WheelItems[i], 2);
                 }
                 else if (items[i] != null && items[i].element.name != spriteName)
                 {
@@ -158,13 +158,13 @@ public class InventoryWheel : HudPart
                     items[i].element = Futile.atlasManager.GetElementWithName(spriteName);
                     items[i].scale = Mathf.Min(SymbolSize / items[i].width, SymbolSize / items[i].height);
 
-                    Plugin.Log("Switched inventory symbol for item: " + Inventory.WheelItems[i], 2);
+                    Plugin.Log("Switched inventory symbol for item: " + CurrentItems.WheelItems[i], 2);
                 }
 
                 //set color
-                if (items[i] != null && Inventory.WheelItems[i] != null)
+                if (items[i] != null && CurrentItems.WheelItems[i] != null)
                 {
-                    Color col = ItemSymbol.ColorForItem(Inventory.WheelItems[i], 0);
+                    Color col = ItemSymbol.ColorForItem(CurrentItems.WheelItems[i], 0);
                     if (info.count < 1)
                     {
                         items[i].color = new(col.r * 0.5f, col.g * 0.5f, col.b * 0.5f, 0.5f); //grey out the item if there's none left of it
