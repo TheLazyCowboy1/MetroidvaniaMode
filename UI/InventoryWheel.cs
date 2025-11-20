@@ -127,7 +127,10 @@ public class InventoryWheel : HudPart
             {
                 //set item sprite
                 string spriteName = Inventory.WheelItems[i] == null ? null : ItemSymbol.SpriteNameForItem(Inventory.WheelItems[i], 0);
-                if (items[i] == null && Inventory.WheelItems[i] != null)
+                CurrentItems.ItemInfo info = Inventory.WheelItems[i] == null ? null : CurrentItems.ItemInfos[Inventory.WheelItems[i]];
+
+                bool shouldShowSprite = Inventory.WheelItems[i] != null && info.max > 0;
+                if (items[i] == null && shouldShowSprite)
                 {
                     //initiate the item sprite
                     items[i] = new(Futile.atlasManager.GetElementWithName(spriteName));
@@ -138,7 +141,7 @@ public class InventoryWheel : HudPart
 
                     Plugin.Log("Set up inventory symbol for item: " + Inventory.WheelItems[i], 2);
                 }
-                else if (items[i] != null && Inventory.WheelItems[i] == null)
+                else if (items[i] != null && !shouldShowSprite)
                 {
                     //remove the item sprite
                     items[i].RemoveFromContainer();
@@ -146,6 +149,8 @@ public class InventoryWheel : HudPart
                     //also remove label
                     labels[i]?.RemoveFromContainer();
                     labels[i] = null;
+
+                    Plugin.Log("Removed inventory symbol for item: " + Inventory.WheelItems[i], 2);
                 }
                 else if (items[i] != null && items[i].element.name != spriteName)
                 {
@@ -159,7 +164,6 @@ public class InventoryWheel : HudPart
                 //set color
                 if (items[i] != null && Inventory.WheelItems[i] != null)
                 {
-                    CurrentItems.ItemInfo info = CurrentItems.ItemInfos[Inventory.WheelItems[i]];
                     Color col = ItemSymbol.ColorForItem(Inventory.WheelItems[i], 0);
                     if (info.count < 1)
                     {
