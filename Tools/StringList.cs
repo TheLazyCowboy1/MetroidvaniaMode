@@ -103,6 +103,12 @@ public class StringList : IEnumerable<string>
     {
         if (String.Length == 0 || idx >= Array.Length) return false;
 
+        if (Array.Length == 1) //if there isn't even a delimiter to find, just clear the string
+        {
+            String = "";
+            return true;
+        }
+
         int searchIdx = 0;
         int i = 0;
         while (i < idx)
@@ -119,6 +125,8 @@ public class StringList : IEnumerable<string>
         dirty = true;
         return true;
     }
+
+    public void Clear() => String = "";
 
     public override string ToString() => String;
     public override bool Equals(object obj) => String.Equals(obj);
