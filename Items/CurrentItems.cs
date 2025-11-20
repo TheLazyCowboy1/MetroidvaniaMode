@@ -57,7 +57,7 @@ public static class CurrentItems
             {
                 //set wheel items
                 DeathSaveData deathData = game.GetStorySession.saveState.deathPersistentSaveData.GetData();
-                for (int i = 0; i < deathData.WheelItems.Array.Length; i++)
+                for (int i = 0; i < deathData.WheelItems.Array.Length && i < WheelItems.Length; i++)
                 {
                     string s = deathData.WheelItems.Get(i);
                     if (s == null || s.Length < 1)

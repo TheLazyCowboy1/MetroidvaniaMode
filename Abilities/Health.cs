@@ -55,12 +55,12 @@ public static class Health
         PlayerInfo info = self.GetInfo();
         if (info.iFrames <= 0 || self.playerState.dead) //still take damage when dead
         {
-            self.room.AddObject(new TemporaryLight(self.mainBodyChunk.pos, false, Color.red, self, 40, 10)
+            self.room.AddObject(new TemporaryLight(self.mainBodyChunk.pos, false, Color.red, self, Options.InvincibilityFrames, 10)
                 { blinkType = PlacedObject.LightSourceData.BlinkType.Fade, blinkRate = 1.005f, //blink every 5 ticks
                 setAlpha = 1f, colorAlpha = 2f, setRad = 80f * damage, affectedByPaletteDarkness = 0 }); //add a flashing red light for 1 second
 
             if (damage > 1)
-                self.room.PlaySound(SoundID.MENU_Start_New_Game, self.mainBodyChunk, false, 0.8f + damage * 0.2f, 1.1f + damage * 0.2f);
+                self.room.PlaySound(SoundID.MENU_Start_New_Game, self.mainBodyChunk, false, 1.2f, 1.5f);
             else
                 self.room.PlaySound(SoundID.HUD_Game_Over_Prompt, self.mainBodyChunk, false, 1f, 1.35f); //play an impactful sound
 
@@ -69,9 +69,9 @@ public static class Health
             if (CurrentHealth == 0)
                 self.playerState.permanentDamageTracking = 0.98f; //make the player injured
         }
-        info.iFrames = 40; //1 second of i-frames
-        self.showKarmaFoodRainTime = 40; //show the HUD
-        UI.HealthMeter.HealthFlash = 40;
+        info.iFrames = Options.InvincibilityFrames; //1 second of i-frames
+        self.showKarmaFoodRainTime = Options.InvincibilityFrames; //show the HUD
+        UI.HealthMeter.HealthFlash = Options.InvincibilityFrames;
 
         Plugin.Log("Player damaged! Damage = " + damage);
     }

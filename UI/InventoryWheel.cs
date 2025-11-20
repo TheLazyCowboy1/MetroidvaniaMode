@@ -10,6 +10,7 @@ public class InventoryWheel : HudPart
 {
     private static InventoryWheel LastInstance;
 
+    public float lastAlpha = 0;
     public float alpha = 0;
     public const int OpenTime = 4; //4 ticks = 0.1 second
     private const float AlphaStep = 1f / OpenTime;
@@ -21,7 +22,7 @@ public class InventoryWheel : HudPart
 
     public int selection = -1;
     public int notSelectedTimer = 0;
-    private const int StaySelectedTime = 5;
+    private static int Stickiness => Options.InventoryWheelStickiness;
 
     private FContainer fContainer => this.hud.fContainers[1];
 
@@ -59,28 +60,34 @@ public class InventoryWheel : HudPart
     {
         base.Update();
 
-        if (visible || alpha > 0)
-        {
-            if (visible && alpha < 1)
-                alpha += AlphaStep;
-            else if (!visible)
-                alpha -= AlphaStep;
+        lastAlpha = alpha;
+        if (visible && alpha < 1)
+            alpha += AlphaStep;
+        else if (!visible && alpha > 0)
+            alpha -= AlphaStep;
+    }
+    public override void Draw(float timeStacker)
+    {
+        base.Draw(timeStacker);
 
+        if (alpha > 0 || lastAlpha > 0)
+        {
+            float a = Mathf.LerpUnclamped(lastAlpha, alpha, timeStacker);
             //apply alpha to sprites
             for (int i = 0; i < circles.Length; i++)
             {
-                circles[i].isVisible = alpha > 0;
-                circles[i].alpha = alpha * (selection == i ? SelectedCircleAlpha : BaseCircleAlpha);
+                circles[i].isVisible = a > 0;
+                circles[i].alpha = a * (selection == i ? SelectedCircleAlpha : BaseCircleAlpha);
 
                 if (items[i] != null)
                 {
-                    items[i].isVisible = alpha > 0;
-                    items[i].alpha = alpha;
+                    items[i].isVisible = a > 0;
+                    items[i].alpha = a;
                 }
                 if (labels[i] != null)
                 {
-                    labels[i].isVisible = alpha > 0;
-                    labels[i].alpha = alpha;
+                    labels[i].isVisible = a > 0;
+                    labels[i].alpha = a;
                 }
             }
         }
@@ -223,14 +230,38 @@ public class InventoryWheel : HudPart
             return;
         }
 
-        int selection = Array.IndexOf(IntVecs, direction);
-        if (selection >= 0 || LastInstance.notSelectedTimer > StaySelectedTime) //don't select -1 until several ticks have passed
+        if (LastInstance.selection < 0) //if we currently have nothing selected, select the new direction regardless!
         {
-            LastInstance.selection = selection;
+            LastInstance.selection = Array.IndexOf(IntVecs, direction);
             LastInstance.notSelectedTimer = 0;
         }
-        else
-            LastInstance.notSelectedTimer++;
+        else //we already have something selected
+        {
+            IntVector2 curDir = IntVecs[LastInstance.selection];
+
+            if (curDir == direction) //we're not changing our selection
+            {
+                LastInstance.notSelectedTimer = 0;
+            }
+            else //we want to change our selection
+            {
+                IntVector2 newDir = direction;
+
+                //only set x or y to 0 after waiting Stickiness
+                if (direction.x == 0 && LastInstance.notSelectedTimer < Stickiness)
+                    newDir.x = curDir.x;
+                if (direction.y == 0 && LastInstance.notSelectedTimer < Stickiness)
+                    newDir.y = curDir.y;
+
+                if (newDir != curDir) //we're changing selection
+                {
+                    LastInstance.selection = Array.IndexOf(IntVecs, newDir);
+                    LastInstance.notSelectedTimer = 0;
+                }
+                else //we want to change selection, but we can't, so increase the timer
+                    LastInstance.notSelectedTimer++;
+            }
+        }
     }
     public static IntVector2[] IntVecs => new IntVector2[] { new(0, 1), new(1, 1), new(1, 0), new(1, -1), new(0, -1), new(-1, -1), new(-1, 0), new(-1, 1) };
 

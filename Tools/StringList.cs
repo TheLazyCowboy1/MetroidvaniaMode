@@ -16,8 +16,8 @@ public class StringList : IEnumerable<string>
                 dirty = false;
 
                 string[] d = String.Split(new string[] { Delimiter }, StringSplitOptions.None);
-                _array = new string[d.Length];
-                for (int i = 0; i < d.Length; i++)
+                _array = new string[d.Length - 1];
+                for (int i = 0; i < _array.Length; i++)
                 {
                     _array[i] = Unsafe(d[i]);
                 }
@@ -28,7 +28,7 @@ public class StringList : IEnumerable<string>
     }
 
     private string _string = "";
-    public string String { get => _string; private set => _string = value; }
+    public string String { get => _string; private set { dirty = true; _string = value; } }
 
     private string _delimiter = ";";
     public string Delimiter { get => _delimiter; private set => _delimiter = value; }
@@ -47,28 +47,34 @@ public class StringList : IEnumerable<string>
         Delimiter = delimiter;
     }
 
-    private string Safe(string s) => s == null ? "<NULL>" : s.Replace(Delimiter, "<sdel>");
-    private string Unsafe(string s) => s == "<NULL>" ? null : s.Replace("<sdel>", Delimiter);
+    private string Safe(string s) => s == null ? "<NULL>" : s.Replace(Delimiter, "<ldel>");
+    private string Unsafe(string s) => s == "<NULL>" ? null : s.Replace("<ldel>", Delimiter);
 
+    private int Move(int count, int startPos = 0)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            startPos = String.IndexOf(Delimiter, startPos);
+            if (startPos < 0) return String.Length; //we've reached the end of the string!
+            startPos += Delimiter.Length;
+        }
+        return startPos;
+    }
     public StringList Add(string s)
     {
-        if (String.Length > 0) String += Delimiter;
-        String += Safe(s);
-        dirty = true;
+        //if (String.Length > 0) String += Delimiter;
+        String += Safe(s) + Delimiter;
+        return this;
+    }
+    private StringList InsertAtPos(string s, int pos)
+    {
+        String = String.Insert(pos, Safe(s) + Delimiter);
         return this;
     }
     public StringList Insert(string s, int idx)
     {
-        if (String.Length == 0 || idx >= Array.Length) return Add(s);
-
-        int searchIdx = 0;
-        for (int i = 0; i < idx; i++)
-        {
-            searchIdx += Safe(Array[i]).Length + Delimiter.Length;
-        }
-        String = String.Insert(searchIdx, Safe(s) + Delimiter);
-
-        return this;
+        //if (String.Length == 0 || idx >= Array.Length) return Add(s);
+        return InsertAtPos(s, Move(idx));
     }
 
     public string Get(int idx) => (idx >= 0 && idx < Array.Length) ? Array[idx] : null;
@@ -99,30 +105,22 @@ public class StringList : IEnumerable<string>
         for (i = 0; Remove(s); i++) ;
         return i;
     }
+    private void RemoveAtPos(int pos)
+    {
+        String.Remove(pos, Move(1, pos) - pos);
+    }
     public bool RemoveAt(int idx)
     {
         if (String.Length == 0 || idx >= Array.Length) return false;
 
-        if (Array.Length == 1) //if there isn't even a delimiter to find, just clear the string
+        if (Array.Length <= 1) //if there isn't even a delimiter to find, just clear the string
         {
             Clear();
             return true;
         }
 
-        int searchIdx = 0;
-        int i = 0;
-        while (i < idx)
-        {
-            searchIdx += Safe(Array[i]).Length + Delimiter.Length;
-            i++;
-        }
+        RemoveAtPos(Move(idx));
 
-        if (i >= Array.Length - 1)
-            String = String.Remove(searchIdx - Delimiter.Length); //remove it and the delimiter before
-        else
-            String = String.Remove(searchIdx, Safe(Array[i]).Length + Delimiter.Length); //remove it and the delimiter after
-
-        dirty = true;
         return true;
     }
 

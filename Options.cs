@@ -96,13 +96,18 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Max Health", "The maximum amount of health, and the default health", rightSide = true), LimitRange(0, 30)]
     public static int MaxHealth = 3;
 
+    [Config("Advanced", "/40 Invincibility Frames", "How long the player is invincible after taking damage"), LimitRange(0, 120)]
+    public static int InvincibilityFrames = 40;
+
     [Config("Abilities", "Has Inventory", "Enables the inventory wheel")]
     public static bool HasInventory = false;
     [Config("Abilities", "Unlock All Inventory Items", "Makes all inventory items available", rightSide = true)]
     public static bool UnlockAllInventoryItems = false;
 
-    [Config("Accessibility", "/40 Inventory Open Time", "How long it takes for the inventory wheel to open."), LimitRange(0, 40)]
+    [Config("Accessibility", "/40 Inventory Open Time", "How long it takes for the inventory wheel to open"), LimitRange(0, 40)]
     public static int InventoryOpenTime = 10;
+    [Config("Accessibility", "/40 Inventory Stickiness", "Long it takes the inventory wheel to deselect something", rightSide = true), LimitRange(0, 40)]
+    public static int InventoryWheelStickiness = 5;
 
 
     [Config("General", "Test String", "This is a test", width = 150f)]
