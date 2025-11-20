@@ -4,6 +4,7 @@ using MetroidvaniaMode.Collectibles;
 using System;
 using System.Collections.Generic;
 using static MultiplayerUnlocks;
+using System.Linq;
 
 namespace MetroidvaniaMode.Items;
 
@@ -72,12 +73,14 @@ public static class CurrentItems
                 {
                     ItemInfo info = kvp.Value;
                     int oldMax = info.max;
-                    info.max += CollectibleTokens.UnlockedCount(worldData.UnlockedGoldTokens, info.Collectible());
+                    info.max = CollectibleTokens.UnlockedCount(worldData.UnlockedGoldTokens, info.Collectible());
+                    if (resetToBase) info.max += oldMax; //if we reset to base, then maybe we wanted max to start above 0
+
                     info.count += info.max - oldMax; //increase/decrease count with max
                     if (info.count < 0) info.count = 0; //don't go negative, though!
 
                     //add to wheel...?
-                    if (!resetToBase && oldMax < info.max)
+                    if (!resetToBase && oldMax < info.max && !WheelItems.Contains(kvp.Key))
                     {
                         for (int i = 0; i < WheelItems.Length; i++)
                         {
