@@ -36,7 +36,7 @@ public static class CurrentItems
             info.count = info.max;
     }
 
-    public static void ResetItems(RainWorldGame game)
+    public static void ResetItems(RainWorldGame game, bool resetToBase = true)
     {
         try
         {
@@ -46,7 +46,8 @@ public static class CurrentItems
                 return;
             }
 
-            BaseItems(game.StoryCharacter);
+            if (resetToBase)
+                BaseItems(game.StoryCharacter);
 
             if (game.IsStorySession && Abilities.CurrentAbilities.CountCollectibles(game.StoryCharacter))
             {

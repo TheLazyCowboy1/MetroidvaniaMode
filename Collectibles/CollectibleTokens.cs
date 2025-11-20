@@ -121,7 +121,7 @@ public static class CollectibleTokens
                     return $"Increased Maximum Health! Next cycle, your health with be {Abilities.CurrentAbilities.MaxHealth}.";
                 case SpecialMessage.ItemMessage:
                     if (specialMessageInfo != null && specialMessageInfo.Length > 0)
-                        return count > 2 ? $"Unlocked Inventory Item: {specialMessageInfo[0]}. Hold GRAB to select and pull out a {specialMessageInfo[0]} at any time! Hold GRAB to store it back."
+                        return count < 2 ? $"Unlocked Inventory Item: {specialMessageInfo[0]}. Hold GRAB to select and pull out a {specialMessageInfo[0]} at any time! Hold GRAB to store it back."
                             : $"Unlocked an Additional {specialMessageInfo[0]}! You can now hold {count} {specialMessageInfo[0]}s in your inventory!";
                     else
                         return count < 2 ? "Unlocked a new Inventory Item! Hold GRAB to select and pull it out at any time! Hold GRAB to store it back."
@@ -260,7 +260,7 @@ public static class CollectibleTokens
 
         //update current abilities
         Abilities.CurrentAbilities.ResetAbilities(game);
-        Items.CurrentItems.ResetItems(game);
+        Items.CurrentItems.ResetItems(game, false);
 
         //show unlock message
         if (displayMessage)
