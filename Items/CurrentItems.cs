@@ -92,7 +92,7 @@ public static class CurrentItems
 
                 //save any changes to WheelItems
                 for (int i = 0; i < WheelItems.Length; i++)
-                    deathData.WheelItems.Set(WheelItems[i].ToString(), i);
+                    deathData.WheelItems.Set(WheelItems[i]?.ToString(), i);
             }
         }
         catch (Exception ex) { Plugin.Error(ex); }

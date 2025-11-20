@@ -17,7 +17,7 @@ public class DeathSaveData : SimpleSaveData
         this.Data = data;
 
         Load(data.unrecognizedSaveStrings);
-        //Plugin.Log("Loaded WorldSaveData. UnlockedRedTokens = " + UnlockedRedTokens);
+        Plugin.Log("Loaded WorldSaveData. WheelItems = " + WheelItems);
 
         CurrentInstance = this;
     }

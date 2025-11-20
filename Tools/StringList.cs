@@ -101,7 +101,7 @@ public class StringList : IEnumerable<string>
     }
     public bool RemoveAt(int idx)
     {
-        if (idx >= Array.Length) return false;
+        if (String.Length == 0 || idx >= Array.Length) return false;
 
         int searchIdx = 0;
         int i = 0;
