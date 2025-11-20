@@ -239,23 +239,23 @@ public static class CollectibleTokens
 
         if (data.isBlue)
         {
-            if (!saveData.UnlockedBlueTokens.Split(';').Contains(data.tokenString))
-                saveData.UnlockedBlueTokens += data.tokenString + ";";
+            if (!saveData.UnlockedBlueTokens.Contains(data.tokenString))
+                saveData.UnlockedBlueTokens += data.tokenString;
         }
         else if (data.isRed)
         {
-            if (!saveData.UnlockedRedTokens.Split(';').Contains(data.tokenString))
-                saveData.UnlockedRedTokens += data.tokenString + ";";
+            if (!saveData.UnlockedRedTokens.Contains(data.tokenString))
+                saveData.UnlockedRedTokens += data.tokenString;
         }
         else if (data.isGreen)
         {
-            if (!saveData.UnlockedGreenTokens.Split(';').Contains(data.tokenString))
-                saveData.UnlockedGreenTokens += data.tokenString + ";";
+            if (!saveData.UnlockedGreenTokens.Contains(data.tokenString))
+                saveData.UnlockedGreenTokens += data.tokenString;
         }
         else //gold
         {
-            if (!saveData.UnlockedGoldTokens.Split(';').Contains(data.tokenString))
-                saveData.UnlockedGoldTokens += data.tokenString + ";";
+            if (!saveData.UnlockedGoldTokens.Contains(data.tokenString))
+                saveData.UnlockedGoldTokens += data.tokenString;
         }
 
         //update current abilities
@@ -278,8 +278,8 @@ public static class CollectibleTokens
         Plugin.Log("Marked token as collected: " + data.tokenString);
     }
 
-    public static string GetUnlockMessage(ExtEnumBase en, string[] splitSaveString) => GetUnlockMessage(en.value, splitSaveString);
-    public static string GetUnlockMessage(string val, string[] splitSaveString)
+    public static string GetUnlockMessage(ExtEnumBase en, IEnumerable<string> splitSaveString) => GetUnlockMessage(en.value, splitSaveString);
+    public static string GetUnlockMessage(string val, IEnumerable<string> splitSaveString)
     {
         try
         {
@@ -331,16 +331,16 @@ public static class CollectibleTokens
     }
 
 
-    public static bool IsUnlocked(string[] splitSaveString, ExtEnumBase en) => splitSaveString.Contains(en.value);
-    public static int UnlockedCount(string[] splitSaveString, ExtEnumBase[] collectibleSet) => collectibleSet.Count(u => splitSaveString.Contains(u.value));
-    public static int UnlockedCount(string[] splitSaveString, ExtEnumBase en) => UnlockedCount(splitSaveString, en.value);
+    public static bool IsUnlocked(IEnumerable<string> splitSaveString, ExtEnumBase en) => splitSaveString.Contains(en.value);
+    public static int UnlockedCount(IEnumerable<string> splitSaveString, ExtEnumBase[] collectibleSet) => collectibleSet.Count(u => splitSaveString.Contains(u.value));
+    public static int UnlockedCount(IEnumerable<string> splitSaveString, ExtEnumBase en) => UnlockedCount(splitSaveString, en.value);
     /// <summary>
     /// How many of this particular category of unlock are unlocked
     /// </summary>
     /// <param name="splitSaveString">The save strings</param>
     /// <param name="val">The value of the enum to search for</param>
     /// <returns></returns>
-    public static int UnlockedCount(string[] splitSaveString, string val)
+    public static int UnlockedCount(IEnumerable<string> splitSaveString, string val)
     {
         try
         {

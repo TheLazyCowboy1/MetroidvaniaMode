@@ -1,5 +1,6 @@
 ﻿using MetroidvaniaMode.Tools;
 using System;
+using System.Collections.Generic;
 
 namespace MetroidvaniaMode.SaveData;
 
@@ -10,22 +11,22 @@ public class WorldSaveData : SaveManager
     public MiscWorldSaveData Data;
 
     [SaveKey("UnlockedBlueTokens")]
-    public string UnlockedBlueTokens = "";
+    public StringList UnlockedBlueTokens = new();
     [SaveKey("UnlockedGoldTokens")]
-    public string UnlockedGoldTokens = "";
+    public StringList UnlockedGoldTokens = new();
     [SaveKey("UnlockedRedTokens")]
-    public string UnlockedRedTokens = "";
+    public StringList UnlockedRedTokens = new();
     [SaveKey("UnlockedGreenTokens")]
-    public string UnlockedGreenTokens = "";
+    public StringList UnlockedGreenTokens = new();
 
-    public string[] CollectibleSplitSaveString => (UnlockedBlueTokens + UnlockedGoldTokens + UnlockedGreenTokens + UnlockedRedTokens).Split(';');
+    public IEnumerable<string> CollectibleSplitSaveString => UnlockedBlueTokens + UnlockedGoldTokens + UnlockedGreenTokens + UnlockedRedTokens;
 
     public WorldSaveData(MiscWorldSaveData data)
     {
         this.Data = data;
 
         LoadData(data.unrecognizedSaveStrings);
-        Plugin.Log("Loaded WorldSaveData. UnlockedBlueTokens = " + UnlockedBlueTokens);
+        Plugin.Log("Loaded WorldSaveData. UnlockedRedTokens = " + UnlockedRedTokens);
 
         CurrentInstance = this;
     }

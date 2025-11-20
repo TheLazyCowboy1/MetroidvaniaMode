@@ -60,21 +60,19 @@ public static class CurrentAbilities
                 WorldSaveData data = game.GetStorySession.saveState.miscWorldSaveData.GetData();
 
                 //blue unlocks
-                string[] b = data.UnlockedBlueTokens.Split(';');
 
-                JumpBoost += 0.02f * CollectibleTokens.UnlockedCount(b, CollectibleTokens.JumpBoostUnlocks);
-                PoleJumpBoost += (1f - PoleJumpBoost) * CollectibleTokens.UnlockedCount(b, CollectibleTokens.PoleJumpUnlocks); //1 pole jump unlock => PoleJumpBoost == 1
-                DashSpeed += 1f * CollectibleTokens.UnlockedCount(b, CollectibleTokens.DashSpeedUnlocks);
+                JumpBoost += 0.02f * CollectibleTokens.UnlockedCount(data.UnlockedBlueTokens, CollectibleTokens.JumpBoostUnlocks);
+                PoleJumpBoost += (1f - PoleJumpBoost) * CollectibleTokens.UnlockedCount(data.UnlockedBlueTokens, CollectibleTokens.PoleJumpUnlocks); //1 pole jump unlock => PoleJumpBoost == 1
+                DashSpeed += 1f * CollectibleTokens.UnlockedCount(data.UnlockedBlueTokens, CollectibleTokens.DashSpeedUnlocks);
 
                 //red unlocks
-                string[] r = data.UnlockedRedTokens.Split(';');
 
                 if (!CanWallJump)
-                    CanWallJump = CollectibleTokens.IsUnlocked(r, CollectibleTokens.WallJumpUnlock);
+                    CanWallJump = CollectibleTokens.IsUnlocked(data.UnlockedRedTokens, CollectibleTokens.WallJumpUnlock);
                 if (!WallDashReset)
-                    WallDashReset = CollectibleTokens.IsUnlocked(r, CollectibleTokens.WallDashResetUnlock);
+                    WallDashReset = CollectibleTokens.IsUnlocked(data.UnlockedRedTokens, CollectibleTokens.WallDashResetUnlock);
 
-                int poleClimb = CollectibleTokens.UnlockedCount(r, CollectibleTokens.ClimbPolesUnlocks);
+                int poleClimb = CollectibleTokens.UnlockedCount(data.UnlockedRedTokens, CollectibleTokens.ClimbPolesUnlocks);
                 if (!CanGrabPoles && poleClimb > 0)
                 {
                     CanGrabPoles = true;
@@ -87,11 +85,11 @@ public static class CurrentAbilities
                 }
 
                 if (!ClimbVerticalCorridors)
-                    ClimbVerticalCorridors = CollectibleTokens.IsUnlocked(r, CollectibleTokens.ClimbPipesUnlock);
+                    ClimbVerticalCorridors = CollectibleTokens.IsUnlocked(data.UnlockedRedTokens, CollectibleTokens.ClimbPipesUnlock);
                 if (!CanUseShortcuts)
-                    CanUseShortcuts = CollectibleTokens.IsUnlocked(r, CollectibleTokens.UseShortcutsUnlock);
+                    CanUseShortcuts = CollectibleTokens.IsUnlocked(data.UnlockedRedTokens, CollectibleTokens.UseShortcutsUnlock);
 
-                int swim = CollectibleTokens.UnlockedCount(r, CollectibleTokens.SwimUnlocks);
+                int swim = CollectibleTokens.UnlockedCount(data.UnlockedRedTokens, CollectibleTokens.SwimUnlocks);
                 if (!CanSwim && swim > 0)
                 {
                     CanSwim = true;
@@ -103,7 +101,7 @@ public static class CurrentAbilities
                     swim--;
                 }
 
-                int thr = CollectibleTokens.UnlockedCount(r, CollectibleTokens.ThrowUnlocks);
+                int thr = CollectibleTokens.UnlockedCount(data.UnlockedRedTokens, CollectibleTokens.ThrowUnlocks);
                 if (!CanThrowObjects && thr > 0)
                 {
                     CanThrowObjects = true;
@@ -115,17 +113,16 @@ public static class CurrentAbilities
                     thr--;
                 }
 
-                DashCount += CollectibleTokens.UnlockedCount(r, CollectibleTokens.DashUnlocks);
-                ExtraJumps += CollectibleTokens.UnlockedCount(r, CollectibleTokens.JumpUnlocks);
+                DashCount += CollectibleTokens.UnlockedCount(data.UnlockedRedTokens, CollectibleTokens.DashUnlocks);
+                ExtraJumps += CollectibleTokens.UnlockedCount(data.UnlockedRedTokens, CollectibleTokens.JumpUnlocks);
 
                 if (!CanGlide)
-                    CanGlide = CollectibleTokens.IsUnlocked(r, CollectibleTokens.GlideUnlock);
+                    CanGlide = CollectibleTokens.IsUnlocked(data.UnlockedRedTokens, CollectibleTokens.GlideUnlock);
 
 
                 //green unlocks
-                string[] g = data.UnlockedGreenTokens.Split(';');
 
-                MaxHealth += CollectibleTokens.UnlockedCount(g, CollectibleTokens.HealthUnlocks);
+                MaxHealth += CollectibleTokens.UnlockedCount(data.UnlockedGreenTokens, CollectibleTokens.HealthUnlocks);
 
             }
 

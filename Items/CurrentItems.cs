@@ -53,12 +53,10 @@ public static class CurrentItems
             {
                 WorldSaveData data = game.GetStorySession.saveState.miscWorldSaveData.GetData();
 
-                string[] g = data.UnlockedGoldTokens.Split(';');
-
                 foreach (ItemInfo info in ItemInfos.Values)
                 {
                     int oldMax = info.max;
-                    info.max += CollectibleTokens.UnlockedCount(g, info.Collectible());
+                    info.max += CollectibleTokens.UnlockedCount(data.UnlockedGoldTokens, info.Collectible());
                     info.count += info.max - oldMax; //increase/decrease count with max
                     if (info.count < 0) info.count = 0; //don't go negative, though!
                 }

@@ -105,6 +105,8 @@ public abstract class SaveManager
             return float.Parse(s);
         if (t == typeof(bool))
             return s == "true";
+        if (t == typeof(StringList))
+            return new StringList(s);
         return s; //default case
     }
 

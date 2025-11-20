@@ -61,22 +61,22 @@ public static class Hooks
             WorldSaveData data = self.miscWorldSaveData.GetData();
 
             //Set ACTUALLY unlocked tokens in WorldSaveData as unlocked in ProgressionData
-            foreach (string s in data.UnlockedBlueTokens.Split(';'))
+            foreach (string s in data.UnlockedBlueTokens)
             {
                 if (s.Length > 0)
                     self.progression.miscProgressionData.sandboxTokens.Add(new(s));
             }
-            foreach (string s in data.UnlockedGoldTokens.Split(';'))
+            foreach (string s in data.UnlockedGoldTokens)
             {
                 if (s.Length > 0)
                     self.progression.miscProgressionData.levelTokens.Add(new(s));
             }
-            foreach (string s in data.UnlockedRedTokens.Split(';'))
+            foreach (string s in data.UnlockedRedTokens)
             {
                 if (s.Length > 0)
                     self.progression.miscProgressionData.safariTokens.Add(new(s));
             }
-            foreach (string s in data.UnlockedGreenTokens.Split(';'))
+            foreach (string s in data.UnlockedGreenTokens)
             {
                 if (s.Length > 0)
                     self.progression.miscProgressionData.classTokens.Add(new(s));
