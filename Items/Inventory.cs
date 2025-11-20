@@ -42,7 +42,10 @@ public static class Inventory
         {
             //check if there are any items to pull out
             if (!CurrentItems.ItemInfos.Values.Any(i => i.max > 0))
+            {
+                orig(self, eu);
                 return; //no eligible items for inventory, so don't open inventory!
+            }
 
             PlayerInfo info = self.GetInfo();
 
@@ -50,14 +53,14 @@ public static class Inventory
             if (self.input[0].pckp)
             {
                 info.HoldGrabTime++;
-                if (info.HoldGrabTime > Options.InventoryOpenTime)
+                if (info.HoldGrabTime > Options.InventoryOpenTime - UI.InventoryWheel.OpenTime / 2) //start opening it early
                 {
                     open = true;
                 }
             }
             else
             {
-                if (info.HoldGrabTime > Options.InventoryOpenTime)
+                if (info.HoldGrabTime >= Options.InventoryOpenTime)
                 {
                     //closing inventory after opening, so we should grab or store an item!
                     int selection = UI.InventoryWheel.GetSelection();//Array.IndexOf(UI.InventoryWheel.IntVecs, self.input[0].IntVec);
@@ -66,33 +69,36 @@ public static class Inventory
                         AbstractPhysicalObject.AbstractObjectType item = WheelItems[selection];
                         if (item != null)
                         {
-                            int canPullOut = CanPullOutItem(self, item);
-                            if (canPullOut >= 0)
+                            //attempt to store the item first
+                            int canStore = CanStoreItem(self, item);
+                            if (canStore >= 0)
                             {
-                                PullOutItem(self, item, canPullOut);
+                                StoreItem(self, canStore);
                             }
-                            else //couldn't pull it out
+                            else //couldn't store it
                             {
-                                Plugin.Log("Failed to pull out the item. Attempting to store it.", 2);
-                                int canStore = CanStoreItem(self, item);
-                                if (canStore >= 0)
+                                Plugin.Log("Failed to store the item. Attempting to pull it out.", 2); int canPullOut = CanPullOutItem(self, item);
+                                if (canPullOut >= 0)
                                 {
-                                    StoreItem(self, canStore);
+                                    PullOutItem(self, item, canPullOut);
                                 }
-                                else //couldn't store it either!
+                                else //couldn't pull it out, either
                                 {
-                                    Plugin.Log("Failed to store the item. Attempting to swap it.", 2);
+                                    Plugin.Log("Failed to pull out the item. Attempting to swap it.", 2);
                                     for (int i = 0; i < self.grasps.Length; i++)
                                     {
-                                        if (self.grasps[i] != null)
+                                        if (self.grasps[i] != null) //look for an item that can be stored
                                         {
-                                            int canStore2 = CanStoreGrasp(self, i);
-                                            int canPullOut2 = CanPullOutItem(self, item, canStore2);
-                                            if (canPullOut2 >= 0)
+                                            //int canStore2 = CanStoreGrasp(self, i);
+                                            if (CanStoreGrasp(self, i))
                                             {
-                                                StoreItem(self, canStore2);
-                                                PullOutItem(self, item, canPullOut2);
-                                                break;
+                                                int canPullOut2 = CanPullOutItem(self, item, i);
+                                                if (canPullOut2 >= 0)
+                                                {
+                                                    StoreItem(self, i);
+                                                    PullOutItem(self, item, canPullOut2);
+                                                    break;
+                                                }
                                             }
                                         }
                                     }
@@ -126,15 +132,7 @@ public static class Inventory
         CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[item];
 
         //check for empty hand
-        int grasp = -1;
-        for (int i = 0; i < self.grasps.Length; i++)
-        {
-            if (self.grasps[i] == null || i == artificiallyEmptyGrasp) //find the first EMPTY grasp
-            {
-                grasp = i;
-                break;
-            }
-        }
+        int grasp = self.FreeHand();
 
         if (grasp >= 0 && itemInfo.count > 0
             && (item != AbstractPhysicalObject.AbstractObjectType.Spear || self.grasps[1 - grasp] == null || 1 - grasp == artificiallyEmptyGrasp || self.Grabability(self.grasps[1 - grasp].grabbed) < Player.ObjectGrabability.BigOneHand) //can't pull out two spears
@@ -160,12 +158,15 @@ public static class Inventory
             abObj = new DangleFruit.AbstractDangleFruit(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), -1, -1, false, null) { type = CustomItems.HealFruit }; //manually re-assign the type
         else
             abObj = new(self.abstractPhysicalObject.world, item, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID());
+        
         abObj.RealizeInRoom();
-        self.SlugcatGrab(abObj.realizedObject, grasp);
 
         //visual thingy; move item towards hand?
         if (self.graphicsModule != null)
             abObj.realizedObject.firstChunk.MoveFromOutsideMyUpdate(self.abstractPhysicalObject.world.game.evenUpdate, (self.graphicsModule as PlayerGraphics).hands[grasp].pos);
+
+        self.SlugcatGrab(abObj.realizedObject, grasp);
+        
 
         self.room.PlaySound(SoundID.Slugcat_Pick_Up_Spear, self.mainBodyChunk);
         itemInfo.count--;
@@ -174,37 +175,30 @@ public static class Inventory
 
         Plugin.Log("Pulling item out of inventory: " + item, 2);
     }
+
     private static int CanStoreItem(Player self, AbstractPhysicalObject.AbstractObjectType item)
     {
-        if (!CurrentItems.ItemInfos.ContainsKey(item))
-            return -1;
-        CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[item];
-
         //check if we already have item in hand
-        int grasp = -1;
         for (int i = 0; i < self.grasps.Length; i++)
         {
             if (self.grasps[i] != null && self.grasps[i].grabbed.abstractPhysicalObject.type == item)
             {
-                grasp = i;
-                break;
+                return CanStoreGrasp(self, i) ? i : -1;
             }
-        }
-
-        if (grasp >= 0 && itemInfo.count < itemInfo.max)
-        {
-            
-            return grasp;
         }
         return -1;
     }
-    private static int CanStoreGrasp(Player self, int grasp)
+    private static bool CanStoreGrasp(Player self, int grasp)
     {
         AbstractPhysicalObject ab = self.grasps[grasp].grabbed.abstractPhysicalObject;
         if (ab is AbstractSpear spear && (spear.explosive || spear.electric))
-            return -1; //don't store explosive spears; that'd be annoying
+            return false; //don't store explosive spears; that'd be annoying
 
-        return CanStoreItem(self, ab.type);
+        if (!CurrentItems.ItemInfos.ContainsKey(ab.type))
+            return false; //don't store things that can't be in the inventory
+
+        CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[ab.type];
+        return itemInfo.count < itemInfo.max; //we can store it unless it's at max
     }
     private static void StoreItem(Player self, int grasp)
     {
@@ -227,6 +221,7 @@ public static class Inventory
     }
 
 
+    //Initiate the inventory wheel HUD object
     private static void HUD_InitSinglePlayerHud(On.HUD.HUD.orig_InitSinglePlayerHud orig, HUD.HUD self, RoomCamera cam)
     {
         orig(self, cam);

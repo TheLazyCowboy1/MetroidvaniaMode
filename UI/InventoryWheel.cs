@@ -11,7 +11,8 @@ public class InventoryWheel : HudPart
     private static InventoryWheel LastInstance;
 
     public float alpha = 0;
-    private const float AlphaStep = 1f / 0.1f / 40f; //0.1 second
+    public const int OpenTime = 4; //4 ticks = 0.1 second
+    private const float AlphaStep = 1f / OpenTime;
     private const float BaseCircleAlpha = 0.3f;
     private const float SelectedCircleAlpha = 1f;
     public bool visible = false;
