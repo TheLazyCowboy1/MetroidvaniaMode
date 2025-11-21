@@ -86,8 +86,10 @@ public class StringList : IEnumerable<string>
     {
         if (String.Length == 0 || idx >= Array.Length) return Add(s);
 
-        RemoveAt(idx); //lazy but probably works lol
-        return Insert(s, idx);
+        //just remove it and then re-insert it, lol
+        int pos = Move(idx);
+        RemoveAtPos(pos);
+        return InsertAtPos(s, pos);
     }
 
     public bool Remove(string s)
@@ -116,12 +118,6 @@ public class StringList : IEnumerable<string>
     public bool RemoveAt(int idx)
     {
         if (String.Length == 0 || idx >= Array.Length) return false;
-
-        if (Array.Length <= 1) //if there isn't even a delimiter to find, just clear the string
-        {
-            Clear();
-            return true;
-        }
 
         RemoveAtPos(Move(idx));
 

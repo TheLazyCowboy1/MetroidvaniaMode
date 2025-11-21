@@ -57,9 +57,9 @@ public static class CurrentItems
             {
                 //set wheel items
                 DeathSaveData deathData = game.GetStorySession.saveState.deathPersistentSaveData.GetData();
-                for (int i = 0; i < deathData.WheelItems.Array.Length && i < WheelItems.Length; i++)
+                for (int i = 0; i < WheelItems.Length; i++)
                 {
-                    string s = deathData.WheelItems.Get(i);
+                    string s = deathData.WheelItems.Get(i); //this works even if it goes over, because then it just returns null
                     if (s == null || s.Length < 1)
                         WheelItems[i] = null;
                     else
