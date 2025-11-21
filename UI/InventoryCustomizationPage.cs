@@ -13,7 +13,7 @@ public class InventoryCustomizationPage : Page
 
     public InventoryCustomizationPage(Menu.Menu menu, MenuObject owner, string name, int index) : base(menu, owner, name, index)
     {
-        Title = new(menu, this, menu.Translate("Inventory"), new(500, 200), new(500, 50), true);
+        Title = new(menu, this, menu.Translate("Inventory"), new(500, 10), new(500, 50), true);
         subObjects.Add(Title);
     }
 }

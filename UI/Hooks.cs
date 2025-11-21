@@ -26,16 +26,18 @@ public static class Hooks
         try
         {
             //add page
-            self.pages.Add(new InventoryCustomizationPage(self, null, "inventory", self.pages.Count));
+            self.pages.Add(new InventoryCustomizationPage(self, null, "inventory", 0)); //set index to 0 so mouse still appears on it
 
-            Vector2 sSize = game.rainWorld.screenSize;
-            Vector2 off = manager.rainWorld.options.SafeScreenOffset;
-            float buttonY = self.continueButton.pos.y - 100f;
-            foreach (Page page in self.pages)
-            {
-                page.subObjects.Add(new BigArrowButton(self, page, "PREV", new(100f + off.x, buttonY), -1));
-                page.subObjects.Add(new BigArrowButton(self, page, "NEXT", new(sSize.x - 100f - off.x, buttonY), 1));
-            }
+            //Vector2 sSize = game.rainWorld.screenSize;
+            //Vector2 off = manager.rainWorld.options.SafeScreenOffset;
+            //float buttonY = self.continueButton.pos.y - 100f;
+            //foreach (Page page in self.pages)
+            //{
+            Page page = self.pages[0];
+                page.subObjects.Add(new BigArrowButton(self, page, "PREV", new(100, self.continueButton.pos.y - 100), -1));
+                page.subObjects.Add(new BigArrowButton(self, page, "NEXT", self.continueButton.pos + new Vector2(-10, -100), 1));
+            //}
+            Plugin.Log("Added pause menu page changing buttons");
 
         } catch (Exception ex) { Plugin.Error(ex); }
     }
@@ -75,13 +77,13 @@ public static class Hooks
         self.currentPage = page;
 
         //find matching button
-        foreach (MenuObject obj in self.pages[page].subObjects)
+        /*foreach (MenuObject obj in self.pages[page].subObjects)
         {
             if (obj is BigArrowButton b && b.signalText == message)
             {
                 self.selectedObject = b;
                 return;
             }
-        }
+        }*/
     }
 }
