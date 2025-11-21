@@ -145,7 +145,15 @@ public static class Inventory
         CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[item];
 
         //check for empty hand
-        int grasp = self.FreeHand();
+        int grasp = -1; // self.FreeHand();
+        for (int i = 0; i < self.grasps.Length; i++)
+        {
+            if (self.grasps[i] == null || i == artificiallyEmptyGrasp)
+            {
+                grasp = i;
+                break;
+            }
+        }
 
         if (grasp >= 0 && itemInfo.count > 0
             && (item != AbstractPhysicalObject.AbstractObjectType.Spear || self.grasps[1 - grasp] == null || 1 - grasp == artificiallyEmptyGrasp || self.Grabability(self.grasps[1 - grasp].grabbed) < Player.ObjectGrabability.BigOneHand) //can't pull out two spears
