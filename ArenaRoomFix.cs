@@ -12,12 +12,14 @@ public static class ArenaRoomFix
     {
         On.Room.NowViewed += Room_NowViewed;
         //On.Room.TriggerCombatArena += Room_TriggerCombatArena;
+        On.AbstractRoom.AttractionForCreature_AbstractCreature += AbstractRoom_AttractionForCreature_AbstractCreature;
     }
 
     public static void RemoveHooks()
     {
         On.Room.NowViewed -= Room_NowViewed;
         //On.Room.TriggerCombatArena -= Room_TriggerCombatArena;
+        On.AbstractRoom.AttractionForCreature_AbstractCreature -= AbstractRoom_AttractionForCreature_AbstractCreature;
     }
 
 
@@ -39,8 +41,33 @@ public static class ArenaRoomFix
         } catch (Exception ex) { Plugin.Error(ex); }
     }
 
+    //Prevent creatures from moving into battle arenas
+    private static AbstractRoom.CreatureRoomAttraction AbstractRoom_AttractionForCreature_AbstractCreature(On.AbstractRoom.orig_AttractionForCreature_AbstractCreature orig, AbstractRoom self, AbstractCreature creature)
+    {
+        try
+        {
+            if (self.isBattleArena || DoorLocker.LockedRooms.Contains(self.index)) //if it will be locked, or if it is locked
+            {
+                if (creature.spawnDen.room == self.index)
+                    return AbstractRoom.CreatureRoomAttraction.Stay; //creatures who spawned in the room must stay in the room
+                else
+                    return AbstractRoom.CreatureRoomAttraction.Forbidden; //other creatures are forbidden
+            }
+            //prevent arena creatures from moving into neighboring rooms
+            if (DoorLocker.LockedRooms.Contains(creature.spawnDen.room))
+                return AbstractRoom.CreatureRoomAttraction.Forbidden;
+
+        } catch (Exception ex) { Plugin.Error(ex); }
+
+        return orig(self, creature);
+    }
+
+
     private class DoorLocker : UpdatableAndDeletable
     {
+        public static List<int> LockedRooms = new();
+        private int roomIdx = -123;
+
         private const int TimeUntilLock = 40 * 3; //3 seconds until lock
         private const int MinTimeUntilUnlock = TimeUntilLock + 40 * 3; //must be locked for at least 3 seconds
 
@@ -60,6 +87,40 @@ public static class ArenaRoomFix
             {
                 this.Destroy();
                 return;
+            }
+
+            if (roomIdx == -123)
+            {
+                roomIdx = room.abstractRoom.index;
+            }
+
+            //make creatures stay in room (or leave if not allowed)
+            foreach (AbstractCreature crit in room.abstractRoom.creatures)
+            {
+                if (crit.spawnDen.room == roomIdx) //creatures who belong in the room
+                {
+                    if (crit.abstractAI != null && crit.abstractAI.destination.room != roomIdx) //GET BACK IN HERE!!!
+                    {
+                        WorldCoordinate newDest = new(roomIdx, room.abstractRoom.size.x / 2, room.abstractRoom.size.y / 2, -1);
+                        crit.abstractAI.SetDestinationNoPathing(newDest, true); //stay here whether you like it or not
+                        crit.abstractAI.freezeDestination = true; //don't try to change your destination ever again
+                    }
+                }
+                else //creature who do not belong in the room
+                {
+                    if (crit.abstractAI != null && crit.abstractAI.destination.room == roomIdx) //GET OUT!!!
+                    {
+                        for (int i = 0; i < room.abstractRoom.connections.Length; i++)
+                        {
+                            int conn = room.abstractRoom.connections[i];
+                            if (conn >= 0)
+                            {
+                                crit.abstractAI.SetDestinationNoPathing(new(conn, -1, -1, crit.world.GetAbstractRoom(conn).ExitIndex(roomIdx)), true);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
 
             viewedTime++;
@@ -88,7 +149,7 @@ public static class ArenaRoomFix
                 bool creaturesInRoom = false;
                 foreach (AbstractCreature crit in room.abstractRoom.creatures)
                 {
-                    if (crit.spawnDen.room == room.abstractRoom.index //spawned in THIS ROOM
+                    if (crit.spawnDen.room == roomIdx //spawned in THIS ROOM
                             && crit.state.alive //and is NOT dead
                             && (!crit.InDen || crit.remainInDenCounter < 80))
                     {
@@ -108,6 +169,8 @@ public static class ArenaRoomFix
         private void LockShortcuts()
         {
             locked = true;
+
+            LockedRooms.Add(roomIdx);
 
             //add void chains
             chains = new(room.shortcuts.Length);
@@ -157,6 +220,13 @@ public static class ArenaRoomFix
             this.Destroy();
 
             Plugin.Log("Unlocked shortcuts in room " + room.abstractRoom.name);
+        }
+
+        public override void Destroy()
+        {
+            LockedRooms.Remove(roomIdx);
+
+            base.Destroy();
         }
 
     }

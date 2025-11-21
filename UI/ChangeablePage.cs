@@ -14,6 +14,8 @@ public class ChangeablePage : Page
     private bool movingOut = true;
     private bool pageInactive = true;
 
+    private float sSize => menu.manager.rainWorld.screenSize.x;
+
     public ChangeablePage(Menu.Menu menu, MenuObject owner, string name, int index, List<SelectableMenuObject> extraSelectables) : base(menu, owner, name, index)
     {
         defaultPos = pos;
@@ -23,8 +25,7 @@ public class ChangeablePage : Page
             selectables.AddRange(extraSelectables);
 
         //move pos out far, so we can't see the menu
-        float sSize = this.menu.manager.rainWorld.screenSize.x;
-        pos.x += sSize * 2f;
+        pos.x += sSize * 4f;
     }
 
     public override void Update()
@@ -38,10 +39,12 @@ public class ChangeablePage : Page
             if (!moving)
             {
                 pageInactive = movingOut;
+                if (pageInactive)
+                    pos.x = defaultPos.x + 4f * sSize; //ensure it's well out of the way
             }
         }
 
-        foreach (MenuObject obj in subObjects)
+        foreach (MenuObject obj in subObjects) //looping like this is inefficient, but I don't want to miss any new objects
         {
             obj.inactive = pageInactive;
         }
@@ -53,7 +56,6 @@ public class ChangeablePage : Page
         movingOut = moveOut;
         pageInactive = true;
 
-        float sSize = this.menu.manager.rainWorld.screenSize.x;
         if (moveOut)
         {
             pos = defaultPos;
