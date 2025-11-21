@@ -34,8 +34,8 @@ public static class Hooks
             //foreach (Page page in self.pages)
             //{
             Page page = self.pages[0];
-                page.subObjects.Add(new BigArrowButton(self, page, "PREV", new(100, self.continueButton.pos.y - 100), -1));
-                page.subObjects.Add(new BigArrowButton(self, page, "NEXT", self.continueButton.pos + new Vector2(-10, -100), 1));
+                page.subObjects.Add(new BigArrowButton(self, page, "PREV", new(100, self.continueButton.pos.y + 100), -1));
+                page.subObjects.Add(new BigArrowButton(self, page, "NEXT", self.continueButton.pos + new Vector2(-10, 100), 1));
             //}
             Plugin.Log("Added pause menu page changing buttons");
 
