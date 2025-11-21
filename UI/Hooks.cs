@@ -25,8 +25,6 @@ public static class Hooks
 
         try
         {
-            //add page
-            self.pages.Add(new InventoryCustomizationPage(self, null, "inventory", 0)); //set index to 0 so mouse still appears on it
 
             //Vector2 sSize = game.rainWorld.screenSize;
             //Vector2 off = manager.rainWorld.options.SafeScreenOffset;
@@ -38,6 +36,9 @@ public static class Hooks
                 page.subObjects.Add(new BigArrowButton(self, page, "NEXT", self.continueButton.pos + new Vector2(-10, 100), 1));
             //}
             Plugin.Log("Added pause menu page changing buttons");
+
+            //add page
+            self.pages.Add(new InventoryCustomizationPage(self, null, "inventory", 0, page.selectables)); //set index to 0 so mouse still appears on it
 
         } catch (Exception ex) { Plugin.Error(ex); }
     }
@@ -55,6 +56,7 @@ public static class Hooks
                     ChangePage(self, self.currentPage - 1, message); //move one left
 
                 self.PlaySound(SoundID.HUD_Pause_Game, 0, 0.9f, 1.1f); //small sound effect; why not
+                Plugin.Log("Moving to prev page", 2);
                 return;
             }
             if (message == "NEXT")
@@ -63,6 +65,9 @@ public static class Hooks
                     ChangePage(self, 0, message); //wrap around to start
                 else
                     ChangePage(self, self.currentPage + 1, message); //move one right
+
+                self.PlaySound(SoundID.HUD_Pause_Game, 0, 0.9f, 1.1f); //small sound effect; why not
+                Plugin.Log("Moving to next page", 2);
                 return;
             }
         } catch (Exception ex) { Plugin.Error(ex); }
