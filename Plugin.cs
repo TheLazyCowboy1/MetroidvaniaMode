@@ -64,6 +64,8 @@ public partial class Plugin : BaseUnityPlugin
             Items.Inventory.RemoveHooks();
             Items.CustomItems.RemoveHooks();
 
+            UI.Hooks.RemoveHooks();
+
             SaveData.Hooks.RemoveHooks();
             Collectibles.Hooks.RemoveHooks();
 
@@ -101,6 +103,8 @@ public partial class Plugin : BaseUnityPlugin
 
             Items.Inventory.ApplyHooks();
             Items.CustomItems.ApplyHooks();
+
+            UI.Hooks.ApplyHooks();
 
             SaveData.Hooks.ApplyHooks();
             Collectibles.Hooks.ApplyHooks();

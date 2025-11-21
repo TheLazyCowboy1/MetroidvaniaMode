@@ -1,4 +1,5 @@
 ﻿using MetroidvaniaMode.Abilities;
+using MetroidvaniaMode.UI;
 using System;
 using System.Linq;
 
@@ -11,14 +12,14 @@ public static class Inventory
     {
         On.Player.GrabUpdate += Player_GrabUpdate;
 
-        On.HUD.HUD.InitSinglePlayerHud += HUD_InitSinglePlayerHud;
+        //On.HUD.HUD.InitSinglePlayerHud += HUD_InitSinglePlayerHud;
     }
 
     public static void RemoveHooks()
     {
         On.Player.GrabUpdate -= Player_GrabUpdate;
 
-        On.HUD.HUD.InitSinglePlayerHud -= HUD_InitSinglePlayerHud;
+        //On.HUD.HUD.InitSinglePlayerHud -= HUD_InitSinglePlayerHud;
     }
 
 
@@ -45,78 +46,34 @@ public static class Inventory
             if (self.input[0].pckp)
             {
                 info.HoldGrabTime++;
-                if (info.HoldGrabTime > Options.InventoryOpenTime - UI.InventoryWheel.OpenTime / 2) //start opening it early
+                if (info.HoldGrabTime > Options.InventoryOpenTime - InventoryWheel.OpenTime / 2) //start opening it early
                 {
                     open = true;
+
+                    if (info.InventoryWheel == null)
+                    {
+                        HUD.HUD hud = self.abstractPhysicalObject.world.game.cameras[0].hud;
+                        if (hud != null)
+                        {
+                            info.InventoryWheel = new(hud);
+                            hud.AddPart(info.InventoryWheel);
+                            Plugin.Log("Created InventoryWheel for player " + self.playerState.playerNumber);
+                        }
+                    }
                 }
             }
             else
             {
-                if (info.HoldGrabTime >= Options.InventoryOpenTime)
+                if (info.HoldGrabTime >= Options.InventoryOpenTime && info.InventoryWheel != null)
                 {
                     //closing inventory after opening, so we should grab or store an item!
-                    int selection = UI.InventoryWheel.GetSelection();//Array.IndexOf(UI.InventoryWheel.IntVecs, self.input[0].IntVec);
+                    int selection = info.InventoryWheel.selection;//Array.IndexOf(UI.InventoryWheel.IntVecs, self.input[0].IntVec);
                     if (selection >= 0)
                     {
                         AbstractPhysicalObject.AbstractObjectType item = CurrentItems.WheelItems[selection];
                         if (item != null)
                         {
-                            CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[item];
-
-                            //attempt to store the item first
-                            int canStore = CanStoreItem(self, item);
-                            if (canStore >= 0)
-                            {
-                                StoreItem(self, canStore);
-                            }
-                            else if (itemInfo.count < 1) //don't try to pull it out if we don't have any to pull out
-                            {
-                                Plugin.Log($"Failed to store {item}. NOT attempting to pull it out: We have 0 of it.");
-                            }
-                            else //couldn't store it; attempt to pull it out
-                            {
-                                Plugin.Log($"Failed to store {item}. Attempting to pull it out.", 2); int canPullOut = CanPullOutItem(self, item);
-                                if (canPullOut >= 0)
-                                {
-                                    PullOutItem(self, item, canPullOut);
-                                }
-                                else //couldn't pull it out, either
-                                {
-                                    Plugin.Log($"Failed to pull out {item}. Attempting to swap it.", 2);
-                                    bool success = false;
-                                    for (int i = 0; i < self.grasps.Length; i++)
-                                    {
-                                        if (CanStoreGrasp(self, i)) //look for an item that can be stored
-                                        {
-                                            int canPullOut2 = CanPullOutItem(self, item, i);
-                                            if (canPullOut2 >= 0)
-                                            {
-                                                StoreItem(self, i);
-                                                PullOutItem(self, item, canPullOut2);
-                                                success = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    if (!success) //couldn't swap it; last-ditch effort now!
-                                    {
-                                        Plugin.Log($"Failed to swap {item}. Attempting to drop the currently held item.", 2);
-                                        for (int i = 0; i < self.grasps.Length; i++)
-                                        {
-                                            if (self.grasps[i] != null) //can't drop null grasps, silly
-                                            {
-                                                int canPullOut3 = CanPullOutItem(self, item, i);
-                                                if (canPullOut3 >= 0)
-                                                {
-                                                    self.ReleaseGrasp(i); //drop it
-                                                    PullOutItem(self, item, canPullOut3);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            TryPullOrStoreItem(self, item);
                         }
                         else
                             Plugin.Log("Inventory closed with a blank slot selected", 2);
@@ -129,14 +86,77 @@ public static class Inventory
             }
 
             //set inventory UI
-            UI.InventoryWheel.SetVisible(open, self.mainBodyChunk.pos - self.abstractPhysicalObject.world.game.cameras[0].pos);
-            if (open)
-                UI.InventoryWheel.SetSelected(self.input[0].IntVec);
+            if (info.InventoryWheel != null)
+            {
+                info.InventoryWheel.SetVisible(open, self.mainBodyChunk.pos - self.abstractPhysicalObject.world.game.cameras[0].pos);
+                if (open)
+                    info.InventoryWheel.SetSelection(self.input[0].IntVec);
+            }
 
         } catch (Exception ex) { Plugin.Error(ex); }
 
         
         orig(self, eu);
+    }
+
+    private static void TryPullOrStoreItem(Player self, AbstractPhysicalObject.AbstractObjectType item)
+    {
+        CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[item];
+
+        //attempt to store the item first
+        int canStore = CanStoreItem(self, item);
+        if (canStore >= 0)
+        {
+            StoreItem(self, canStore);
+            return;
+        }
+
+        if (itemInfo.count < 1) //don't try to pull it out if we don't have any to pull out
+        {
+            Plugin.Log($"Failed to store {item}. NOT attempting to pull it out: We have 0 of it.");
+        }
+
+        //couldn't store it; attempt to pull it out
+        Plugin.Log($"Failed to store {item}. Attempting to pull it out.", 2); int canPullOut = CanPullOutItem(self, item);
+        if (canPullOut >= 0)
+        {
+            PullOutItem(self, item, canPullOut);
+            return;
+        }
+
+        //couldn't pull it out, either
+        Plugin.Log($"Failed to pull out {item}. Attempting to swap it.", 2);
+        for (int i = 0; i < self.grasps.Length; i++)
+        {
+            if (CanStoreGrasp(self, i)) //look for an item that can be stored
+            {
+                int canPullOut2 = CanPullOutItem(self, item, i);
+                if (canPullOut2 >= 0)
+                {
+                    StoreItem(self, i);
+                    PullOutItem(self, item, canPullOut2);
+                    return;
+                }
+            }
+        }
+
+        //couldn't swap it; last-ditch effort now!
+        Plugin.Log($"Failed to swap {item}. Attempting to drop the currently held item.", 2);
+        for (int i = 0; i < self.grasps.Length; i++)
+        {
+            if (self.grasps[i] != null) //can't drop null grasps, silly
+            {
+                int canPullOut3 = CanPullOutItem(self, item, i);
+                if (canPullOut3 >= 0)
+                {
+                    self.ReleaseGrasp(i); //drop it
+                    PullOutItem(self, item, canPullOut3);
+                    return;
+                }
+            }
+        }
+
+        Plugin.Error($"Unable to pull out or store {item} whatsoever!"); //this should surely be impossible to trigger???
     }
     private static int CanPullOutItem(Player self, AbstractPhysicalObject.AbstractObjectType item, int artificiallyEmptyGrasp = -1)
     {
@@ -254,7 +274,7 @@ public static class Inventory
         {
             if (CurrentAbilities.HasInventory)
             {
-                self.AddPart(new UI.InventoryWheel(self));
+                self.AddPart(new InventoryWheel(self));
                 Plugin.Log("Added InventoryWheel to hud!");
             }
         } catch (Exception ex) { Plugin.Error(ex); }

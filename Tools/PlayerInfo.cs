@@ -16,6 +16,7 @@ public class PlayerInfo
     public int iFrames = 0;
 
     public int HoldGrabTime = 0;
+    public UI.InventoryWheel InventoryWheel = null;
 
 
     private static ConditionalWeakTable<Player, PlayerInfo> playerInfos = new();

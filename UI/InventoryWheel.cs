@@ -8,7 +8,7 @@ namespace MetroidvaniaMode.UI;
 
 public class InventoryWheel : HudPart
 {
-    private static InventoryWheel LastInstance;
+    //private static InventoryWheel LastInstance;
 
     public float lastAlpha = 0;
     public float alpha = 0;
@@ -54,7 +54,7 @@ public class InventoryWheel : HudPart
         items = new FSprite[8];
         labels = new FLabel[8];
 
-        LastInstance = this;
+        //LastInstance = this;
     }
 
     public override void Update()
@@ -106,7 +106,7 @@ public class InventoryWheel : HudPart
             labels[i]?.RemoveFromContainer();
         }
 
-        LastInstance = null; //it got cleared, so it's no longer active
+        //LastInstance = null; //it got cleared, so it's no longer active
     }
 
 
@@ -200,81 +200,64 @@ public class InventoryWheel : HudPart
             catch (Exception ex) { Plugin.Error(ex); }
         }
     }
-    public static void SetVisible(bool vis, Vector2 pos)
+    public void SetVisible(bool vis, Vector2 pos)
     {
-        if (LastInstance == null)
+        /*if (LastInstance == null)
         {
             Plugin.Error("Inventory Wheel does not exist!");
             return;
-        }
-
-        if (!LastInstance.visible && vis)
+        }*/
+        if (!visible && vis)
         {
-            LastInstance.SetItemSprites();
+            SetItemSprites();
         }
-        LastInstance.visible = vis;
+        visible = vis;
 
         if (vis)
         {
-            LastInstance.MoveTo(pos);
+            MoveTo(pos);
         }
         else
         {
-            LastInstance.selection = -1;
+            selection = -1;
         }
     }
 
-    public static void SetSelected(IntVector2 direction)
+    public void SetSelection(IntVector2 direction)
     {
-        if (LastInstance == null)
+        if (selection < 0) //if we currently have nothing selected, select the new direction regardless!
         {
-            Plugin.Error("Inventory Wheel does not exist!");
+            selection = Array.IndexOf(IntVecs, direction);
+            notSelectedTimer = 0;
             return;
         }
 
-        if (LastInstance.selection < 0) //if we currently have nothing selected, select the new direction regardless!
+        //we already have something selected
+        IntVector2 curDir = IntVecs[selection];
+
+        if (curDir == direction) //we're not changing our selection
         {
-            LastInstance.selection = Array.IndexOf(IntVecs, direction);
-            LastInstance.notSelectedTimer = 0;
+            notSelectedTimer = 0;
+            return;
         }
-        else //we already have something selected
+
+        //we want to change our selection
+        IntVector2 newDir = direction;
+
+        //only set x or y to 0 after waiting Stickiness
+        if (direction.x == 0 && notSelectedTimer < Stickiness)
+            newDir.x = curDir.x;
+        if (direction.y == 0 && notSelectedTimer < Stickiness)
+            newDir.y = curDir.y;
+
+        if (newDir != curDir) //we're changing selection
         {
-            IntVector2 curDir = IntVecs[LastInstance.selection];
-
-            if (curDir == direction) //we're not changing our selection
-            {
-                LastInstance.notSelectedTimer = 0;
-            }
-            else //we want to change our selection
-            {
-                IntVector2 newDir = direction;
-
-                //only set x or y to 0 after waiting Stickiness
-                if (direction.x == 0 && LastInstance.notSelectedTimer < Stickiness)
-                    newDir.x = curDir.x;
-                if (direction.y == 0 && LastInstance.notSelectedTimer < Stickiness)
-                    newDir.y = curDir.y;
-
-                if (newDir != curDir) //we're changing selection
-                {
-                    LastInstance.selection = Array.IndexOf(IntVecs, newDir);
-                    LastInstance.notSelectedTimer = 0;
-                }
-                else //we want to change selection, but we can't, so increase the timer
-                    LastInstance.notSelectedTimer++;
-            }
+            selection = Array.IndexOf(IntVecs, newDir);
+            notSelectedTimer = 0;
         }
+        else //we want to change selection, but we can't, so increase the timer
+            notSelectedTimer++;
     }
-    public static IntVector2[] IntVecs => new IntVector2[] { new(0, 1), new(1, 1), new(1, 0), new(1, -1), new(0, -1), new(-1, -1), new(-1, 0), new(-1, 1) };
-
-    public static int GetSelection()
-    {
-        if (LastInstance == null)
-        {
-            Plugin.Error("Inventory Wheel does not exist!");
-            return -1;
-        }
-        return LastInstance.selection;
-    }
+    private static IntVector2[] IntVecs => new IntVector2[] { new(0, 1), new(1, 1), new(1, 0), new(1, -1), new(0, -1), new(-1, -1), new(-1, 0), new(-1, 1) };
 
 }
