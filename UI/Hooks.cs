@@ -41,7 +41,7 @@ public static class Hooks
             Plugin.Log("Added pause menu page changing buttons");
 
             //add page
-            self.pages.Add(new InventoryCustomizationPage(self, null, "inventory", 0, page.selectables)); //set index to 0 so mouse still appears on it
+            self.pages.Add(new InventoryCustomizationPage(self, null, "inventory", self.pages.Count, page.selectables)); //set index to 0 so mouse still appears on it
 
         } catch (Exception ex) { Plugin.Error(ex); }
     }

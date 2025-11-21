@@ -21,6 +21,10 @@ public class ChangeablePage : Page
 
         if (extraSelectables != null)
             selectables.AddRange(extraSelectables);
+
+        //move pos out far, so we can't see the menu
+        float sSize = this.menu.manager.rainWorld.screenSize.x;
+        pos.x += sSize * 2f;
     }
 
     public override void Update()
@@ -38,14 +42,16 @@ public class ChangeablePage : Page
         }
 
         foreach (MenuObject obj in subObjects)
+        {
             obj.inactive = pageInactive;
+        }
     }
 
     public void ChangePage(bool moveOut, float dir)
     {
         moving = true;
         movingOut = moveOut;
-        pageInactive = movingOut;
+        pageInactive = true;
 
         float sSize = this.menu.manager.rainWorld.screenSize.x;
         if (moveOut)
