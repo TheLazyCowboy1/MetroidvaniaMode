@@ -32,8 +32,11 @@ public static class Hooks
             //foreach (Page page in self.pages)
             //{
             Page page = self.pages[0];
-                page.subObjects.Add(new BigArrowButton(self, page, "PREV", new(100, self.continueButton.pos.y + 100), -1));
-                page.subObjects.Add(new BigArrowButton(self, page, "NEXT", self.continueButton.pos + new Vector2(-10, 100), 1));
+            page.subObjects.Add(new BigArrowButton(self, page, "PREV", new(100, self.continueButton.pos.y + 100), -1));
+            BigArrowButton nextButton = new BigArrowButton(self, page, "NEXT", self.continueButton.pos + new Vector2(-10, 100), 1);
+            nextButton.nextSelectable[3] = self.continueButton;
+            page.subObjects.Add(nextButton);
+            self.continueButton.nextSelectable[1] = nextButton; //ensure it's actually selectable
             //}
             Plugin.Log("Added pause menu page changing buttons");
 
@@ -51,9 +54,9 @@ public static class Hooks
             if (message == "PREV")
             {
                 if (self.currentPage <= 0)
-                    ChangePage(self, self.pages.Count - 1, message); //wrap around to end
+                    ChangePage(self, self.pages.Count - 1, 1f); //wrap around to end
                 else
-                    ChangePage(self, self.currentPage - 1, message); //move one left
+                    ChangePage(self, self.currentPage - 1, 1f); //move one left
 
                 self.PlaySound(SoundID.HUD_Pause_Game, 0, 0.9f, 1.1f); //small sound effect; why not
                 Plugin.Log("Moving to prev page", 2);
@@ -62,33 +65,32 @@ public static class Hooks
             if (message == "NEXT")
             {
                 if (self.currentPage >= self.pages.Count - 1)
-                    ChangePage(self, 0, message); //wrap around to start
+                    ChangePage(self, 0, -1f); //wrap around to start
                 else
-                    ChangePage(self, self.currentPage + 1, message); //move one right
+                    ChangePage(self, self.currentPage + 1, -1f); //move one right
 
                 self.PlaySound(SoundID.HUD_Pause_Game, 0, 0.9f, 1.1f); //small sound effect; why not
                 Plugin.Log("Moving to next page", 2);
                 return;
             }
+
+            if (message != "")
+                ChangePage(self, 0, -1f);
         } catch (Exception ex) { Plugin.Error(ex); }
 
         orig(self, sender, message);
     }
 
-    private static void ChangePage(PauseMenu self, int page, string message)
+    private static void ChangePage(PauseMenu self, int page, float dir)
     {
         if (page == self.currentPage) return;
 
-        self.currentPage = page;
+        //add logic here to make the transition smooth?
+        if (self.pages[self.currentPage] is ChangeablePage curPage)
+            curPage.ChangePage(true, dir);
+        if (self.pages[page] is ChangeablePage newPage)
+            newPage.ChangePage(false, dir);
 
-        //find matching button
-        /*foreach (MenuObject obj in self.pages[page].subObjects)
-        {
-            if (obj is BigArrowButton b && b.signalText == message)
-            {
-                self.selectedObject = b;
-                return;
-            }
-        }*/
+        self.currentPage = page;
     }
 }
