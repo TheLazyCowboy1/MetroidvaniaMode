@@ -214,7 +214,9 @@ public class InventoryCustomizationPage : ChangeablePage
 
             if (customColor != null && !this.buttonBehav.greyedOut)
             {
-                float brightness = Mathf.Clamp01(0.7f - 0.3f * Mathf.Sin(Mathf.Lerp(this.buttonBehav.lastSin, this.buttonBehav.sin, timeStacker) / 30f * 3.1415927f * 2f));
+                float brightness = Mathf.Lerp(0.85f,
+                    Mathf.Clamp01(0.8f - 0.2f * Mathf.Sin(Mathf.Lerp(this.buttonBehav.lastSin, this.buttonBehav.sin, timeStacker) / 30f * 3.1415927f * 2f)),
+                    this.buttonBehav.sizeBump); //stay at 0.85 when not selected
                 symbolSprite.color = customColor.Value * brightness;
             }
         }
