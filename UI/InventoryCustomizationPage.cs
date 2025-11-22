@@ -73,7 +73,7 @@ public class InventoryCustomizationPage : ChangeablePage
         const float sizeX = 50, sizeY = 50;
         int groupHeight = items.Count / maxWidth;
         int actualWidth = Mathf.Min(items.Count, maxWidth);
-        Vector2 itemBankCenter = new(sSize.x * 0.5f - sizeX * 0.5f, 200);
+        Vector2 itemBankCenter = new(sSize.x * 0.5f - sizeX * 0.5f, 300);
 
         itemButtons = new ColoredSymbolButton[items.Count];
         for (int i = 0; i < itemButtons.Length; i++)

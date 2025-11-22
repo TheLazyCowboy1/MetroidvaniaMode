@@ -84,12 +84,22 @@ public class StringList : IEnumerable<string>
     public string Get(int idx) => (idx >= 0 && idx < Array.Length) ? Array[idx] : null;
     public StringList Set(string s, int idx)
     {
+        //extend array to fit 
+        while (idx > Array.Length - 1) Add(null); //a bit inefficient. who cares
+
+        //if we can, just add
         if (String.Length == 0 || idx >= Array.Length) return Add(s);
 
         //just remove it and then re-insert it, lol
         int pos = Move(idx);
         RemoveAtPos(pos);
         return InsertAtPos(s, pos);
+    }
+    public StringList Set(string[] array)
+    {
+        Clear();
+        foreach (string s in array) Add(s);
+        return this;
     }
 
     public bool Remove(string s)
