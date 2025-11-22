@@ -85,7 +85,8 @@ public class StringList : IEnumerable<string>
     public StringList Set(string s, int idx)
     {
         //extend array to fit 
-        while (idx > Array.Length - 1) Add(null); //a bit inefficient. who cares
+        int lenDif = idx - Array.Length; //we need to add this many nulls to pad the length
+        for (int i = 0; i < lenDif; i++) Add(null);
 
         //if we can, just add
         if (String.Length == 0 || idx >= Array.Length) return Add(s);
@@ -99,6 +100,19 @@ public class StringList : IEnumerable<string>
     {
         Clear();
         foreach (string s in array) Add(s);
+        return this;
+    }
+    public StringList SetLength(int length)
+    {
+        if (length < Array.Length) //shorten string
+        {
+            String = String.Remove(Move(length));
+        }
+        else //lengthen string
+        {
+            int lenDif = length - Array.Length; //we need to add this many nulls to pad the length
+            for (int i = 0; i < lenDif; i++) Add(null);
+        }
         return this;
     }
 
@@ -123,7 +137,7 @@ public class StringList : IEnumerable<string>
     }
     private void RemoveAtPos(int pos)
     {
-        String.Remove(pos, Move(1, pos) - pos);
+        String = String.Remove(pos, Move(1, pos) - pos);
     }
     public bool RemoveAt(int idx)
     {
