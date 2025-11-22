@@ -55,7 +55,7 @@ public static class CurrentAbilities
 
             BaseAbilities(game.StoryCharacter);
 
-            if (game.IsStorySession && CountCollectibles(game.StoryCharacter))
+            if (CountCollectibles(game.StoryCharacter))
             {
                 WorldSaveData data = game.GetStorySession.saveState.miscWorldSaveData.GetData();
 

@@ -53,19 +53,19 @@ public static class CurrentItems
             if (resetToBase)
                 BaseItems(game.StoryCharacter);
 
-            if (game.IsStorySession && Abilities.CurrentAbilities.CountCollectibles(game.StoryCharacter))
+            //set wheel items
+            DeathSaveData deathData = game.GetStorySession.saveState.deathPersistentSaveData.GetData();
+            for (int i = 0; i < WheelItems.Length; i++)
             {
-                //set wheel items
-                DeathSaveData deathData = game.GetStorySession.saveState.deathPersistentSaveData.GetData();
-                for (int i = 0; i < WheelItems.Length; i++)
-                {
-                    string s = deathData.WheelItems.Get(i); //this works even if it goes over, because then it just returns null
-                    if (s == null || s.Length < 1)
-                        WheelItems[i] = null;
-                    else
-                        WheelItems[i] = new(s);
-                }
+                string s = deathData.WheelItems.Get(i); //this works even if it goes over, because then it just returns null
+                if (s == null || s.Length < 1)
+                    WheelItems[i] = null;
+                else
+                    WheelItems[i] = new(s);
+            }
 
+            if (Abilities.CurrentAbilities.CountCollectibles(game.StoryCharacter))
+            {
                 //set what is unlocked
                 WorldSaveData worldData = game.GetStorySession.saveState.miscWorldSaveData.GetData();
 
