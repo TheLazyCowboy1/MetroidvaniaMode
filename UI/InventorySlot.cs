@@ -114,6 +114,7 @@ public class InventorySlot
             else if (item != null && item.element.name != spriteName)
             {
                 //the item has changed!
+                item.scale = 1; //scale up to normal first...?
                 item.element = Futile.atlasManager.GetElementWithName(spriteName);
                 item.scale = Mathf.Min(SymbolSize / item.width, SymbolSize / item.height);
 
