@@ -73,7 +73,7 @@ public class InventoryCustomizationPage : ChangeablePage
         const float sizeX = 50, sizeY = 50;
         int groupHeight = items.Count / maxWidth;
         int actualWidth = Mathf.Min(items.Count, maxWidth);
-        Vector2 itemBankCenter = new(sSize.x * 0.5f, 200);
+        Vector2 itemBankCenter = new(sSize.x * 0.5f - sizeX * 0.5f, 200);
 
         itemButtons = new ColoredSymbolButton[items.Count];
         for (int i = 0; i < itemButtons.Length; i++)
@@ -108,6 +108,8 @@ public class InventoryCustomizationPage : ChangeablePage
     {
         base.Update();
 
+        if (inactive) selectingSlot = false; //just in case
+
         //hide controls map
         if (!inactive && menu is PauseMenu pm && pm.controlMap?.controlsMap != null)
         {
@@ -124,6 +126,7 @@ public class InventoryCustomizationPage : ChangeablePage
         foreach (ColoredSymbolButton b in itemButtons)
             b.GetButtonBehavior.greyedOut = selectingSlot;
 
+        //selection logic
         if (selectingSlot)
         {
             int lastSelection = selection;
@@ -149,8 +152,7 @@ public class InventoryCustomizationPage : ChangeablePage
             {
                 menu.allowSelectMove = false;
                 int newSelection = Array.IndexOf(InventoryWheel.IntVecs, menu.input.IntVec);
-                if (newSelection >= 0)
-                    selection = newSelection;
+                selection = newSelection >= 0 ? newSelection : lastSelection; //choose newSelection only if it's a real selection
             }
 
             if (selection != lastSelection)

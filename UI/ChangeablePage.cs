@@ -34,6 +34,8 @@ public class ChangeablePage : Page
 
         //move pos out far, so we can't see the menu
         SetX(defaultPos.x + sSize * 4f);
+
+        inactive = menu.currentPage != index; //set inactive if not the current page
     }
 
     public override void Update()
