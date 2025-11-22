@@ -19,16 +19,18 @@ public class InventoryCustomizationPage : ChangeablePage
     private FSprite FadeSprite;
 
     private InventorySlot[] slots;
+    private ColoredSymbolButton[] itemButtons; //currently unused; maybe use to grey out buttons if it becomes a problem for controllers?
 
-    private Vector2 wheelCenter = new(500, 200);
-    private Vector2 itemBankCenter = new(500, 100);
+    private Vector2 wheelCenter = new(600, 500);
+    private Vector2 itemBankCenter = new(600, 200);
 
     public bool selectingSlot = false;
     public AbstractPhysicalObject.AbstractObjectType selectedItem;
+    private int selection = -1;
 
     public InventoryCustomizationPage(Menu.Menu menu, MenuObject owner, string name, int index, List<SelectableMenuObject> extraSelectables) : base(menu, owner, name, index, extraSelectables)
     {
-        Title = new(menu, this, menu.Translate("Inventory"), new(500, 500), new(500, 50), true);
+        Title = new(menu, this, menu.Translate("Inventory"), new(550, 700), new(500, 50), true);
         subObjects.Add(Title);
 
         FadeSprite = new(Futile.whiteElement);
@@ -37,7 +39,7 @@ public class InventoryCustomizationPage : ChangeablePage
         Vector2 sSize = menu.manager.rainWorld.screenSize;
         FadeSprite.width = sSize.x + 20;
         FadeSprite.height = sSize.y + 20;
-        FadeSprite.SetPosition(-10, -10); //10 pixel buffer, just in case
+        FadeSprite.SetPosition(0.5f * sSize + new Vector2(10, 10)); //10 pixel buffer, just in case
         this.Container.AddChild(FadeSprite);
 
         //add the wheel
@@ -66,16 +68,19 @@ public class InventoryCustomizationPage : ChangeablePage
                 items.Add(kvp.Key);
         }
         const int maxWidth = 8;
-        const float sizeX = 40, sizeY = 40;
+        const float sizeX = 80, sizeY = 80;
         int groupHeight = items.Count / maxWidth;
-        for (int i = 0; i < items.Count; i++)
+        itemButtons = new ColoredSymbolButton[items.Count];
+        for (int i = 0; i < itemButtons.Length; i++)
         {
             int y = -i / maxWidth;
             int x = i - y * maxWidth - maxWidth / 2;
             //add the button itself
-            SymbolButton b = new(menu, this, ItemSymbol.SpriteNameForItem(items[i], 0), "INVENTORY_" + items[i].value, new(itemBankCenter.x + x * sizeX, itemBankCenter.y + y * sizeY));
-            b.size = new(sizeX, sizeY);
-            this.subObjects.Add(b);
+            itemButtons[i] = new(menu, this, ItemSymbol.SpriteNameForItem(items[i], 0), "INVENTORY_" + items[i].value, new(itemBankCenter.x + x * sizeX, itemBankCenter.y + y * sizeY));
+            itemButtons[i].size = new(sizeX, sizeY);
+            itemButtons[i].symbolSprite.scale = Mathf.Min(sizeX / itemButtons[i].symbolSprite.width, sizeY / itemButtons[i].symbolSprite.height); //scale to fit
+            itemButtons[i].customColor = ItemSymbol.ColorForItem(items[i], 0); //set custom color
+            this.subObjects.Add(itemButtons[i]);
         }
 
     }
@@ -101,7 +106,8 @@ public class InventoryCustomizationPage : ChangeablePage
 
         if (selectingSlot)
         {
-            int selection = -1;
+            int lastSelection = selection;
+            selection = -1;
             //deal with selections
             if (menu.manager.menuesMouseMode) //mouse handling
             {
@@ -125,13 +131,21 @@ public class InventoryCustomizationPage : ChangeablePage
                 selection = InventoryWheel.IntVecs.IndexfOf(menu.input.IntVec);
             }
 
-            //disable selections in the sloppy way
-            foreach (InventorySlot slot in slots)
-                slot.selected = false;
+            if (selection != lastSelection)
+            {
+                //disable selections in the sloppy way
+                foreach (InventorySlot slot in slots)
+                    slot.selected = false;
+
+                menu.PlaySound(SoundID.MENU_Button_Select_Gamepad_Or_Keyboard);
+            }
 
             //make a selection
             if (menu.holdButton && !menu.lastHoldButton)
             {
+                if (!menu.manager.menuesMouseMode) //if using controller/keyboard
+                    menu.lastHoldButton = true; //say we are not newly pressing any button
+
                 if (selection >= 0)
                 {
                     Plugin.Log($"Assigned {selectedItem} to slot {selection}");
@@ -152,6 +166,9 @@ public class InventoryCustomizationPage : ChangeablePage
                 slots[selection].selected = true;
         }
 
+        foreach (InventorySlot slot in slots)
+            slot.SetAlpha(1);
+
     }
 
     public override void RemoveSprites()
@@ -160,5 +177,27 @@ public class InventoryCustomizationPage : ChangeablePage
             slot.ClearSprites();
 
         base.RemoveSprites();
+    }
+
+
+    private class ColoredSymbolButton : SymbolButton
+    {
+        public Color? customColor = null;
+
+        public ColoredSymbolButton(Menu.Menu menu, MenuObject owner, string symbolName, string singalText, Vector2 pos) : base(menu, owner, symbolName, singalText, pos)
+        {
+        }
+
+        public override Color MyColor(float timeStacker)
+        {
+            if (customColor != null)
+            {
+                float brightness = Mathf.Lerp(this.buttonBehav.lastCol, this.buttonBehav.col, timeStacker);
+                brightness = Mathf.Max(brightness, Mathf.Lerp(this.buttonBehav.lastFlash, this.buttonBehav.flash, timeStacker));
+                Color.RGBToHSV(customColor.Value, out float H, out float S, out float V);
+                return Color.HSVToRGB(H, S, V * brightness);
+            }
+            return base.MyColor(timeStacker);
+        }
     }
 }
