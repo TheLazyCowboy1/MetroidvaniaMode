@@ -29,8 +29,8 @@ public class InventoryCustomizationPage : ChangeablePage
     public InventoryCustomizationPage(Menu.Menu menu, MenuObject owner, string name, int index, List<SelectableMenuObject> extraSelectables) : base(menu, owner, name, index, extraSelectables)
     {
         Vector2 sSize = menu.manager.rainWorld.screenSize;
-        Title = new(menu, this, menu.Translate("Inventory"), new(sSize.x * 0.5f - 50, 700), new(100, 50), true);
-        Title.label.alignment = FLabelAlignment.Left;
+        Title = new(menu, this, menu.Translate("Inventory"), new(sSize.x * 0.5f - 100, 700), new(200, 50), true);
+        Title.label.alignment = FLabelAlignment.Center;
         subObjects.Add(Title);
 
         FadeSprite = new(Futile.whiteElement);
@@ -108,6 +108,14 @@ public class InventoryCustomizationPage : ChangeablePage
     {
         base.Update();
 
+        //hide controls map
+        if (!pageInactive && menu is PauseMenu pm && pm.controlMap?.controlsMap != null)
+        {
+            pm.controlMap.controlsMap.setAlpha = pm.controlMap.controlsMap.alpha = 0;
+            pm.controlMap.controlsMap2.setAlpha = pm.controlMap.controlsMap2.alpha = 0;
+            pm.controlMap.controlsMap3.setAlpha = pm.controlMap.controlsMap3.alpha = 0;
+        }
+
         FadeSprite.alpha = selectingSlot ? 0.3f : 0f;
 
         //set buttons to be greyed out
@@ -138,7 +146,9 @@ public class InventoryCustomizationPage : ChangeablePage
             else //controller handling
             {
                 menu.allowSelectMove = false;
-                selection = InventoryWheel.IntVecs.IndexfOf(menu.input.IntVec);
+                int newSelection = Array.IndexOf(InventoryWheel.IntVecs, menu.input.IntVec);
+                if (newSelection >= 0)
+                    selection = newSelection;
             }
 
             if (selection != lastSelection)

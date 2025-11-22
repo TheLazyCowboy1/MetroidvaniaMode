@@ -10,9 +10,9 @@ public class ChangeablePage : Page
     private Vector2 defaultPos;
     private Vector2 targetPos;
 
-    private bool moving = false;
-    private bool movingOut = true;
-    private bool pageInactive = true;
+    public bool moving = false;
+    public bool movingOut = true;
+    public bool pageInactive = true;
 
     private float sSize => menu.manager.rainWorld.screenSize.x;
 
