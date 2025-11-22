@@ -24,9 +24,6 @@ public class ChangeablePage : Page
         if (extraSelectables != null)
             selectables.AddRange(extraSelectables);
 
-        //move pos out far, so we can't see the menu
-        pos.x += sSize * 4f;
-
         //fix FContainer
         if (myContainer == null)
         {
@@ -34,7 +31,9 @@ public class ChangeablePage : Page
             this.Container.AddChild(newContainer);
             myContainer = newContainer;
         }
-        this.Container.SetPosition(pos);
+
+        //move pos out far, so we can't see the menu
+        SetX(defaultPos.x + sSize * 4f);
     }
 
     public override void Update()
@@ -43,16 +42,15 @@ public class ChangeablePage : Page
 
         if (moving)
         {
-            pos.x = Custom.LerpAndTick(pos.x, targetPos.x, 0.02f, 25f); //move quickly towards target, then slow to 25/tick
-            this.Container.SetPosition(pos);
+            SetX(Custom.LerpAndTick(pos.x, targetPos.x, 0.02f, 25f)); //move quickly towards target, then slow to 25/tick
+
             moving = pos.x != targetPos.x;
             if (!moving)
             {
                 pageInactive = movingOut;
                 if (pageInactive)
                 {
-                    pos.x = defaultPos.x + 4f * sSize; //ensure it's well out of the way
-                    this.Container.SetPosition(pos);
+                    SetX(defaultPos.x + sSize * 4f); //ensure it's well out of the way
                     this.inactive = true;
                 }
             }
@@ -73,16 +71,20 @@ public class ChangeablePage : Page
 
         if (moveOut)
         {
-            pos = defaultPos;
-            targetPos = defaultPos + new Vector2(sSize * dir, 0);
-            this.Container.SetPosition(pos);
+            SetX(defaultPos.x);
+            targetPos.x = defaultPos.x + sSize * dir;
         }
         else
         {
-            pos = defaultPos - new Vector2(sSize * dir, 0);
+            SetX(defaultPos.x - sSize * dir);
             targetPos = defaultPos;
-            this.Container.SetPosition(pos);
         }
         Plugin.Log($"Page moving: pos: {pos}, target: {targetPos}", 2);
+    }
+
+    private void SetX(float x)
+    {
+        pos.x = x;
+        myContainer.x = x;
     }
 }

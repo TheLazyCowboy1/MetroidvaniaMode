@@ -20,9 +20,7 @@ public class InventoryCustomizationPage : ChangeablePage
 
     private InventorySlot[] slots;
     private ColoredSymbolButton[] itemButtons; //currently unused; maybe use to grey out buttons if it becomes a problem for controllers?
-
-    private Vector2 wheelCenter = new(700, 500);
-    private Vector2 itemBankCenter = new(700, 200);
+    private Vector2 wheelCenter;
 
     public bool selectingSlot = false;
     public AbstractPhysicalObject.AbstractObjectType selectedItem;
@@ -30,19 +28,21 @@ public class InventoryCustomizationPage : ChangeablePage
 
     public InventoryCustomizationPage(Menu.Menu menu, MenuObject owner, string name, int index, List<SelectableMenuObject> extraSelectables) : base(menu, owner, name, index, extraSelectables)
     {
-        Title = new(menu, this, menu.Translate("Inventory"), new(550, 700), new(100, 50), true);
+        Vector2 sSize = menu.manager.rainWorld.screenSize;
+        Title = new(menu, this, menu.Translate("Inventory"), new(sSize.x * 0.5f - 50, 700), new(100, 50), true);
+        Title.label.alignment = FLabelAlignment.Left;
         subObjects.Add(Title);
 
         FadeSprite = new(Futile.whiteElement);
         FadeSprite.color = new(0, 0, 0); //black
         FadeSprite.alpha = 0; //currently not active
-        Vector2 sSize = menu.manager.rainWorld.screenSize;
         FadeSprite.width = sSize.x + 20;
         FadeSprite.height = sSize.y + 20;
         FadeSprite.SetPosition(0.5f * sSize + new Vector2(10, 10)); //10 pixel buffer, just in case
         this.Container.AddChild(FadeSprite);
 
         //add the wheel
+        wheelCenter = new(sSize.x * 0.5f, 500);
         slots = new InventorySlot[8];
         for (int i = 0; i < slots.Length; i++)
         {
@@ -67,10 +67,14 @@ public class InventoryCustomizationPage : ChangeablePage
             if (kvp.Value.max > 0)
                 items.Add(kvp.Key);
         }
+
+        //parameters
         const int maxWidth = 8;
         const float sizeX = 50, sizeY = 50;
         int groupHeight = items.Count / maxWidth;
         int actualWidth = Mathf.Min(items.Count, maxWidth);
+        Vector2 itemBankCenter = new(sSize.x * 0.5f, 200);
+
         itemButtons = new ColoredSymbolButton[items.Count];
         for (int i = 0; i < itemButtons.Length; i++)
         {
@@ -106,6 +110,10 @@ public class InventoryCustomizationPage : ChangeablePage
 
         FadeSprite.alpha = selectingSlot ? 0.3f : 0f;
 
+        //set buttons to be greyed out
+        foreach (ColoredSymbolButton b in itemButtons)
+            b.GetButtonBehavior.greyedOut = selectingSlot;
+
         if (selectingSlot)
         {
             int lastSelection = selection;
@@ -115,7 +123,7 @@ public class InventoryCustomizationPage : ChangeablePage
             {
                 Vector2 mouseDir = (menu.mousePosition - wheelCenter).normalized;
                 float bestScore = float.NegativeInfinity;
-                for (int i = 0; i < InventoryWheel.IntVecs.Length; i++)
+                for (int i = 0; i < InventoryWheel.IntVecs.Length; i++) //find the best slot for the mouse
                 {
                     Vector2 vec = InventoryWheel.IntVecs[i].ToVector2();
                     if ((i & 1) == 1) vec *= 0.70710678118654752440084436210485f; //* sqrt(2)/2 to normalize
@@ -143,9 +151,6 @@ public class InventoryCustomizationPage : ChangeablePage
             //make a selection
             if (menu.holdButton && !menu.lastHoldButton)
             {
-                if (!menu.manager.menuesMouseMode) //if using controller/keyboard
-                    menu.lastHoldButton = true; //say we are not newly pressing any button
-
                 if (selection >= 0)
                 {
                     Plugin.Log($"Assigned {selectedItem} to slot {selection}");
