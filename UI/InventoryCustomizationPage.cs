@@ -109,11 +109,13 @@ public class InventoryCustomizationPage : ChangeablePage
         base.Update();
 
         //hide controls map
-        if (!pageInactive && menu is PauseMenu pm && pm.controlMap?.controlsMap != null)
+        if (!inactive && menu is PauseMenu pm && pm.controlMap?.controlsMap != null)
         {
+            //manually set these stubborn sprites invisible
             pm.controlMap.controlsMap.setAlpha = pm.controlMap.controlsMap.alpha = 0;
             pm.controlMap.controlsMap2.setAlpha = pm.controlMap.controlsMap2.alpha = 0;
             pm.controlMap.controlsMap3.setAlpha = pm.controlMap.controlsMap3.alpha = 0;
+            pm.controlMap.fade = 0; //set everything else to invisible
         }
 
         FadeSprite.alpha = selectingSlot ? 0.3f : 0f;
