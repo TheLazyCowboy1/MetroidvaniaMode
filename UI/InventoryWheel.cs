@@ -15,8 +15,6 @@ public class InventoryWheel : HudPart
     public float drawnAlpha = 0;
     public const int OpenTime = 4; //4 ticks = 0.1 second
     private const float AlphaStep = 1f / OpenTime;
-    private const float BaseCircleAlpha = 0.3f;
-    private const float SelectedCircleAlpha = 1f;
     public bool visible = false;
 
     public bool anyItems = false;
@@ -25,36 +23,17 @@ public class InventoryWheel : HudPart
     public int notSelectedTimer = 0;
     private static int Stickiness => Options.InventoryWheelStickiness;
 
-    private FContainer fContainer => this.hud.fContainers[1];
-
     private const float WheelRadius = 90f;
-    private const float CircleDiameter = 45f;
-    private const float SymbolSize = 25f;
-    private const float LabelHeight = 15f;
-    //private HUDCircle[] circles;
-    private FSprite[] circles;
-    private FSprite[] items;
-    private FLabel[] labels;
+
+    private InventorySlot[] slots;
 
     public InventoryWheel(HUD.HUD hud) : base(hud)
     {
-        circles = new FSprite[8];
-        for (int i = 0; i < circles.Length; i++)
+        slots = new InventorySlot[8];
+        for (int i = 0; i < slots.Length; i++)
         {
-            circles[i] = new(Futile.whiteElement);
-            circles[i].shader = hud.rainWorld.Shaders["VectorCircle"];
-            circles[i].width = CircleDiameter;
-            circles[i].height = CircleDiameter;
-            circles[i].color = new(0.5f, 0.5f, 0.5f);
-            circles[i].alpha = 0;
-            circles[i].isVisible = false;
-            fContainer.AddChild(circles[i]);
+            slots[i] = new(hud.fContainers[1]);
         }
-
-        items = new FSprite[8];
-        labels = new FLabel[8];
-
-        //LastInstance = this;
     }
 
     public override void Update()
@@ -76,21 +55,10 @@ public class InventoryWheel : HudPart
         {
             drawnAlpha = Mathf.LerpUnclamped(lastAlpha, alpha, timeStacker);
             //apply alpha to sprites
-            for (int i = 0; i < circles.Length; i++)
+            for (int i = 0; i < slots.Length; i++)
             {
-                circles[i].isVisible = drawnAlpha > 0;
-                circles[i].alpha = drawnAlpha * (selection == i ? SelectedCircleAlpha : BaseCircleAlpha);
-
-                if (items[i] != null)
-                {
-                    items[i].isVisible = drawnAlpha > 0;
-                    items[i].alpha = drawnAlpha;
-                }
-                if (labels[i] != null)
-                {
-                    labels[i].isVisible = drawnAlpha > 0;
-                    labels[i].alpha = drawnAlpha;
-                }
+                slots[i].selected = selection == i;
+                slots[i].SetAlpha(drawnAlpha);
             }
         }
     }
@@ -99,20 +67,16 @@ public class InventoryWheel : HudPart
     {
         base.ClearSprites();
 
-        for (int i = 0; i < circles.Length; i++)
+        for (int i = 0; i < slots.Length; i++)
         {
-            circles[i].RemoveFromContainer();
-            items[i]?.RemoveFromContainer();
-            labels[i]?.RemoveFromContainer();
+            slots[i].ClearSprites();
         }
-
-        //LastInstance = null; //it got cleared, so it's no longer active
     }
 
 
     public void MoveTo(Vector2 pos)
     {
-        for (int i = 0; i < circles.Length; i++)
+        for (int i = 0; i < slots.Length; i++)
         {
             try
             {
@@ -121,83 +85,16 @@ public class InventoryWheel : HudPart
                 if ((i & 1) == 1) offset *= 0.70710678118654752440084436210485f; //* sqrt(2)/2 to normalize
                 offset *= WheelRadius;
 
-                circles[i].SetPosition(pos + offset);
-                items[i]?.SetPosition(pos + offset);// + new Vector2(0.5f * (CircleDiameter - SymbolSize), 0.5f * (CircleDiameter - SymbolSize))); //center item
-                labels[i]?.SetPosition(pos + offset + new Vector2(SymbolSize * 0.5f, -SymbolSize * 0.5f));
+                slots[i].SetPosition(pos + offset);
             }
             catch (Exception ex) { Plugin.Error(ex); }
         }
     }
     public void SetItemSprites()
     {
-        for (int i = 0; i < circles.Length; i++)
+        for (int i = 0; i < slots.Length; i++)
         {
-            try
-            {
-                //set item sprite
-                string spriteName = CurrentItems.WheelItems[i] == null ? null : ItemSymbol.SpriteNameForItem(CurrentItems.WheelItems[i], 0);
-                CurrentItems.ItemInfo info = CurrentItems.WheelItems[i] == null ? null : CurrentItems.ItemInfos[CurrentItems.WheelItems[i]];
-
-                bool shouldShowSprite = CurrentItems.WheelItems[i] != null && info.max > 0;
-                if (items[i] == null && shouldShowSprite)
-                {
-                    //initiate the item sprite
-                    items[i] = new(Futile.atlasManager.GetElementWithName(spriteName));
-                    items[i].alpha = alpha;
-                    items[i].isVisible = alpha > 0;
-                    items[i].scale = Mathf.Min(SymbolSize / items[i].width, SymbolSize / items[i].height);
-                    fContainer.AddChild(items[i]);
-
-                    Plugin.Log("Set up inventory symbol for item: " + CurrentItems.WheelItems[i], 2);
-                }
-                else if (items[i] != null && !shouldShowSprite)
-                {
-                    //remove the item sprite
-                    items[i].RemoveFromContainer();
-                    items[i] = null;
-                    //also remove label
-                    labels[i]?.RemoveFromContainer();
-                    labels[i] = null;
-
-                    Plugin.Log("Removed inventory symbol for item: " + CurrentItems.WheelItems[i], 2);
-                }
-                else if (items[i] != null && items[i].element.name != spriteName)
-                {
-                    //the item has changed!
-                    items[i].element = Futile.atlasManager.GetElementWithName(spriteName);
-                    items[i].scale = Mathf.Min(SymbolSize / items[i].width, SymbolSize / items[i].height);
-
-                    Plugin.Log("Switched inventory symbol for item: " + CurrentItems.WheelItems[i], 2);
-                }
-
-                //set color
-                if (items[i] != null && CurrentItems.WheelItems[i] != null)
-                {
-                    Color col = ItemSymbol.ColorForItem(CurrentItems.WheelItems[i], 0);
-                    if (info.count < 1)
-                    {
-                        items[i].color = new(col.r * 0.5f, col.g * 0.5f, col.b * 0.5f, 0.5f); //grey out the item if there's none left of it
-                    }
-                    else
-                    {
-                        items[i].color = col;
-                    }
-
-                    //set label
-                    if (labels[i] == null)
-                    {
-                        //create label
-                        labels[i] = new(Custom.GetFont(), "0");
-                        labels[i].alpha = alpha;
-                        labels[i].isVisible = alpha > 0;
-                        labels[i].scale = LabelHeight / labels[i].FontLineHeight;
-                        fContainer.AddChild(labels[i]);
-                    }
-                    labels[i].text = info.count.ToString();
-                    labels[i].color = info.count >= info.max ? new(0.2f, 1f, 0.2f) : Color.white; //show as green when at max
-                }
-            }
-            catch (Exception ex) { Plugin.Error(ex); }
+            slots[i].SetItemSprite(CurrentItems.WheelItems[i]);
         }
     }
     public void SetVisible(bool vis, Vector2 pos)
@@ -229,6 +126,8 @@ public class InventoryWheel : HudPart
         {
             selection = Array.IndexOf(IntVecs, direction);
             notSelectedTimer = 0;
+            if (selection >= 0)
+                hud.PlaySound(SoundID.MENU_Button_Select_Gamepad_Or_Keyboard);
             return;
         }
 
@@ -254,10 +153,12 @@ public class InventoryWheel : HudPart
         {
             selection = Array.IndexOf(IntVecs, newDir);
             notSelectedTimer = 0;
+            if (selection >= 0)
+                hud.PlaySound(SoundID.MENU_Button_Select_Gamepad_Or_Keyboard);
         }
         else //we want to change selection, but we can't, so increase the timer
             notSelectedTimer++;
     }
-    private static IntVector2[] IntVecs => new IntVector2[] { new(0, 1), new(1, 1), new(1, 0), new(1, -1), new(0, -1), new(-1, -1), new(-1, 0), new(-1, 1) };
+    public static IntVector2[] IntVecs => new IntVector2[] { new(0, 1), new(1, 1), new(1, 0), new(1, -1), new(0, -1), new(-1, -1), new(-1, 0), new(-1, 1) };
 
 }

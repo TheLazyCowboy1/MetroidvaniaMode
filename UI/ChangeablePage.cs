@@ -40,7 +40,10 @@ public class ChangeablePage : Page
             {
                 pageInactive = movingOut;
                 if (pageInactive)
+                {
                     pos.x = defaultPos.x + 4f * sSize; //ensure it's well out of the way
+                    this.inactive = true;
+                }
             }
         }
 
@@ -54,6 +57,7 @@ public class ChangeablePage : Page
     {
         moving = true;
         movingOut = moveOut;
+        this.inactive = false;
         pageInactive = true;
 
         if (moveOut)
