@@ -21,8 +21,8 @@ public class InventoryCustomizationPage : ChangeablePage
     private InventorySlot[] slots;
     private ColoredSymbolButton[] itemButtons; //currently unused; maybe use to grey out buttons if it becomes a problem for controllers?
 
-    private Vector2 wheelCenter = new(600, 500);
-    private Vector2 itemBankCenter = new(600, 200);
+    private Vector2 wheelCenter = new(700, 500);
+    private Vector2 itemBankCenter = new(700, 200);
 
     public bool selectingSlot = false;
     public AbstractPhysicalObject.AbstractObjectType selectedItem;
@@ -30,7 +30,7 @@ public class InventoryCustomizationPage : ChangeablePage
 
     public InventoryCustomizationPage(Menu.Menu menu, MenuObject owner, string name, int index, List<SelectableMenuObject> extraSelectables) : base(menu, owner, name, index, extraSelectables)
     {
-        Title = new(menu, this, menu.Translate("Inventory"), new(550, 700), new(500, 50), true);
+        Title = new(menu, this, menu.Translate("Inventory"), new(550, 700), new(100, 50), true);
         subObjects.Add(Title);
 
         FadeSprite = new(Futile.whiteElement);
@@ -68,7 +68,7 @@ public class InventoryCustomizationPage : ChangeablePage
                 items.Add(kvp.Key);
         }
         const int maxWidth = 8;
-        const float sizeX = 80, sizeY = 80;
+        const float sizeX = 50, sizeY = 50;
         int groupHeight = items.Count / maxWidth;
         itemButtons = new ColoredSymbolButton[items.Count];
         for (int i = 0; i < itemButtons.Length; i++)
@@ -78,6 +78,7 @@ public class InventoryCustomizationPage : ChangeablePage
             //add the button itself
             itemButtons[i] = new(menu, this, ItemSymbol.SpriteNameForItem(items[i], 0), "INVENTORY_" + items[i].value, new(itemBankCenter.x + x * sizeX, itemBankCenter.y + y * sizeY));
             itemButtons[i].size = new(sizeX, sizeY);
+            itemButtons[i].roundedRect.size = new(sizeX, sizeY); //also set the roundedRect. stupid weird behavior
             itemButtons[i].symbolSprite.scale = Mathf.Min(sizeX / itemButtons[i].symbolSprite.width, sizeY / itemButtons[i].symbolSprite.height); //scale to fit
             itemButtons[i].customColor = ItemSymbol.ColorForItem(items[i], 0); //set custom color
             this.subObjects.Add(itemButtons[i]);
@@ -188,7 +189,18 @@ public class InventoryCustomizationPage : ChangeablePage
         {
         }
 
-        public override Color MyColor(float timeStacker)
+        public override void GrafUpdate(float timeStacker)
+        {
+            base.GrafUpdate(timeStacker);
+
+            if (customColor != null && !this.buttonBehav.greyedOut)
+            {
+                float brightness = Mathf.Clamp01(this.buttonBehav.sizeBump * (0.7f - 0.3f * Mathf.Sin(Mathf.Lerp(this.buttonBehav.lastSin, this.buttonBehav.sin, timeStacker) / 30f * 3.1415927f * 2f)));
+                symbolSprite.color = customColor.Value * brightness;
+            }
+        }
+
+        /*public override Color MyColor(float timeStacker)
         {
             if (customColor != null)
             {
@@ -198,6 +210,6 @@ public class InventoryCustomizationPage : ChangeablePage
                 return Color.HSVToRGB(H, S, V * brightness);
             }
             return base.MyColor(timeStacker);
-        }
+        }*/
     }
 }
