@@ -70,11 +70,12 @@ public class InventoryCustomizationPage : ChangeablePage
         const int maxWidth = 8;
         const float sizeX = 50, sizeY = 50;
         int groupHeight = items.Count / maxWidth;
+        int actualWidth = Mathf.Min(items.Count, maxWidth);
         itemButtons = new ColoredSymbolButton[items.Count];
         for (int i = 0; i < itemButtons.Length; i++)
         {
-            int y = -i / maxWidth;
-            int x = i - y * maxWidth - maxWidth / 2;
+            float y = -(i / maxWidth);
+            float x = i + y * maxWidth - (actualWidth - 1) * 0.5f;
             //add the button itself
             itemButtons[i] = new(menu, this, ItemSymbol.SpriteNameForItem(items[i], 0), "INVENTORY_" + items[i].value, new(itemBankCenter.x + x * sizeX, itemBankCenter.y + y * sizeY));
             itemButtons[i].size = new(sizeX, sizeY);
@@ -134,11 +135,9 @@ public class InventoryCustomizationPage : ChangeablePage
 
             if (selection != lastSelection)
             {
-                //disable selections in the sloppy way
-                foreach (InventorySlot slot in slots)
-                    slot.selected = false;
-
                 menu.PlaySound(SoundID.MENU_Button_Select_Gamepad_Or_Keyboard);
+                if (lastSelection >= 0)
+                    slots[lastSelection].selected = false;
             }
 
             //make a selection
@@ -160,6 +159,7 @@ public class InventoryCustomizationPage : ChangeablePage
                     }
 
                     slots[selection].SetItemSprite(selectedItem);
+                    slots[selection].selected = false;
                 }
                 selectingSlot = false; //made our selection!
             }
@@ -168,7 +168,7 @@ public class InventoryCustomizationPage : ChangeablePage
         }
 
         foreach (InventorySlot slot in slots)
-            slot.SetAlpha(1);
+            slot.SetAlpha(1); //update slot alphas (in this case, only to reflect selections)
 
     }
 
@@ -195,7 +195,7 @@ public class InventoryCustomizationPage : ChangeablePage
 
             if (customColor != null && !this.buttonBehav.greyedOut)
             {
-                float brightness = Mathf.Clamp01(this.buttonBehav.sizeBump * (0.7f - 0.3f * Mathf.Sin(Mathf.Lerp(this.buttonBehav.lastSin, this.buttonBehav.sin, timeStacker) / 30f * 3.1415927f * 2f)));
+                float brightness = Mathf.Clamp01(0.7f - 0.3f * Mathf.Sin(Mathf.Lerp(this.buttonBehav.lastSin, this.buttonBehav.sin, timeStacker) / 30f * 3.1415927f * 2f));
                 symbolSprite.color = customColor.Value * brightness;
             }
         }

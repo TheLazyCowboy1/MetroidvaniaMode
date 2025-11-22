@@ -26,6 +26,14 @@ public class ChangeablePage : Page
 
         //move pos out far, so we can't see the menu
         pos.x += sSize * 4f;
+
+        //fix FContainer
+        if (myContainer == null)
+        {
+            FContainer newContainer = new();
+            this.Container.AddChild(newContainer);
+            myContainer = newContainer;
+        }
         this.Container.SetPosition(pos);
     }
 
