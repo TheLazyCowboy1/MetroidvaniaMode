@@ -12,6 +12,7 @@ using System.IO;
 
 namespace MetroidvaniaMode;
 
+[BepInDependency("com.dual.improved-input-config", BepInDependency.DependencyFlags.HardDependency)]
 [BepInDependency("ddemile.fake_achievements", BepInDependency.DependencyFlags.SoftDependency)]
 
 [BepInPlugin(MOD_ID, MOD_NAME, MOD_VERSION)]
@@ -87,6 +88,11 @@ public partial class Plugin : BaseUnityPlugin
             //Register ExtEnums
             Collectibles.CollectibleTokens.Register();
             Items.CustomItems.Register();
+
+            try
+            {
+                Tools.Keybinds.Bind();
+            } catch (Exception ex) { Error(ex); }
 
             //Keep config menu options up to date
             On.RainWorldGame.ctor += RainWorldGame_ctor;

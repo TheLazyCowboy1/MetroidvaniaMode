@@ -22,7 +22,7 @@ public static class Dash
 
         try
         {
-            if (CurrentAbilities.DashCount <= 0) return; //don't run dash code if we can't dash!
+            if (CurrentAbilities.DashCount <= 0 || self.playerState.playerNumber < 0) return; //don't run dash code if we can't dash!
 
             PlayerInfo info = self.GetInfo();
 
@@ -30,8 +30,12 @@ public static class Dash
             if (info.DashCooldown > 0)
                 info.DashCooldown--;
 
+            bool keyDown = Tools.Keybinds.Dash.Bound(self.playerState.playerNumber)
+                ? Tools.Keybinds.Dash.CheckRawPressed(self.playerState.playerNumber)
+                : Input.GetKeyDown(Options.DashKeyCode);
+
             //The dash button is being pressed
-            if (Input.GetKey(Options.DashKeyCode) //tried GetKeyDown; maybe GetKey is better?
+            if (keyDown //tried GetKeyDown; maybe GetKey is better?
                 || (Options.PressJumpToDash && self.wantToJump > 0 && self.canJump < 1 && info.ExtraJumpsLeft < 1)
                 )
             {
