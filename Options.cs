@@ -123,7 +123,7 @@ public class Options : AutoConfigOptions
 
     [Config("Advanced", "Glide Anti-Gravity", "How much to subtract from gravity"), LimitRange(0, 2)]
     public static float GlideAntiGrav = 0.5f;
-    [Config("Abilities", "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 1)]
+    [Config("Advanced", "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 1)]
     public static float GlideThrust = 0;
 
     [Config("Advanced", "Glide Drag Coef", "How much air resistance the slugcat has in the perpendicular direction. Setting this low makes gliding less effective; setting it high makes the motion rigid.", precision = 3), LimitRange(0, 1)]

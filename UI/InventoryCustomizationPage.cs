@@ -165,17 +165,19 @@ public class InventoryCustomizationPage : ChangeablePage
                 {
                     if (CurrentItems.WheelItems[selection] == selectedItem)
                     {
-                        Plugin.Log("Assigning null item instead of keeping " + selectedItem, 2);
+                        Plugin.Log($"Assigning null itemto slot {selection} instead of keeping " + selectedItem);
                         selectedItem = null; //this is a way to remove items from the wheel
                     }
-
-                    Plugin.Log($"Assigned {selectedItem} to slot {selection}");
+                    else
+                    {
+                        Plugin.Log($"Assigning {selectedItem} to slot {selection}");
+                    }
                     CurrentItems.WheelItems[selection] = selectedItem;
                     //NEED TO SAVE THIS SOMEHOW
                     if (menu.manager.currentMainLoop is RainWorldGame game && game.IsStorySession)
                     {
                         DeathSaveData data = game.GetStorySession.saveState.deathPersistentSaveData.GetData();
-                        data.WheelItems.Set(selectedItem.value, selection);
+                        data.WheelItems.Set(selectedItem?.value, selection);
                         Plugin.Log("Saved assignment to save data", 2);
                     }
 

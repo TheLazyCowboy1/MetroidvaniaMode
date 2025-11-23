@@ -32,12 +32,14 @@ public static class Dash
             if (info.WantToDash > 0)
                 info.WantToDash--;
 
-            bool keyPressed = Tools.Keybinds.IsPressed(Tools.Keybinds.DASH_ID, self.playerState.playerNumber);
-            if (!info.DashedSincePress //don't try to dash again until we let go of dash
-                && (keyPressed || (Options.PressJumpToDash && self.wantToJump > 0 && self.canJump < 1 && info.ExtraJumpsLeft < 1)))
+            bool keyPressed = Tools.Keybinds.IsPressed(Tools.Keybinds.DASH_ID, self.playerState.playerNumber)
+                || (Options.PressJumpToDash && self.wantToJump > 0 && self.canJump < 1 && info.ExtraJumpsLeft < 1);
+
+            if (keyPressed && !info.DashHeld) //dash is newly pressed
             {
-                info.WantToDash = Options.InputBuffering + 1;
+                info.WantToDash = Options.InputBuffering + 1; //set that we want to dash
             }
+            info.DashHeld = keyPressed;
 
             //The dash button is being pressed
             if (info.WantToDash > 0)
@@ -75,17 +77,15 @@ public static class Dash
                     self.room.AddObject(spark);
                 }
 
-                info.DashedSincePress = true;
+                //info.DashedSincePress = true;
                 info.DashesLeft--;
                 info.DashCooldown = Options.DashCooldown;
                 info.WantToDash = 0;
 
                 Plugin.Log("Dashed!", 2);
             }
-            else //we're no longer trying to dash, so we can make dashing available again
-            {
-                info.DashedSincePress = false;
-            }
+            //else //we're no longer trying to dash, so we can make dashing available again
+                //info.DashedSincePress = false;
 
             //Refresh dash
             if ((self.canJump > 1 || (CurrentAbilities.WallDashReset && self.canJump > 0)) //don't refresh dashes on wall, unless we have that ability
