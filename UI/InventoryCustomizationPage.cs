@@ -167,10 +167,14 @@ public class InventoryCustomizationPage : ChangeablePage
                     {
                         Plugin.Log($"Assigning null itemto slot {selection} instead of keeping " + selectedItem);
                         selectedItem = null; //this is a way to remove items from the wheel
+
+                        menu.PlaySound(SoundID.MENU_Checkbox_Uncheck);
                     }
                     else
                     {
                         Plugin.Log($"Assigning {selectedItem} to slot {selection}");
+
+                        menu.PlaySound(SoundID.MENU_Checkbox_Check);
                     }
                     CurrentItems.WheelItems[selection] = selectedItem;
                     //NEED TO SAVE THIS SOMEHOW
