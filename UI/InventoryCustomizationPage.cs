@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Menu;
 using MetroidvaniaMode.Items;
 using MetroidvaniaMode.SaveData;
 using MetroidvaniaMode.Tools;
-using RWCustom;
 using UnityEngine;
 
 namespace MetroidvaniaMode.UI;
@@ -167,6 +163,12 @@ public class InventoryCustomizationPage : ChangeablePage
             {
                 if (selection >= 0)
                 {
+                    if (CurrentItems.WheelItems[selection] == selectedItem)
+                    {
+                        Plugin.Log("Assigning null item instead of keeping " + selectedItem, 2);
+                        selectedItem = null; //this is a way to remove items from the wheel
+                    }
+
                     Plugin.Log($"Assigned {selectedItem} to slot {selection}");
                     CurrentItems.WheelItems[selection] = selectedItem;
                     //NEED TO SAVE THIS SOMEHOW

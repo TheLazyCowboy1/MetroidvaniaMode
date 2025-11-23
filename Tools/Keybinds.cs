@@ -19,7 +19,7 @@ public static class Keybinds
     {
         if (Plugin.ImprovedInputEnabled)
         {
-            ImprovedInputCompat.Register("MVM_Dash", "Dash", KeyCode.D, KeyCode.Joystick1Button12);
+            ImprovedInputCompat.Register("MVM_Dash", "Dash", KeyCode.D, KeyCode.Joystick1Button4);
         }
         else
         {
@@ -51,15 +51,15 @@ public static class Keybinds
     }
 
 
-    public static bool IsDown(string id, int playerNum)
+    public static bool IsPressed(string id, int playerNum)
     {
         if (Plugin.ImprovedInputEnabled)
         {
-            return ImprovedInputCompat.IsDown(id, playerNum);
+            return ImprovedInputCompat.IsPressed(id, playerNum);
         }
 
         //return RWCustom.Custom.rainWorld.options.controls[playerNum].GetButtonDown(idToAction[id]);
-        return Input.GetButtonDown(idToKeyCode[id][playerNum]);
+        return Input.GetKey(idToKeyCode[id][playerNum]);
     }
 
     public static void GameStarted()
@@ -68,8 +68,30 @@ public static class Keybinds
         {
             if (!Plugin.ImprovedInputEnabled)
             {
-                int count = RWCustom.Custom.rainWorld.options.controls.Length + 1;
+                var controls = RWCustom.Custom.rainWorld.options.controls;
+                int count = controls.Length;
+                foreach (string id in ids)
+                {
+                    KeyCode[] arr = new KeyCode[count];
+                    KeyCode keyboardCode = IdToKeyCode(id);
+                    KeyCode controllerCode = IdToControllerKeyCode(id);
+                    string trimmedCode = controllerCode.ToString().Substring(controllerCode.ToString().IndexOf("Button"));
 
+                    for (int i = 0; i < count; i++)
+                    {
+                        if (controls[i].gamePad)
+                        {
+                            arr[i] = (KeyCode)Enum.Parse(typeof(KeyCode), "Joystick" + (controls[i].gamePadNumber + 1) + trimmedCode);
+                            Plugin.Log("Controller code: " + arr[i].ToString());
+                        }
+                        else
+                        {
+                            arr[i] = keyboardCode;
+                        }
+                    }
+
+                    idToKeyCode[id] = arr;
+                }
 
                 /*foreach (var control in RWCustom.Custom.rainWorld.options.controls)
                 {

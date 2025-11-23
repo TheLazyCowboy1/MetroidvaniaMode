@@ -17,8 +17,7 @@ public class Options : AutoConfigOptions
     }
 
 
-    [Config("General", "Log Level", "When this number is higher, less important logs are displayed."), LimitRange(0, 3)]
-    public static int LogLevel = 0;
+    //ABILITIES
 
     [Config("Abilities", "Jump Boost", "Multiplies the jump boost, which heavily affects jump height. Slugpup = 0.875"), LimitRange(0, 10f)]
     public static float JumpBoost = 1;
@@ -53,23 +52,13 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Can Throw Spears", "Allows the player to throw spears. If false, spears are tossed like Saint.", rightSide = true)]
     public static bool CanThrowSpears = true;
 
-    //[Config("Abilities", "Can Dash", "Allows the player to use a dash ability")]
-    //public static bool CanDash = false;
     [Config("Abilities", "Dash Count", "The number of dashes that the player can do before touching the ground again"), LimitRange(0, 100)]
     public static int DashCount = 0;
-
-    [Config("Accessibility", "Dash Keybind (Keyboard)", "Which keybind activates the dash ability, if it is enabled", width = 100f)]
-    public static KeyCode DashKeyCode = KeyCode.D;
-    [Config("Accessibility", "Dash Keybind (Controller)", "Which keybind activates the dash ability, if it is enabled", rightSide = true, width = 100f)]
-    public static KeyCode DashControllerKeyCode = KeyCode.Joystick1Button12;
 
     [Config("Abilities", "Dash Speed", "The player's set speed upon dashing")]
     public static float DashSpeed = 12f;
     [Config("Abilities", "Dash Strength", "How much of the player's speed is converted to the dash speed.\n1 = dash completely overrides player speed. 0 = dash does nothing.")]
     public static float DashStrength = 0.95f;
-
-    [Config("Advanced", "/40 Dash Cooldown", "The minimum time between dashes, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 200)]
-    public static int DashCooldown = 0;
 
     [Config("Abilities", "Extra Jumps", "Allows the player to double jump"), LimitRange(0, 100)]
     public static int ExtraJumps = 0;
@@ -77,41 +66,21 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Can Glide", "Allows the player to glide in the air to slow descents")]
     public static bool CanGlide = false;
 
-    [Config("Advanced", "Glide Anti-Gravity", "How much to subtract from gravity"), LimitRange(0, 2)]
-    public static float GlideAntiGrav = 0.5f;
-    [Config("Abilities", "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 1)]
-    public static float GlideThrust = 0;
-    [Config("Advanced", "Glide Drag Coef", "How much air resistance the slugcat has in the perpendicular direction. Setting this low makes gliding less effective; setting it high makes the motion rigid.", precision = 3), LimitRange(0, 1)]
-    public static float GlideDragCoef = 0.25f;
-    [Config("Advanced", "Glide Omni Drag Coef", "How much air resistance the slugcat has in ALL directions. Increasing this will decrease the slugcat's max speed.", precision = 3, rightSide = true), LimitRange(0, 1)]
-    public static float GlideOmniDragCoef = 0.04f;
-    [Config("Advanced", "Glide Lift Coef", "How much lift the slugcat generated when flying. This allows the slugcat to pull up when going fast, and it makes the controls feel more responsive.\nHowever, setting this too high will allow the slugcat to literally fly upwards, which is cheating. As funny as it is, we don't want to make a literal slugcat airplane.", precision = 3), LimitRange(0, 1)]
-    public static float GlideLiftCoef = 0.25f;
-    [Config("Advanced", "Glide Max Lift", "Caps the amount of lift, preventing the slugcat from exploding when going too fast.", rightSide = true), LimitRange(0, 1)]
-    public static float GlideMaxLift = 0.6f;
-    [Config("Advanced", "Glide Base Y Angle", "(EasierGlideMode only) Adjusts the glide direction for drag slightly downwards, because this is what players probably expect."), LimitRange(-1, 1)]
-    public static float GlideBaseDirY = -0.1f;
-    [Config("Advanced", "Glide Keyboard Y Mult", "Multiplies the y for the keyboard, so that instead of trying to move perfectly diagonally (1,1), the slugcat moves more smoothly (e.g: (1,0.5)).\nMakes flying much easier on a keyboard.", rightSide = true), LimitRange(0, 1)]
-    public static float GlideKeyboardYFac = 0.5f;
-
     [Config("Abilities", "Has Health", "Enables the health bar system")]
     public static bool HasHealth = false;
     [Config("Abilities", "Max Health", "The maximum amount of health, and the default health", rightSide = true), LimitRange(0, 30)]
     public static int MaxHealth = 3;
-
-    [Config("Advanced", "/40 Invincibility Frames", "How long the player is invincible after taking damage"), LimitRange(0, 120)]
-    public static int InvincibilityFrames = 40;
 
     [Config("Abilities", "Has Inventory", "Enables the inventory wheel")]
     public static bool HasInventory = false;
     [Config("Abilities", "Unlock All Inventory Items", "Makes all inventory items available", rightSide = true)]
     public static bool UnlockAllInventoryItems = false;
 
-    [Config("Accessibility", "/40 Inventory Open Time", "How long it takes for the inventory wheel to open"), LimitRange(0, 40)]
-    public static int InventoryOpenTime = 10;
-    [Config("Accessibility", "/40 Inventory Stickiness", "Long it takes the inventory wheel to deselect something", rightSide = true), LimitRange(0, 40)]
-    public static int InventoryWheelStickiness = 4;
 
+    //GENERAL
+
+    [Config("General", "Log Level", "When this number is higher, less important logs are displayed."), LimitRange(0, 3)]
+    public static int LogLevel = 0;
 
     [Config("General", "Test String", "This is a test", width = 150f)]
     public static string TestString = "Hi!";
@@ -119,13 +88,57 @@ public class Options : AutoConfigOptions
     public static string TestString2 = "Hi!";
 
 
+    //ACCESSIBILITY
+
     [Config("Accessibility", "Press Jump to Dash", "Makes dashes be triggered by trying to jump in the air. This lessens the number of different buttons that need to be pressed.\n(However, it doesn't let you dash on the ground, but hopefully that's not a big deal.)")]
     public static bool PressJumpToDash = false;
+
+    [Config("Accessibility", "/40 Input Buffering", "How many ticks of input buffering for dash inputs. 40 ticks == 1 second.\nRainWorld has 5 tick input buffering for most inputs.")]
+    public static int InputBuffering = 5;
 
     [Config("Accessibility", "Easier Glide Mode", "Enables code that attempts to make gliding easier, at the expense of taking away some of your fine control. Disable this if you want to call yourself an aviation pro.")]
     public static bool EasierGlideMode = true;
 
+    [Config("Accessibility", "Dash Keybind (Keyboard)", "Which keybind activates the dash ability, if it is enabled", width = 80f)]
+    public static KeyCode DashKeyCode = KeyCode.D;
+    [Config("Accessibility", "Dash Keybind (Controller)", "Which keybind activates the dash ability, if it is enabled", rightSide = true, width = 120f)]
+    public static KeyCode DashControllerKeyCode = KeyCode.Joystick1Button4;
+
+    [Config("Accessibility", "/40 Inventory Open Time", "How long it takes for the inventory wheel to open, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 40)]
+    public static int InventoryOpenTime = 10;
+    [Config("Accessibility", "/40 Inventory Stickiness", "Long it takes the inventory wheel to deselect something, expressed in ticks (40 ticks == 1 second)", rightSide = true), LimitRange(0, 40)]
+    public static int InventoryWheelStickiness = 4;
+
     [Config("Accessibility", "Extra Health", "Increases your health in order to make the game easier. Increase this number if the game is too difficult for you."), LimitRange(-10, 20)]
     public static int ExtraHealth = 0;
+
+
+    //ADVANCED
+
+    [Config("Advanced", "/40 Invincibility Frames", "How long the player is invincible after taking damage, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 120)]
+    public static int InvincibilityFrames = 40;
+
+    [Config("Advanced", "/40 Dash Cooldown", "The minimum time between dashes, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 200)]
+    public static int DashCooldown = 0;
+
+    [Config("Advanced", "Glide Anti-Gravity", "How much to subtract from gravity"), LimitRange(0, 2)]
+    public static float GlideAntiGrav = 0.5f;
+    [Config("Abilities", "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 1)]
+    public static float GlideThrust = 0;
+
+    [Config("Advanced", "Glide Drag Coef", "How much air resistance the slugcat has in the perpendicular direction. Setting this low makes gliding less effective; setting it high makes the motion rigid.", precision = 3), LimitRange(0, 1)]
+    public static float GlideDragCoef = 0.25f;
+    [Config("Advanced", "Glide Omni Drag Coef", "How much air resistance the slugcat has in ALL directions. Increasing this will decrease the slugcat's max speed.", precision = 3, rightSide = true), LimitRange(0, 1)]
+    public static float GlideOmniDragCoef = 0.04f;
+
+    [Config("Advanced", "Glide Lift Coef", "How much lift the slugcat generated when flying. This allows the slugcat to pull up when going fast, and it makes the controls feel more responsive.\nHowever, setting this too high will allow the slugcat to literally fly upwards, which is cheating. As funny as it is, we don't want to make a literal slugcat airplane.", precision = 3), LimitRange(0, 1)]
+    public static float GlideLiftCoef = 0.25f;
+    [Config("Advanced", "Glide Max Lift", "Caps the amount of lift, preventing the slugcat from exploding when going too fast.", rightSide = true), LimitRange(0, 1)]
+    public static float GlideMaxLift = 0.6f;
+
+    [Config("Advanced", "Glide Base Y Angle", "(EasierGlideMode only) Adjusts the glide direction for drag slightly downwards, because this is what players probably expect."), LimitRange(-1, 1)]
+    public static float GlideBaseDirY = -0.1f;
+    [Config("Advanced", "Glide Keyboard Y Mult", "Multiplies the y for the keyboard, so that instead of trying to move perfectly diagonally (1,1), the slugcat moves more smoothly (e.g: (1,0.5)).\nMakes flying much easier on a keyboard.", rightSide = true), LimitRange(0, 1)]
+    public static float GlideKeyboardYFac = 0.5f;
 
 }

@@ -29,15 +29,20 @@ public static class Dash
             //cooldown
             if (info.DashCooldown > 0)
                 info.DashCooldown--;
+            if (info.WantToDash > 0)
+                info.WantToDash--;
 
-            bool keyDown = Tools.Keybinds.IsDown(Tools.Keybinds.DASH_ID, self.playerState.playerNumber);
+            bool keyPressed = Tools.Keybinds.IsPressed(Tools.Keybinds.DASH_ID, self.playerState.playerNumber);
+            if (!info.DashedSincePress //don't try to dash again until we let go of dash
+                && (keyPressed || (Options.PressJumpToDash && self.wantToJump > 0 && self.canJump < 1 && info.ExtraJumpsLeft < 1)))
+            {
+                info.WantToDash = Options.InputBuffering + 1;
+            }
 
             //The dash button is being pressed
-            if (keyDown //tried GetKeyDown; maybe GetKey is better?
-                || (Options.PressJumpToDash && self.wantToJump > 0 && self.canJump < 1 && info.ExtraJumpsLeft < 1)
-                )
+            if (info.WantToDash > 0)
             {
-                if (info.DashedSincePress || info.DashesLeft < 1 || info.DashCooldown > 0)
+                if (info.DashesLeft < 1 || info.DashCooldown > 0)
                     return; //don't dash when on cooldown!
 
                 //pick dash direction vector
@@ -73,20 +78,20 @@ public static class Dash
                 info.DashedSincePress = true;
                 info.DashesLeft--;
                 info.DashCooldown = Options.DashCooldown;
+                info.WantToDash = 0;
 
                 Plugin.Log("Dashed!", 2);
             }
-            //The dash button is NOT pressed, and the player meets the qualifications to refresh the dash counter
-            else if ((self.canJump > 1 || (CurrentAbilities.WallDashReset && self.canJump > 0)) //don't dashes on wall, unless we have that ability
-                && (CurrentAbilities.ClimbVerticalPoles || self.animation != Player.AnimationIndex.ClimbOnBeam)) //don't refresh dashes on poles unless we can climb
+            else //we're no longer trying to dash, so we can make dashing available again
             {
                 info.DashedSincePress = false;
-                info.DashesLeft = CurrentAbilities.DashCount;
             }
-            //At least mark that the dash button is no longer held down
-            else
+
+            //Refresh dash
+            if ((self.canJump > 1 || (CurrentAbilities.WallDashReset && self.canJump > 0)) //don't refresh dashes on wall, unless we have that ability
+                && (CurrentAbilities.ClimbVerticalPoles || self.animation != Player.AnimationIndex.ClimbOnBeam)) //don't refresh dashes on poles, unless we can climb
             {
-                info.DashedSincePress = false;
+                info.DashesLeft = CurrentAbilities.DashCount;
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }

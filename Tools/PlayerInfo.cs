@@ -5,6 +5,7 @@ namespace MetroidvaniaMode;
 public class PlayerInfo
 {
     public bool DashedSincePress = false;
+    public int WantToDash = 0;
     public int DashesLeft = 0;
     public int DashCooldown = 0;
 
