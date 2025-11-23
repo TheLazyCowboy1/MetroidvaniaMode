@@ -1,6 +1,6 @@
 ﻿using FakeAchievements;
 
-namespace MetroidvaniaMode.Tools;
+namespace MetroidvaniaMode.ModCompat;
 
 class FakeAchievementCompat
 {

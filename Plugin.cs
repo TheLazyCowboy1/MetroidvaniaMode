@@ -4,6 +4,7 @@ using System.Security.Permissions;
 using BepInEx;
 using System.Runtime.CompilerServices;
 using System.IO;
+using System.Linq;
 
 #pragma warning disable CS0618
 
@@ -12,7 +13,7 @@ using System.IO;
 
 namespace MetroidvaniaMode;
 
-[BepInDependency("com.dual.improved-input-config", BepInDependency.DependencyFlags.HardDependency)]
+[BepInDependency("com.dual.improved-input-config", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("ddemile.fake_achievements", BepInDependency.DependencyFlags.SoftDependency)]
 
 [BepInPlugin(MOD_ID, MOD_NAME, MOD_VERSION)]
@@ -45,6 +46,12 @@ public partial class Plugin : BaseUnityPlugin
     private void OnEnable()
     {
         On.RainWorld.OnModsInit += RainWorldOnOnModsInit;
+
+        try
+        {
+            Tools.Keybinds.Bind(); //Improved Input Config wants them bound here for some reason
+        }
+        catch (Exception ex) { Error(ex); }
     }
     private void OnDisable()
     {
@@ -85,14 +92,20 @@ public partial class Plugin : BaseUnityPlugin
             if (IsInit) return;
             IsInit = true; //set IsInit first, in case there is an error
 
+            //find the plugin path
+            PluginPath = ModManager.ActiveMods.Find(m => m.id == MOD_ID).path;
+
+            ImprovedInputEnabled = ModManager.ActiveMods.Any(m => m.id == "improved-input-config");
+            FakeAchievementsEnabled = ModManager.ActiveMods.Any(m => m.id == "ddemile.fake_achievements");
+
             //Register ExtEnums
             Collectibles.CollectibleTokens.Register();
             Items.CustomItems.Register();
 
-            try
-            {
-                Tools.Keybinds.Bind();
-            } catch (Exception ex) { Error(ex); }
+
+            //Set up config menu
+            MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
+            ConfigOptions.SetValues();
 
             //Keep config menu options up to date
             On.RainWorldGame.ctor += RainWorldGame_ctor;
@@ -115,15 +128,7 @@ public partial class Plugin : BaseUnityPlugin
             SaveData.Hooks.ApplyHooks();
             Collectibles.Hooks.ApplyHooks();
 
-            
-            //Set up config menu
-            MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
-            //ConfigOptions.SetValues();
-
-            //find the plugin path
-            PluginPath = ModManager.ActiveMods.Find(m => m.id == MOD_ID).path;
-
-            Log("Applied hooks", 0);
+            Log($"Applied hooks. Mods enabled: ImprovedInput {ImprovedInputEnabled}, FakeAchievements {FakeAchievementsEnabled}", 0);
         }
         catch (Exception ex)
         {
@@ -137,6 +142,7 @@ public partial class Plugin : BaseUnityPlugin
     {
         ConfigOptions.SetValues();
         FilePrefixModifier.SetEnabled(manager);
+        Tools.Keybinds.GameStarted();
 
         orig(self, manager);
 
@@ -145,6 +151,12 @@ public partial class Plugin : BaseUnityPlugin
         Items.CurrentItems.RestockItems();
     }
 
+    #endregion
+
+
+    #region ModCompat
+    public static bool ImprovedInputEnabled = false;
+    public static bool FakeAchievementsEnabled = false;
     #endregion
 
 

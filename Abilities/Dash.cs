@@ -30,9 +30,7 @@ public static class Dash
             if (info.DashCooldown > 0)
                 info.DashCooldown--;
 
-            bool keyDown = Tools.Keybinds.Dash.Bound(self.playerState.playerNumber)
-                ? Tools.Keybinds.Dash.CheckRawPressed(self.playerState.playerNumber)
-                : Input.GetKeyDown(Options.DashKeyCode);
+            bool keyDown = Tools.Keybinds.IsDown(Tools.Keybinds.DASH_ID, self.playerState.playerNumber);
 
             //The dash button is being pressed
             if (keyDown //tried GetKeyDown; maybe GetKey is better?

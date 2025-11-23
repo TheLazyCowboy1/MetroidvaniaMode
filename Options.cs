@@ -57,8 +57,11 @@ public class Options : AutoConfigOptions
     //public static bool CanDash = false;
     [Config("Abilities", "Dash Count", "The number of dashes that the player can do before touching the ground again"), LimitRange(0, 100)]
     public static int DashCount = 0;
-    [Config("Abilities", "Dash Keybind", "Which keybind activates the dash ability, if it is enabled", rightSide = true, width = 100f)]
+
+    [Config("Accessibility", "Dash Keybind (Keyboard)", "Which keybind activates the dash ability, if it is enabled", width = 100f)]
     public static KeyCode DashKeyCode = KeyCode.D;
+    [Config("Accessibility", "Dash Keybind (Controller)", "Which keybind activates the dash ability, if it is enabled", rightSide = true, width = 100f)]
+    public static KeyCode DashControllerKeyCode = KeyCode.Joystick1Button12;
 
     [Config("Abilities", "Dash Speed", "The player's set speed upon dashing")]
     public static float DashSpeed = 12f;
