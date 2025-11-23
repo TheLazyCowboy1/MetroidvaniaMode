@@ -29,17 +29,16 @@ public static class Dash
             //cooldown
             if (info.DashCooldown > 0)
                 info.DashCooldown--;
+            if (info.WantToDash > 0)
+                info.WantToDash--;
 
             bool keyPressed = Tools.Keybinds.IsPressed(Tools.Keybinds.DASH_ID, self.playerState.playerNumber)
                 || (Options.PressJumpToDash && self.wantToJump > 0 && self.canJump < 1 && info.ExtraJumpsLeft < 1);
 
-            if (keyPressed && !info.DashHeld && info.WantToDash < 1) //dash is NEWLY pressed
+            if (keyPressed && !info.DashHeld) //dash is NEWLY pressed
             {
                 info.WantToDash = Options.InputBuffering + 1; //set that we want to dash
             }
-            else if (info.WantToDash > 0)
-                info.WantToDash--;
-
             info.DashHeld = keyPressed;
 
             //The dash button is being pressed

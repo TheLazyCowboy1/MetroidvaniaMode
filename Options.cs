@@ -106,7 +106,7 @@ public class Options : AutoConfigOptions
 
     [Config("Accessibility", "/40 Inventory Open Time", "How long it takes for the inventory wheel to open, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 40)]
     public static int InventoryOpenTime = 10;
-    [Config("Accessibility", "/40 Inventory Stickiness", "Long it takes the inventory wheel to deselect something, expressed in ticks (40 ticks == 1 second)", rightSide = true), LimitRange(0, 40)]
+    [Config("Accessibility", "/40 Inventory Stickiness", "How long it takes the inventory wheel to deselect something, expressed in ticks (40 ticks == 1 second)", rightSide = true), LimitRange(0, 40)]
     public static int InventoryWheelStickiness = 4;
 
     [Config("Accessibility", "Extra Health", "Increases your health in order to make the game easier. Increase this number if the game is too difficult for you."), LimitRange(-10, 20)]

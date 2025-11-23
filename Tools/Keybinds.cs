@@ -51,6 +51,46 @@ public static class Keybinds
     }
 
 
+    public static void ApplyHooks()
+    {
+        On.Options.ControlSetup.UpdateActiveController_Controller_int_bool += ControlSetup_UpdateActiveController_Controller_int_bool;
+    }
+
+    public static void RemoveHooks()
+    {
+        On.Options.ControlSetup.UpdateActiveController_Controller_int_bool -= ControlSetup_UpdateActiveController_Controller_int_bool;
+    }
+
+    private static void ControlSetup_UpdateActiveController_Controller_int_bool(On.Options.ControlSetup.orig_UpdateActiveController_Controller_int_bool orig, global::Options.ControlSetup self, Rewired.Controller newController, int controllerIndex, bool forceUpdate)
+    {
+        orig(self, newController, controllerIndex, forceUpdate);
+
+        try
+        {
+            if (!Plugin.ImprovedInputEnabled)
+            {
+                //ensure the keycode is updated for this player!
+                foreach (string id in ids)
+                {
+                    //idToKeyCode[id][self.index] = 
+                    if (newController.type == Rewired.ControllerType.Joystick)
+                    {
+                        KeyCode code = IdToControllerKeyCode(id);
+                        string trimmedCode = code.ToString().Substring(code.ToString().IndexOf("Button"));
+                        idToKeyCode[id][self.index] = (KeyCode)Enum.Parse(typeof(KeyCode), "Joystick" + (controllerIndex + 1) + trimmedCode);
+                    }
+                    else
+                    {
+                        idToKeyCode[id][self.index] = IdToKeyCode(id);
+                    }
+                    Plugin.Log($"Reassigned keycode for {id}:{self.index} = {idToKeyCode[id][self.index]}");
+                }
+            }
+
+        } catch (Exception ex) { Plugin.Error(ex); }
+    }
+
+
     public static bool IsPressed(string id, int playerNum)
     {
         if (Plugin.ImprovedInputEnabled)

@@ -76,6 +76,7 @@ public partial class Plugin : BaseUnityPlugin
 
             SaveData.Hooks.RemoveHooks();
             Collectibles.Hooks.RemoveHooks();
+            Tools.Keybinds.RemoveHooks();
 
             //Collectibles.CollectibleTokens.Unregister();
 
@@ -127,6 +128,7 @@ public partial class Plugin : BaseUnityPlugin
 
             SaveData.Hooks.ApplyHooks();
             Collectibles.Hooks.ApplyHooks();
+            Tools.Keybinds.ApplyHooks();
 
             Log($"Applied hooks. Mods enabled: ImprovedInput {ImprovedInputEnabled}, FakeAchievements {FakeAchievementsEnabled}", 0);
         }
