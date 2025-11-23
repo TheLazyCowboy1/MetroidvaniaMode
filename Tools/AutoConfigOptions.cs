@@ -127,6 +127,7 @@ public abstract class AutoConfigOptions : OptionInterface
             Tabs[i] = new(this, name);
 
             float y = tInfo.startHeight;
+            bool lastWasLeft = false;
 
             foreach (ConfigInfo cInfo in ConfigInfos)
             {
@@ -139,7 +140,7 @@ public abstract class AutoConfigOptions : OptionInterface
                         float h = cInfo.height >= 0 ? cInfo.height : tInfo.defaultHeight;
                         float t = tInfo.textOffset + w - tInfo.updownWidth; //updownWidth is the default
 
-                        if (cInfo.rightSide)
+                        if (lastWasLeft && cInfo.rightSide)
                             y += tInfo.spacing; //keep on same height... a janky method to do so, but oh well
                         y -= cInfo.spaceBefore;
 

@@ -93,7 +93,7 @@ public class Options : AutoConfigOptions
     [Config("Accessibility", "Press Jump to Dash", "Makes dashes be triggered by trying to jump in the air. This lessens the number of different buttons that need to be pressed.\n(However, it doesn't let you dash on the ground, but hopefully that's not a big deal.)")]
     public static bool PressJumpToDash = false;
 
-    [Config("Accessibility", "/40 Input Buffering", "How many ticks of input buffering for dash inputs. 40 ticks == 1 second.\nRainWorld has 5 tick input buffering for most inputs.")]
+    [Config("Accessibility", "/40 Input Buffering", "How many ticks of input buffering for dash inputs. 40 ticks == 1 second.\nRainWorld has 5 tick input buffering for most inputs."), LimitRange(0, 40)]
     public static int InputBuffering = 5;
 
     [Config("Accessibility", "Easier Glide Mode", "Enables code that attempts to make gliding easier, at the expense of taking away some of your fine control. Disable this if you want to call yourself an aviation pro.")]
