@@ -52,6 +52,8 @@ public static class Health
     /// <param name="damage">The amount of damage to deal</param>
     public static void TakeDamage(this Player self, int damage)
     {
+        if (CurrentHealth < 1) return; //can't take damage if I have no health
+
         PlayerInfo info = self.GetInfo();
         if (info.iFrames <= 0 || self.playerState.dead) //still take damage when dead
         {
@@ -69,7 +71,10 @@ public static class Health
             if (CurrentHealth == 0)
                 self.playerState.permanentDamageTracking = 0.98f; //make the player injured
         }
+
+        //set iFrames
         info.iFrames = Options.InvincibilityFrames; //1 second of i-frames
+        info.maxIFrames = Options.MaxInvincibilityFrames;
         self.showKarmaFoodRainTime = Options.InvincibilityFrames; //show the HUD
         UI.HealthMeter.HealthFlash = Options.InvincibilityFrames;
 
@@ -220,8 +225,15 @@ public static class Health
             }
 
             //decrement iFrames
-            if (info.iFrames > 0 && !self.Stunned) //don't decrement i-frames while stunned
-                info.iFrames--;
+            if (info.iFrames > 0)
+            {
+                if (!self.Stunned) //don't decrement i-frames while stunned
+                    info.iFrames--;
+                info.maxIFrames--; //apply maxIFrames
+                info.iFrames = Math.Min(info.iFrames, info.maxIFrames);
+
+                UI.HealthMeter.HealthFlash = Math.Max(UI.HealthMeter.HealthFlash, info.iFrames); //keep health meter reflecting actual i-frames
+            }
 
         } catch (Exception ex) { Plugin.Error(ex); }
 

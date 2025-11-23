@@ -16,6 +16,7 @@ public class PlayerInfo
 
     public bool ReleaseQueued = false;
     public int iFrames = 0;
+    public int maxIFrames = 0;
 
     public int HoldGrabTime = 0;
     public UI.InventoryWheel InventoryWheel = null;

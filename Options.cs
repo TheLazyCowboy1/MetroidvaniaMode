@@ -115,8 +115,10 @@ public class Options : AutoConfigOptions
 
     //ADVANCED
 
-    [Config("Advanced", "/40 Invincibility Frames", "How long the player is invincible after taking damage, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 120)]
+    [Config("Advanced", "/40 Invincibility Frames", "How long the player is invincible after taking damage, expressed in ticks (40 ticks == 1 second).\nDoes not include time spent stunned."), LimitRange(0, 120)]
     public static int InvincibilityFrames = 40;
+    [Config("Advanced", "/40 Max I-Frames", "The maximum time the player can be invincible after taking damage, expressed in ticks (40 ticks == 1 second).\nDOES include time spent stunned.", rightSide = true), LimitRange(0, 240)]
+    public static int MaxInvincibilityFrames = 80;
 
     [Config("Advanced", "/40 Dash Cooldown", "The minimum time between dashes, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 200)]
     public static int DashCooldown = 0;
