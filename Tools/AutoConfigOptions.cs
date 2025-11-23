@@ -142,7 +142,9 @@ public abstract class AutoConfigOptions : OptionInterface
 
                         if (lastWasLeft && cInfo.rightSide)
                             y += tInfo.spacing; //keep on same height... a janky method to do so, but oh well
-                        y -= cInfo.spaceBefore;
+                        lastWasLeft = !cInfo.rightSide;
+
+                        y -= cInfo.spaceBefore; //add extra space
 
                         UIelement el;
                         if (cInfo.config is Configurable<bool> cb)
