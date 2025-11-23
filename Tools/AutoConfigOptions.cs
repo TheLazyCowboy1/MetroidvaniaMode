@@ -83,6 +83,8 @@ public abstract class AutoConfigOptions : OptionInterface
                     ConfigurableBase configBase = (ConfigurableBase)typeof(ConfigHolder).GetMethods().First(m => m.Name == nameof(ConfigHolder.Bind)).MakeGenericMethod(info.FieldType)
                         .Invoke(config, new object[] { info.Name, info.GetValue(this), null });
 
+                    configBase.info.acceptable = AcceptableForConfig(info.Name);
+
                     LimitRange rangeAtt = info.GetCustomAttribute<LimitRange>();
                     if (rangeAtt != null)
                     {
@@ -186,6 +188,16 @@ public abstract class AutoConfigOptions : OptionInterface
     public virtual void MenuInitialized()
     {
 
+    }
+
+    /// <summary>
+    /// Use this to add a custom ConfigAcceptableBase to your config
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public virtual ConfigAcceptableBase AcceptableForConfig(string id)
+    {
+        return null;
     }
 
 

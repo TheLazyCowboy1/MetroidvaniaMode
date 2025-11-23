@@ -1,4 +1,6 @@
 ﻿using MetroidvaniaMode.Tools;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MetroidvaniaMode;
@@ -142,5 +144,34 @@ public class Options : AutoConfigOptions
     public static float GlideBaseDirY = -0.1f;
     [Config("Advanced", "Glide Keyboard Y Mult", "Multiplies the y for the keyboard, so that instead of trying to move perfectly diagonally (1,1), the slugcat moves more smoothly (e.g: (1,0.5)).\nMakes flying much easier on a keyboard.", rightSide = true), LimitRange(0, 1)]
     public static float GlideKeyboardYFac = 0.5f;
+
+
+
+    private class AcceptableControllerButton : ConfigAcceptableBase
+    {
+        public AcceptableControllerButton() : base(typeof(KeyCode))
+        {
+        }
+
+        public override object Clamp(object value)
+        {
+            return IsValid(value) ? value : KeyCode.JoystickButton0;
+        }
+
+        public override bool IsValid(object value)
+        {
+            return (int)value >= (int)KeyCode.JoystickButton0 && (int)value <= (int)KeyCode.Joystick8Button19;
+        }
+
+        public override string ToDescriptionString()
+        {
+            return "# Acceptable values range from JoystickButton0 to Joystick8Button19";
+        }
+    }
+    public override ConfigAcceptableBase AcceptableForConfig(string id)
+    {
+        if (id == nameof(DashControllerKeyCode)) return new AcceptableControllerButton();
+        return base.AcceptableForConfig(id);
+    }
 
 }
