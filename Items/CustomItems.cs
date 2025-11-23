@@ -1,13 +1,11 @@
-﻿using Mono.Cecil.Cil;
-using MonoMod.Cil;
+﻿using MetroidvaniaMode.Tools;
 using System;
-using System.Reflection;
 
 namespace MetroidvaniaMode.Items;
 
 public static class CustomItems
 {
-    [ItemID]
+    [EasyExtEnum]
     public static AbstractPhysicalObject.AbstractObjectType HealFruit;
 
     public static void ApplyHooks()
@@ -34,16 +32,17 @@ public static class CustomItems
     //Object realizing
     private static void AbstractPhysicalObject_Realize(On.AbstractPhysicalObject.orig_Realize orig, AbstractPhysicalObject self)
     {
-        try
+        orig(self);
+
+        try //put this after, because we want the stuck objects to be realized too
         {
             if (self.type == HealFruit)
             {
                 self.realizedObject = new HealFruit(self);
                 return;
             }
-        } catch (Exception ex) { Plugin.Error(ex); }
-
-        orig(self);
+        }
+        catch (Exception ex) { Plugin.Error(ex); }
     }
 
     //Sprite names
@@ -76,31 +75,6 @@ public static class CustomItems
     }
 
 
-    //Make Heal Fruit always edible, just like Mushrooms
-    [Obsolete]
-    private static void IL_Player_GrabUpdate(ILContext il)
-    {
-        try
-        {
-            ILCursor c = new(il);
-            while (c.TryGotoNext(MoveType.After, x => x.MatchIsinst<Mushroom>())) //do this for EVERY "is Mushroom"
-            {
-                //"is Mushroom" is ALREADY loaded onto the stack, so we must reference it
-                c.Emit(OpCodes.Ldarg_0); //load player
-                c.Emit(OpCodes.Ldloc_S, 6); //load grasp idx
-                c.EmitDelegate<Func<bool, Player, int, bool>>((bool isMush, Player self, int grasp) => isMush || self.grasps[grasp].grabbed is HealFruit);
-                //c.Emit(OpCodes.Or); //mushroom OR heal fruit works
-                
-                //c.Emit(OpCodes.Dup); //duplicate the self.grasps[i].grabbed object, so we can test it twice
-                //c.Emit(OpCodes.Isinst, typeof(HealFruit));
-                //c.Index++; //skip IsInst<Mushroom>
-                //c.Emit(OpCodes.Or);
-
-                Plugin.Log("Heal Fruit IL hook successful! ...I hope");
-            }
-
-        } catch (Exception ex) { Plugin.Error(ex); }
-    }
     //Pretend player isn't full when attempting to eat heal fruits
     private static void Player_GrabUpdate(On.Player.orig_GrabUpdate orig, Player self, bool eu)
     {
@@ -130,42 +104,4 @@ public static class CustomItems
         orig(self, eu);
     }
 
-
-    private class ItemID : Attribute
-    {
-        //public string ID;
-        //public ItemID(string iD) : base()
-        //{
-            //ID = iD;
-        //}
-    }
-
-    private const string PREFIX = "MVM_";
-
-    public static void Register()
-    {
-        try
-        {
-            string debug = "Registered Items: ";
-            FieldInfo[] infos = typeof(CustomItems).GetFields();
-            foreach (FieldInfo info in infos)
-            {
-                try
-                {
-                    ItemID att = info.GetCustomAttribute<ItemID>();
-                    if (att != null)
-                    {
-                        info.SetValue(null, Activator.CreateInstance(info.FieldType, PREFIX + info.Name, true));
-                        debug += PREFIX + info.Name + ", ";
-                    }
-                } catch (Exception ex) { Plugin.Error("Error with field " + info.Name); Plugin.Error(ex); }
-            }
-
-            Plugin.Log(debug, 0);
-        } catch (Exception ex) { Plugin.Error(ex); }
-    }
-    public static void Unregister()
-    {
-        Plugin.Error("NOT IMPLEMENTED!");
-    }
 }

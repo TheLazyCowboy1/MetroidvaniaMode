@@ -49,6 +49,11 @@ public partial class Plugin : BaseUnityPlugin
 
         try
         {
+            //Register ExtEnums
+            Collectibles.CollectibleTokens.Register();
+            Tools.EasyExtEnum.Register();
+
+            //Bind keybinds
             Tools.Keybinds.Bind(); //Improved Input Config wants them bound here for some reason
         }
         catch (Exception ex) { Error(ex); }
@@ -60,8 +65,8 @@ public partial class Plugin : BaseUnityPlugin
         {
             On.RainWorldGame.ctor -= RainWorldGame_ctor;
 
-            FilePrefixModifier.RemoveHooks();
-            ArenaRoomFix.RemoveHooks();
+            WorldChanges.FilePrefixModifier.RemoveHooks();
+            WorldChanges.ArenaRoomFix.RemoveHooks();
 
             Abilities.MovementLimiter.RemoveHooks();
             Abilities.Dash.RemoveHooks();
@@ -99,10 +104,6 @@ public partial class Plugin : BaseUnityPlugin
             ImprovedInputEnabled = ModManager.ActiveMods.Any(m => m.id == "improved-input-config");
             FakeAchievementsEnabled = ModManager.ActiveMods.Any(m => m.id == "ddemile.fake_achievements");
 
-            //Register ExtEnums
-            Collectibles.CollectibleTokens.Register();
-            Items.CustomItems.Register();
-
 
             //Set up config menu
             MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
@@ -112,8 +113,8 @@ public partial class Plugin : BaseUnityPlugin
             On.RainWorldGame.ctor += RainWorldGame_ctor;
 
             //APPLY HOOKS
-            FilePrefixModifier.ApplyHooks();
-            ArenaRoomFix.ApplyHooks();
+            WorldChanges.FilePrefixModifier.ApplyHooks();
+            WorldChanges.ArenaRoomFix.ApplyHooks();
 
             Abilities.MovementLimiter.ApplyHooks();
             Abilities.Dash.ApplyHooks();
@@ -143,8 +144,8 @@ public partial class Plugin : BaseUnityPlugin
     private void RainWorldGame_ctor(On.RainWorldGame.orig_ctor orig, RainWorldGame self, ProcessManager manager)
     {
         ConfigOptions.SetValues();
-        FilePrefixModifier.SetEnabled(manager);
-        Tools.Keybinds.GameStarted();
+        WorldChanges.FilePrefixModifier.SetEnabled(manager);
+        Tools.Keybinds.GameStarted(); //ensure the keybinds aren't totally unbound or something
 
         orig(self, manager);
 

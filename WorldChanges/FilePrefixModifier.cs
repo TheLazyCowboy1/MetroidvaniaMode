@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace MetroidvaniaMode;
+namespace MetroidvaniaMode.WorldChanges;
 
 public static class FilePrefixModifier
 {

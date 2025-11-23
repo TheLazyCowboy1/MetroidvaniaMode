@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MetroidvaniaMode;
+namespace MetroidvaniaMode.WorldChanges;
 
 public static class ArenaRoomFix
 {
@@ -83,9 +83,9 @@ public static class ArenaRoomFix
         {
             base.Update(eu);
 
-            if (room == null || (!room.BeingViewed && !locked)) //the player isn't in the room; don't lock the shortcuts
+            if (room == null || !room.BeingViewed && !locked) //the player isn't in the room; don't lock the shortcuts
             {
-                this.Destroy();
+                Destroy();
                 return;
             }
 
@@ -138,7 +138,7 @@ public static class ArenaRoomFix
                 }
                 else
                 {
-                    this.Destroy();
+                    Destroy();
                 }
                 return; //give at least 1 tick for creatures to catch up
             }
@@ -217,7 +217,7 @@ public static class ArenaRoomFix
             }
 
             //destroy myself
-            this.Destroy();
+            Destroy();
 
             Plugin.Log("Unlocked shortcuts in room " + room.abstractRoom.name);
         }
