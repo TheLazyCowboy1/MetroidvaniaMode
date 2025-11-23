@@ -88,7 +88,8 @@ public static class Glide
                             dir2 *= Mathf.Sqrt(dir.sqrMagnitude / dir2.sqrMagnitude); //set dir2's magnitude to dir1's
                         dragDir = Perpendicular(dir2);
                         //if dragDir.magnitude < 1, lerp it towards (0, 1)
-                        dragDir = Vector2.LerpUnclamped(new(0, 1), dragDir, dragDir.magnitude);
+                        if (nVel.y < 0) //don't stop upwards speed, though
+                            dragDir = Vector2.LerpUnclamped(new(0, 1), dragDir, dragDir.magnitude);
                         //if dir is up and vel is down, lerp dragDir up
                         if (nVel.y < 0 && dir.y > 0)
                             dragDir = Vector2.LerpUnclamped(dragDir, -nVel, dir.y * -nVel.y);
@@ -135,10 +136,13 @@ public static class Glide
                 self.customPlayerGravity = BaseCustomPlayerGravity * (1f - Options.GlideAntiGrav);
 
                 //appearance
-                self.standing = false;
-                //if (self.input[0].y > 0) //prevent trying to stand up?
+                if (self.mainBodyChunk.vel.y < Mathf.Abs(self.mainBodyChunk.vel.x)) //don't run this code if going upwards
+                {
+                    self.standing = false;
+                    //if (self.input[0].y > 0) //prevent trying to stand up?
                     //self.input[0].y = 0;
-                self.animation = Player.AnimationIndex.DownOnFours;
+                    self.animation = Player.AnimationIndex.DownOnFours;
+                }
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }

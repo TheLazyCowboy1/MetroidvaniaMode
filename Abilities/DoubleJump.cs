@@ -35,6 +35,9 @@ public static class DoubleJump
                     self.canJump = 0;
                     info.ExtraJumpsLeft--;
 
+                    if (CurrentAbilities.CanGlide)
+                        info.Gliding = true; //start gliding immediately
+
                     Plugin.Log("Doubled jumped", 2);
                 }
             }
