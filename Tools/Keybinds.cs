@@ -63,15 +63,19 @@ public static class Keybinds
 
     private static void ControlSetup_UpdateActiveController_Controller_int_bool(On.Options.ControlSetup.orig_UpdateActiveController_Controller_int_bool orig, global::Options.ControlSetup self, Rewired.Controller newController, int controllerIndex, bool forceUpdate)
     {
+        var oldController = self.recentController;
+
         orig(self, newController, controllerIndex, forceUpdate);
 
         try
         {
-            if (!Plugin.ImprovedInputEnabled)
+            if (!Plugin.ImprovedInputEnabled && ids != null && oldController != self.recentController)
             {
                 //ensure the keycode is updated for this player!
                 foreach (string id in ids)
                 {
+                    if (!idToKeyCode.ContainsKey(id) || self.index >= idToKeyCode[id].Length) //don't cause annoying errors pls
+                        continue;
                     //idToKeyCode[id][self.index] = 
                     if (newController.type == Rewired.ControllerType.Joystick)
                     {
