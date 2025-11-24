@@ -29,10 +29,11 @@ public static class DoubleJump
                 PlayerInfo info = self.GetInfo();
                 if (info.ExtraJumpsLeft > 0)
                 {
-                    if (self.EffectiveRoomGravity > 0)
+                    if (self.EffectiveRoomGravity > 0) //better jumps...?
                     {
-                        self.animation = Player.AnimationIndex.None; //better jumps...?
+                        self.animation = Player.AnimationIndex.None;
                         self.bodyMode = Player.BodyModeIndex.Default;
+                        self.standing = true;
                     }
                     self.Jump();
                     self.wantToJump = 0;
