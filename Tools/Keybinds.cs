@@ -21,7 +21,7 @@ public static class Keybinds
         //{
         try
         {
-            ImprovedInputCompat.Register("MVM_Dash", "Dash", KeyCode.D, KeyCode.Joystick1Button4);
+            ImprovedInputCompat.Register("MVM_Dash", "Dash", KeyCode.D, KeyCode.JoystickButton4);
             Plugin.Log("Successfully bound keybinds with Improved Input Config!");
             return; //don't enable the other code
         } catch { }

@@ -113,7 +113,7 @@ public class Options : AutoConfigOptions
     [Config("Accessibility", "Dash Keybind (Keyboard)", "Which keybind activates the dash ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 80f)]
     public static KeyCode DashKeyCode = KeyCode.D;
     [Config("Accessibility", "Dash Keybind (Controller)", "Which keybind activates the dash ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", rightSide = true, width = 120f)]
-    public static KeyCode DashControllerKeyCode = KeyCode.Joystick1Button4;
+    public static KeyCode DashControllerKeyCode = KeyCode.JoystickButton4;
 
 
     //ADVANCED
@@ -132,7 +132,7 @@ public class Options : AutoConfigOptions
     public static float GlideThrust = 0;
 
     [Config("Advanced", "Glide Drag Coef", "How much air resistance the slugcat has in the perpendicular direction. Setting this low makes gliding less effective; setting it high makes the motion rigid.", precision = 3), LimitRange(0, 1)]
-    public static float GlideDragCoef = 0.25f;
+    public static float GlideDragCoef = 0.2f;
     [Config("Advanced", "Glide Omni Drag Coef", "How much air resistance the slugcat has in ALL directions. Increasing this will decrease the slugcat's max speed.", precision = 3, rightSide = true), LimitRange(0, 1)]
     public static float GlideOmniDragCoef = 0.02f;
 

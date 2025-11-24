@@ -16,7 +16,6 @@ public static class Glide
     public static void ApplyHooks()
     {
         On.Player.MovementUpdate += Player_MovementUpdate;
-        On.Player.UpdateAnimation += Player_UpdateAnimation;
         try
         {
             PlayerGravHook = new(typeof(Player).GetProperty(nameof(Player.EffectiveRoomGravity)).GetGetMethod(), Player_EffectiveRoomGravity);
@@ -26,7 +25,6 @@ public static class Glide
     public static void RemoveHooks()
     {
         On.Player.MovementUpdate -= Player_MovementUpdate;
-        On.Player.UpdateAnimation -= Player_UpdateAnimation;
         PlayerGravHook?.Undo();
     }
 
@@ -176,27 +174,6 @@ public static class Glide
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Vector2 Perpendicular(Vector2 v) => new Vector2(-v.y, v.x); //made as my own function so I know it's correct
-
-
-    //Prevent the game from forcing the slugcat down FAST whenever it's in the "DownOnFours" animation
-    private static void Player_UpdateAnimation(On.Player.orig_UpdateAnimation orig, Player self)
-    {
-        try
-        {
-            if (self.animation != Player.AnimationIndex.None && self.GetInfo().Gliding)
-            {
-                Player.AnimationIndex oldAnim = self.animation;
-                self.animation = Player.AnimationIndex.None; //run as if we have no animation
-
-                orig(self);
-
-                self.animation = oldAnim;
-                return;
-            }
-        } catch (Exception ex) { Plugin.Error(ex); }
-
-        orig(self);
-    }
 
 
     //Anti-gravity
