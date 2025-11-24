@@ -93,7 +93,6 @@ public static class Glide
                         //if dir is up and vel is down, lerp dragDir up
                         if (nVel.y < 0 && dir.y > 0)
                             dragDir = Vector2.LerpUnclamped(dragDir, -nVel, dir.y * -nVel.y);
-                        else if (nVel.y > 0 && dir.y > 0)
 
                         //normalize dragDir
                         dragDir.Normalize();
