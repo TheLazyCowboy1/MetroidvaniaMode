@@ -155,6 +155,12 @@ public static class Glide
                     }
                     self.bodyMode = Player.BodyModeIndex.Default;
                 }
+
+                if (self.animation == Player.AnimationIndex.None)
+                {
+                    self.mainBodyChunk.vel.y -= 2f; //this is applied when DownOnFours, so it's only fair to apply it to standing too
+                }
+
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }
