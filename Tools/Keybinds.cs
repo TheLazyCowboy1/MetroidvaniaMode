@@ -17,19 +17,24 @@ public static class Keybinds
 
     public static void Bind()
     {
-        if (Plugin.ImprovedInputEnabled)
+        //if (Plugin.ImprovedInputEnabled)
+        //{
+        try
         {
             ImprovedInputCompat.Register("MVM_Dash", "Dash", KeyCode.D, KeyCode.Joystick1Button4);
-        }
-        else
-        {
+            Plugin.Log("Successfully bound keybinds with Improved Input Config!");
+            return; //don't enable the other code
+        } catch { }
+        //}
+        //else
+        //{
             ids = new string[] { DASH_ID };
             idToKeyCode = new();
             /*idToAction = new(new KeyValuePair<string, int>[] {
                 new(DASH_ID, 20)
             });*/
             //do nothing!
-        }
+        //}
     }
 
 

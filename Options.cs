@@ -1,4 +1,5 @@
-﻿using MetroidvaniaMode.Tools;
+﻿using Menu.Remix.MixedUI;
+using MetroidvaniaMode.Tools;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -101,11 +102,6 @@ public class Options : AutoConfigOptions
     [Config("Accessibility", "Easier Glide Mode", "Enables code that attempts to make gliding easier, at the expense of taking away some of your fine control. Disable this if you want to call yourself an aviation pro.")]
     public static bool EasierGlideMode = true;
 
-    [Config("Accessibility", "Dash Keybind (Keyboard)", "Which keybind activates the dash ability, if it is enabled", width = 80f)]
-    public static KeyCode DashKeyCode = KeyCode.D;
-    [Config("Accessibility", "Dash Keybind (Controller)", "Which keybind activates the dash ability, if it is enabled", rightSide = true, width = 120f)]
-    public static KeyCode DashControllerKeyCode = KeyCode.Joystick1Button4;
-
     [Config("Accessibility", "/40 Inventory Open Time", "How long it takes for the inventory wheel to open, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 40)]
     public static int InventoryOpenTime = 10;
     [Config("Accessibility", "/40 Inventory Stickiness", "How long it takes the inventory wheel to deselect something, expressed in ticks (40 ticks == 1 second)", rightSide = true), LimitRange(0, 40)]
@@ -113,6 +109,11 @@ public class Options : AutoConfigOptions
 
     [Config("Accessibility", "Extra Health", "Increases your health in order to make the game easier. Increase this number if the game is too difficult for you."), LimitRange(-10, 20)]
     public static int ExtraHealth = 0;
+
+    [Config("Accessibility", "Dash Keybind (Keyboard)", "Which keybind activates the dash ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 80f)]
+    public static KeyCode DashKeyCode = KeyCode.D;
+    [Config("Accessibility", "Dash Keybind (Controller)", "Which keybind activates the dash ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", rightSide = true, width = 120f)]
+    public static KeyCode DashControllerKeyCode = KeyCode.Joystick1Button4;
 
 
     //ADVANCED
@@ -176,6 +177,25 @@ public class Options : AutoConfigOptions
     {
         if (id == nameof(DashControllerKeyCode)) return new AcceptableControllerButton(KeyCode.Joystick1Button4);
         return base.AcceptableForConfig(id);
+    }
+
+    public override void MenuInitialized()
+    {
+        base.MenuInitialized();
+
+        //grey out keybinds if Improved Input Config is enabled
+        if (Plugin.ImprovedInputEnabled)
+        {
+            foreach (OpTab tab in Tabs)
+            {
+                foreach (UIelement item in tab.items)
+                {
+                    if (item is OpKeyBinder keyBinder)
+                        keyBinder.greyedOut = true; //disable it!
+                }
+            }
+        }
+
     }
 
 }
