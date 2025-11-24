@@ -149,13 +149,15 @@ public class Options : AutoConfigOptions
 
     private class AcceptableControllerButton : ConfigAcceptableBase
     {
-        public AcceptableControllerButton() : base(typeof(KeyCode))
+        public KeyCode defaultCode;
+        public AcceptableControllerButton(KeyCode defaultCode) : base(typeof(KeyCode))
         {
+            this.defaultCode = defaultCode;
         }
 
         public override object Clamp(object value)
         {
-            return IsValid(value) ? value : KeyCode.JoystickButton0;
+            return IsValid(value) ? value : defaultCode;
         }
 
         public override bool IsValid(object value)
@@ -170,7 +172,7 @@ public class Options : AutoConfigOptions
     }
     public override ConfigAcceptableBase AcceptableForConfig(string id)
     {
-        if (id == nameof(DashControllerKeyCode)) return new AcceptableControllerButton();
+        if (id == nameof(DashControllerKeyCode)) return new AcceptableControllerButton(KeyCode.Joystick1Button4);
         return base.AcceptableForConfig(id);
     }
 
