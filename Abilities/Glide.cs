@@ -134,8 +134,11 @@ public static class Glide
                 }
 
                 //lower gravity
-                float antiGrav = Options.GlideAntiGrav * Mathf.Clamp01(1 + dir.y);
-                self.customPlayerGravity = BaseCustomPlayerGravity * (1f - Options.GlideAntiGrav);
+                if (self.mainBodyChunk.vel.y < 1f) //don't give free anti-grav for jumps!
+                {
+                    float antiGrav = Options.GlideAntiGrav * Mathf.Clamp01(1 + dir.y);
+                    self.customPlayerGravity = BaseCustomPlayerGravity * (1f - Options.GlideAntiGrav);
+                }
 
                 //appearance
                 if (self.EffectiveRoomGravity > 0)
