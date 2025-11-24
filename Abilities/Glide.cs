@@ -79,7 +79,7 @@ public static class Glide
                     //calc drag
                     Vector2 nVel = chunk.vel.normalized;
                     Vector2 dragDir;
-                    if (Options.EasierGlideMode)
+                    if (Options.EasierGlideMode && self.EffectiveRoomGravity > 0) //don't apply in 0-g
                     {
                         //shift dragDir to feel more natural to fly with.
                         //shift dir down slightly (so that the slugcat normally moves forward)
@@ -93,6 +93,7 @@ public static class Glide
                         //if dir is up and vel is down, lerp dragDir up
                         if (nVel.y < 0 && dir.y > 0)
                             dragDir = Vector2.LerpUnclamped(dragDir, -nVel, dir.y * -nVel.y);
+                        else if (nVel.y > 0 && dir.y > 0)
 
                         //normalize dragDir
                         dragDir.Normalize();
@@ -136,13 +137,15 @@ public static class Glide
                 self.customPlayerGravity = BaseCustomPlayerGravity * (1f - Options.GlideAntiGrav);
 
                 //appearance
-                if (self.mainBodyChunk.vel.y < Mathf.Abs(self.mainBodyChunk.vel.x)) //don't run this code if going upwards
+                /*if (self.mainBodyChunk.vel.y < Mathf.Abs(self.mainBodyChunk.vel.x)) //don't run this code if going upwards
                 {
                     self.standing = false;
                     //if (self.input[0].y > 0) //prevent trying to stand up?
                     //self.input[0].y = 0;
                     self.animation = Player.AnimationIndex.DownOnFours;
-                }
+                }*/
+                self.animation = Player.AnimationIndex.None;
+                self.bodyMode = Player.BodyModeIndex.ZeroG;
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }
