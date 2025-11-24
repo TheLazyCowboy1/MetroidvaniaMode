@@ -126,14 +126,14 @@ public class Options : AutoConfigOptions
     public static int DashCooldown = 0;
 
     [Config("Advanced", "Glide Anti-Gravity", "How much to subtract from gravity"), LimitRange(0, 2)]
-    public static float GlideAntiGrav = 0.5f;
+    public static float GlideAntiGrav = 0.25f;
     [Config("Advanced", "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 1)]
     public static float GlideThrust = 0;
 
     [Config("Advanced", "Glide Drag Coef", "How much air resistance the slugcat has in the perpendicular direction. Setting this low makes gliding less effective; setting it high makes the motion rigid.", precision = 3), LimitRange(0, 1)]
     public static float GlideDragCoef = 0.25f;
     [Config("Advanced", "Glide Omni Drag Coef", "How much air resistance the slugcat has in ALL directions. Increasing this will decrease the slugcat's max speed.", precision = 3, rightSide = true), LimitRange(0, 1)]
-    public static float GlideOmniDragCoef = 0.04f;
+    public static float GlideOmniDragCoef = 0.02f;
 
     [Config("Advanced", "Glide Lift Coef", "How much lift the slugcat generated when flying. This allows the slugcat to pull up when going fast, and it makes the controls feel more responsive.\nHowever, setting this too high will allow the slugcat to literally fly upwards, which is cheating. As funny as it is, we don't want to make a literal slugcat airplane.", precision = 3), LimitRange(0, 1)]
     public static float GlideLiftCoef = 0.25f;
@@ -145,8 +145,8 @@ public class Options : AutoConfigOptions
     [Config("Advanced", "Glide Keyboard Y Mult", "Multiplies the y for the keyboard, so that instead of trying to move perfectly diagonally (1,1), the slugcat moves more smoothly (e.g: (1,0.5)).\nMakes flying much easier on a keyboard.", rightSide = true), LimitRange(0, 1)]
     public static float GlideKeyboardYFac = 0.5f;
 
-    [Config("Advanced")]
-    public static float GlideAngleEnforcement = 0.1f;
+    [Config("Advanced", "Glide Angle Enforcement", "How strongly the slugcat is forced to be facing the right way when gliding")]
+    public static float GlideAngleEnforcement = 0.25f;
 
 
     private class AcceptableControllerButton : ConfigAcceptableBase

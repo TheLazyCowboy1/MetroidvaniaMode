@@ -137,7 +137,8 @@ public static class Glide
 
 
                 //angle the slugcat towards its movement direction
-                Vector2 targetDir = Vector2.Lerp((self.bodyChunks[0].vel + self.bodyChunks[1].vel).normalized, dir, dir.sqrMagnitude * 0.5f);
+                Vector2 targetDir = Vector2.LerpUnclamped(Vector2.ClampMagnitude(0.25f * (self.bodyChunks[0].vel + self.bodyChunks[1].vel), 1f),
+                    dir, dir.sqrMagnitude * 0.5f);
                 Vector2 currentDir = (self.bodyChunks[0].pos - self.bodyChunks[1].pos).normalized;
                 Vector2 correctionVec = (targetDir - currentDir) * Options.GlideAngleEnforcement;
                 self.bodyChunks[0].vel += correctionVec;
