@@ -136,15 +136,20 @@ public static class Glide
                 self.customPlayerGravity = BaseCustomPlayerGravity * (1f - Options.GlideAntiGrav);
 
                 //appearance
-                /*if (self.mainBodyChunk.vel.y < Mathf.Abs(self.mainBodyChunk.vel.x)) //don't run this code if going upwards
+                if (self.EffectiveRoomGravity > 0)
                 {
-                    self.standing = false;
-                    //if (self.input[0].y > 0) //prevent trying to stand up?
-                    //self.input[0].y = 0;
-                    self.animation = Player.AnimationIndex.DownOnFours;
-                }*/
-                self.animation = Player.AnimationIndex.None;
-                self.bodyMode = Player.BodyModeIndex.ZeroG;
+                    if (self.mainBodyChunk.vel.y < Mathf.Abs(self.mainBodyChunk.vel.x))
+                    {
+                        self.standing = false;
+                        self.animation = Player.AnimationIndex.DownOnFours;
+                    }
+                    else //going upwards (going more up than left/right)
+                    {
+                        self.standing = true;
+                        self.animation = Player.AnimationIndex.None;
+                    }
+                    self.bodyMode = Player.BodyModeIndex.Default;
+                }
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }
