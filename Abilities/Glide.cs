@@ -135,6 +135,15 @@ public static class Glide
 
                 }
 
+
+                //angle the slugcat towards its movement direction
+                Vector2 targetDir = (self.bodyChunks[0].vel + self.bodyChunks[1].vel).normalized;
+                Vector2 currentDir = (self.bodyChunks[0].pos - self.bodyChunks[1].pos).normalized;
+                Vector2 correctionVec = (targetDir - currentDir) * Options.GlideAngleEnforcement;
+                self.bodyChunks[0].vel += correctionVec;
+                self.bodyChunks[1].vel -= correctionVec;
+
+
                 //lower gravity
                 if (self.mainBodyChunk.vel.y < 1f) //don't give free anti-grav for jumps!
                 {
@@ -145,7 +154,7 @@ public static class Glide
                 //appearance
                 if (self.EffectiveRoomGravity > 0)
                 {
-                    if (self.mainBodyChunk.vel.y <= Mathf.Abs(self.mainBodyChunk.vel.x))
+                    /*if (self.mainBodyChunk.vel.y <= Mathf.Abs(self.mainBodyChunk.vel.x))
                     {
                         self.standing = false;
                         self.animation = Player.AnimationIndex.DownOnFours;
@@ -154,7 +163,8 @@ public static class Glide
                     {
                         self.standing = true;
                         self.animation = Player.AnimationIndex.None;
-                    }
+                    }*/
+                    self.animation = Player.AnimationIndex.None;
                     self.bodyMode = Player.BodyModeIndex.Default;
                 }
 

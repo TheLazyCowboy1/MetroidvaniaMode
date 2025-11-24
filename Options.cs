@@ -145,6 +145,8 @@ public class Options : AutoConfigOptions
     [Config("Advanced", "Glide Keyboard Y Mult", "Multiplies the y for the keyboard, so that instead of trying to move perfectly diagonally (1,1), the slugcat moves more smoothly (e.g: (1,0.5)).\nMakes flying much easier on a keyboard.", rightSide = true), LimitRange(0, 1)]
     public static float GlideKeyboardYFac = 0.5f;
 
+    [Config("Advanced")]
+    public static float GlideAngleEnforcement = 0.1f;
 
 
     private class AcceptableControllerButton : ConfigAcceptableBase
