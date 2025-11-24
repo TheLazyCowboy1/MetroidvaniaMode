@@ -93,9 +93,11 @@ public static class Glide
                         //if dir is up and vel is down, lerp dragDir up
                         if (nVel.y < 0 && dir.y > 0)
                             dragDir = Vector2.LerpUnclamped(dragDir, -nVel, dir.y * -nVel.y);
+                        else if (nVel.y > 0 && dir.y > 0) //don't slow me down when trying to go upwards (e.g: double jump)
+                            dragDir.y *= nVel.y * (1 - dir.y);
 
-                        //normalize dragDir
-                        dragDir.Normalize();
+                            //normalize dragDir
+                            dragDir.Normalize();
                     }
                     else
                         dragDir = Perpendicular(dir); //this is the proper one, but not easy to fly with
@@ -138,10 +140,12 @@ public static class Glide
                 //appearance
                 if (self.EffectiveRoomGravity > 0)
                 {
-                    if (self.mainBodyChunk.vel.y < Mathf.Abs(self.mainBodyChunk.vel.x))
+                    if (self.mainBodyChunk.vel.y <= Mathf.Abs(self.mainBodyChunk.vel.x))
                     {
                         self.standing = false;
                         self.animation = Player.AnimationIndex.DownOnFours;
+                        if (self.flipDirection == 0)
+                            self.flipDirection = (int)Mathf.Sign(self.mainBodyChunk.vel.x); //try to set flip direction so slugcat actually goes down
                     }
                     else //going upwards (going more up than left/right)
                     {
