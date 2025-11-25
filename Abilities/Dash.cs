@@ -27,8 +27,8 @@ public static class Dash
             PlayerInfo info = self.GetInfo();
 
             //cooldown
-            if (info.DashCooldown > 0)
-                info.DashCooldown--;
+            if (info.DashCooldown < Options.DashCooldown && info.DashCooldown < Options.WaterDashCooldown)
+                info.DashCooldown++; //goes from 0 to DashCooldown
             if (info.WantToDash > 0)
                 info.WantToDash--;
 
@@ -41,12 +41,12 @@ public static class Dash
             }
             info.DashHeld = keyPressed;
 
-            //The dash button is being pressed
-            if (info.WantToDash > 0 && info.DashesLeft > 0 && info.DashCooldown < 1)
-            {
-                //if (info.DashesLeft < 1 || info.DashCooldown > 0)
-                    //return; //don't dash when on cooldown!
+            bool inWater = self.animation == Player.AnimationIndex.DeepSwim;
 
+            //The dash button is being pressed
+            if (info.WantToDash > 0 && info.DashesLeft > 0 && info.DashCooldown >= (inWater ? Options.WaterDashCooldown : Options.DashCooldown)
+                && (CurrentAbilities.WaterDash || !inWater)) //don't dash in water, unless we can
+            {
                 //pick dash direction vector
                 Player.InputPackage input = self.input[0];
                 Vector2 dir = new(0, 0);
@@ -54,8 +54,6 @@ public static class Dash
                     dir = input.analogueDir.normalized;
                 else if (input.x != 0 || input.y != 0)
                     dir = new Vector2(input.x, input.y).normalized; //this shouldn't actually be possible to run; but it's here just in case
-                //else
-                    //return; //there is no dash direction, so don't use up the dash
 
                 if (dir.x != 0 || dir.y != 0)
                 {
@@ -79,19 +77,18 @@ public static class Dash
                         self.room.AddObject(spark);
                     }
 
-                    //info.DashedSincePress = true;
                     info.DashesLeft--;
-                    info.DashCooldown = Options.DashCooldown;
+                    //info.DashCooldown = Options.DashCooldown;
+                    info.DashCooldown = -1; //set to 0 - 1 so it equals 0 next time
                     info.WantToDash = 0;
 
                     Plugin.Log("Dashed!", 2);
                 }
             }
-            //else //we're no longer trying to dash, so we can make dashing available again
-                //info.DashedSincePress = false;
 
             //Refresh dash
-            if ((self.canJump > 1 || (CurrentAbilities.WallDashReset && self.canJump > 0)) //don't refresh dashes on wall, unless we have that ability
+            if ((self.canJump > 1 || (CurrentAbilities.WallDashReset && self.canJump > 0) //don't refresh dashes on wall, unless we have that ability
+                || inWater) //refresh dash in water, always
                 && (CurrentAbilities.ClimbVerticalPoles || self.animation != Player.AnimationIndex.ClimbOnBeam)) //don't refresh dashes on poles, unless we can climb
             {
                 info.DashesLeft = CurrentAbilities.DashCount;

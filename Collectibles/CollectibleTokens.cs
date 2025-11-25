@@ -69,6 +69,9 @@ public static class CollectibleTokens
     [Collectible(10, "Increased Dash Speed!")]
     public static SandboxUnlockID[] DashSpeedUnlocks;
 
+    [Collectible(1, "Unlocked Ability: Water Dash. Dashing is now available while underwater!")]
+    public static SafariUnlockID WaterDashUnlock;
+
     //public static int ExtraJumps = 0;
     [Collectible(3, "Unlocked Ability: Double Jump. Jump again in the air!", "Unlocked an additional jump: Perform more jumps in the air!")]
     public static SafariUnlockID[] JumpUnlocks;

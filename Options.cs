@@ -57,6 +57,8 @@ public class Options : AutoConfigOptions
 
     [Config("Abilities", "Dash Count", "The number of dashes that the player can do before touching the ground again"), LimitRange(0, 100)]
     public static int DashCount = 0;
+    [Config("Abilities", "Water Dash", "Allows the player to dash in water. Also refreshes the player's dash underwater.", rightSide = true)]
+    public static bool WaterDash = false;
 
     [Config("Abilities", "Dash Speed", "The player's set speed upon dashing")]
     public static float DashSpeed = 12f;
@@ -130,6 +132,8 @@ public class Options : AutoConfigOptions
 
     [Config("Advanced", "/40 Dash Cooldown", "The minimum time between dashes, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 200)]
     public static int DashCooldown = 0;
+    [Config("Advanced", "/40 Water Dash Cooldown", "The minimum time between dashes, expressed in ticks (40 ticks == 1 second).\nUsed instead of Dash Cooldown when in water."), LimitRange(0, 200)]
+    public static int WaterDashCooldown = 20;
 
     [Config("Advanced", "Glide Anti-Gravity", "How much to subtract from gravity"), LimitRange(0, 2)]
     public static float GlideAntiGrav = 0.25f;

@@ -35,6 +35,7 @@ public static class CurrentAbilities
     public static int DashCount = 0;
     public static float DashSpeed = 12f;
     public static float DashStrength = 0.95f;
+    public static bool WaterDash = false;
 
     public static int ExtraJumps = 0;
 
@@ -119,6 +120,9 @@ public static class CurrentAbilities
                 }
 
                 DashCount += CollectibleTokens.UnlockedCount(data.UnlockedRedTokens, CollectibleTokens.DashUnlocks);
+                if (!WaterDash)
+                    WaterDash = CollectibleTokens.IsUnlocked(data.UnlockedRedTokens, CollectibleTokens.WaterDashUnlock);
+
                 ExtraJumps += CollectibleTokens.UnlockedCount(data.UnlockedRedTokens, CollectibleTokens.JumpUnlocks);
 
                 if (!CanGlide)
@@ -166,6 +170,7 @@ public static class CurrentAbilities
             DashCount = 0;
             DashSpeed = 12f;
             DashStrength = 0.95f;
+            WaterDash = false;
 
             ExtraJumps = 0;
 
@@ -211,6 +216,7 @@ public static class CurrentAbilities
         DashCount = Options.DashCount;
         DashSpeed = Options.DashSpeed;
         DashStrength = Options.DashStrength;
+        WaterDash = Options.WaterDash;
 
         ExtraJumps = Options.ExtraJumps;
 
