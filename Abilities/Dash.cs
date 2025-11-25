@@ -27,7 +27,7 @@ public static class Dash
             PlayerInfo info = self.GetInfo();
 
             //cooldown
-            if (info.DashCooldown < Options.DashCooldown && info.DashCooldown < Options.WaterDashCooldown)
+            if (info.DashCooldown < Options.DashCooldown || info.DashCooldown < Options.WaterDashCooldown)
                 info.DashCooldown++; //goes from 0 to DashCooldown
             if (info.WantToDash > 0)
                 info.WantToDash--;
@@ -88,7 +88,7 @@ public static class Dash
 
             //Refresh dash
             if ((self.canJump > 1 || (CurrentAbilities.WallDashReset && self.canJump > 0) //don't refresh dashes on wall, unless we have that ability
-                || inWater) //refresh dash in water, always
+                || self.bodyMode == Player.BodyModeIndex.Swimming) //refresh dash in water, always
                 && (CurrentAbilities.ClimbVerticalPoles || self.animation != Player.AnimationIndex.ClimbOnBeam)) //don't refresh dashes on poles, unless we can climb
             {
                 info.DashesLeft = CurrentAbilities.DashCount;

@@ -13,6 +13,7 @@ public class InventoryCustomizationPage : ChangeablePage
     private MenuLabel Title;
 
     private FSprite FadeSprite;
+    private const float baseFadeAlpha = 0.3f; //darkens the background some
 
     private InventorySlot[] slots;
     private ColoredSymbolButton[] itemButtons; //currently unused; maybe use to grey out buttons if it becomes a problem for controllers?
@@ -25,17 +26,18 @@ public class InventoryCustomizationPage : ChangeablePage
     public InventoryCustomizationPage(Menu.Menu menu, MenuObject owner, string name, int index, List<SelectableMenuObject> extraSelectables) : base(menu, owner, name, index, extraSelectables)
     {
         Vector2 sSize = menu.manager.rainWorld.screenSize;
-        Title = new(menu, this, menu.Translate("Inventory"), new(sSize.x * 0.5f - 100, 700), new(200, 50), true);
-        Title.label.alignment = FLabelAlignment.Center;
-        subObjects.Add(Title);
 
         FadeSprite = new(Futile.whiteElement);
         FadeSprite.color = new(0, 0, 0); //black
-        FadeSprite.alpha = 0; //currently not active
+        FadeSprite.alpha = baseFadeAlpha;
         FadeSprite.width = sSize.x + 20;
         FadeSprite.height = sSize.y + 20;
         FadeSprite.SetPosition(0.5f * sSize + new Vector2(10, 10)); //10 pixel buffer, just in case
         this.Container.AddChild(FadeSprite);
+
+        Title = new(menu, this, menu.Translate("Inventory"), new(sSize.x * 0.5f - 100, 700), new(200, 50), true);
+        Title.label.alignment = FLabelAlignment.Center;
+        subObjects.Add(Title);
 
         //add the wheel
         wheelCenter = new(sSize.x * 0.5f, 500);
@@ -116,7 +118,7 @@ public class InventoryCustomizationPage : ChangeablePage
             pm.controlMap.fade = 0; //set everything else to invisible
         }
 
-        FadeSprite.alpha = selectingSlot ? 0.3f : 0f;
+        FadeSprite.alpha = selectingSlot ? 0.6f : baseFadeAlpha;
 
         //set buttons to be greyed out
         foreach (ColoredSymbolButton b in itemButtons)
