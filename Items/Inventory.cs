@@ -7,6 +7,23 @@ namespace MetroidvaniaMode.Items;
 
 public static class Inventory
 {
+    private static AbstractPhysicalObject CreateItem(Player self, AbstractPhysicalObject.AbstractObjectType item)
+    {
+        if (item == AbstractPhysicalObject.AbstractObjectType.Spear)
+            return new AbstractSpear(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), false);
+        else if (item == AbstractPhysicalObject.AbstractObjectType.BubbleGrass)
+            return new BubbleGrass.AbstractBubbleGrass(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), 1f, -1, -1, null);
+        else if (item == CustomItems.HealFruit)
+            return new DangleFruit.AbstractDangleFruit(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), -1, -1, false, null) { type = CustomItems.HealFruit }; //manually re-assign the type
+        //else if (item == AbstractPhysicalObject.AbstractObjectType.FlareBomb)
+            //return new AbstractConsumable(self.abstractPhysicalObject.world, item, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), -1, -1, null);
+        //else
+            //return new(self.abstractPhysicalObject.world, item, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID());
+
+        //return an AbstractConsumable by default, because this is required for Mushrooms and FlareBombs, and it doesn't hurt anything else (like Lanterns)
+        return new AbstractConsumable(self.abstractPhysicalObject.world, item, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), -1, -1, null);
+    }
+
 
     public static void ApplyHooks()
     {
@@ -188,17 +205,7 @@ public static class Inventory
         CurrentItems.ItemInfo itemInfo = CurrentItems.ItemInfos[item];
 
         //create the item
-        AbstractPhysicalObject abObj;
-        if (item == AbstractPhysicalObject.AbstractObjectType.Spear)
-            abObj = new AbstractSpear(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), false);
-        else if (item == AbstractPhysicalObject.AbstractObjectType.BubbleGrass)
-            abObj = new BubbleGrass.AbstractBubbleGrass(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), 1f, -1, -1, null);
-        else if (item == AbstractPhysicalObject.AbstractObjectType.FlareBomb)
-            abObj = new AbstractConsumable(self.abstractPhysicalObject.world, item, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), -1, -1, null);
-        else if (item == CustomItems.HealFruit)
-            abObj = new DangleFruit.AbstractDangleFruit(self.abstractPhysicalObject.world, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID(), -1, -1, false, null) { type = CustomItems.HealFruit }; //manually re-assign the type
-        else
-            abObj = new(self.abstractPhysicalObject.world, item, null, self.abstractPhysicalObject.pos, self.abstractPhysicalObject.world.game.GetNewID());
+        AbstractPhysicalObject abObj = CreateItem(self, item);
         
         abObj.RealizeInRoom();
 

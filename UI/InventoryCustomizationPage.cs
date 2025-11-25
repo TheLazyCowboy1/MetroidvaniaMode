@@ -76,7 +76,7 @@ public class InventoryCustomizationPage : ChangeablePage
 
         //background for buttons
         float rectPadding = 10f;
-        RoundedRect rect = new(menu, this, itemBankTopLeft + new Vector2(-rectPadding, -rectPadding), new(sizeX * actualWidth + 2 * rectPadding, sizeY * groupHeight + 2 * rectPadding), true);
+        RoundedRect rect = new(menu, this, itemBankTopLeft + new Vector2(-rectPadding, -sizeY * (groupHeight - 1) - rectPadding), new(sizeX * actualWidth + 2 * rectPadding, sizeY * groupHeight + 2 * rectPadding), true);
         rect.borderColor = new(0, 0, 0); //black
         rect.fillAlpha = 0.75f;
         this.subObjects.Add(rect);
@@ -90,7 +90,7 @@ public class InventoryCustomizationPage : ChangeablePage
             itemButtons[i] = new(menu, this, ItemSymbol.SpriteNameForItem(items[i], 0), "INVENTORY_" + items[i].value, new(itemBankTopLeft.x + x * sizeX, itemBankTopLeft.y + y * sizeY));
             itemButtons[i].size = new(sizeX, sizeY);
             itemButtons[i].roundedRect.size = new(sizeX, sizeY); //also set the roundedRect. stupid weird behavior
-            itemButtons[i].symbolSprite.scale = Mathf.Min(sizeX / itemButtons[i].symbolSprite.width, sizeY / itemButtons[i].symbolSprite.height); //scale to fit
+            itemButtons[i].symbolSprite.scale = 0.8f * Mathf.Min(sizeX / itemButtons[i].symbolSprite.width, sizeY / itemButtons[i].symbolSprite.height); //scale to fit
             itemButtons[i].customColor = ItemSymbol.ColorForItem(items[i], 0); //set custom color
             this.subObjects.Add(itemButtons[i]);
         }
