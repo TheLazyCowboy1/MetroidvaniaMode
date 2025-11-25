@@ -30,7 +30,7 @@ public class InventoryCustomizationPage : ChangeablePage
 
         FadeSprite = new(Futile.whiteElement);
         FadeSprite.color = new(0, 0, 0); //black
-        FadeSprite.alpha = baseFadeAlpha;
+        FadeSprite.alpha = 0f; //hide for now
         FadeSprite.width = sSize.x * 2f;
         FadeSprite.height = sSize.y * 2f;
         FadeSprite.SetPosition(0.5f * sSize);
@@ -119,7 +119,7 @@ public class InventoryCustomizationPage : ChangeablePage
             pm.controlMap.fade = 0; //set everything else to invisible
         }
 
-        float targetFadeAlpha = moving ? 0f : (selectingSlot ? 0.6f : baseFadeAlpha);
+        float targetFadeAlpha = (moving || inactive) ? 0f : (selectingSlot ? 0.6f : baseFadeAlpha);
         FadeSprite.alpha = Custom.LerpAndTick(FadeSprite.alpha, targetFadeAlpha, 0.2f, 0.02f); //very quickly lerp towards it
 
         //set buttons to be greyed out
