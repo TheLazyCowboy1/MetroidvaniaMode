@@ -4,6 +4,7 @@ using Menu;
 using MetroidvaniaMode.Items;
 using MetroidvaniaMode.SaveData;
 using MetroidvaniaMode.Tools;
+using RWCustom;
 using UnityEngine;
 
 namespace MetroidvaniaMode.UI;
@@ -30,9 +31,9 @@ public class InventoryCustomizationPage : ChangeablePage
         FadeSprite = new(Futile.whiteElement);
         FadeSprite.color = new(0, 0, 0); //black
         FadeSprite.alpha = baseFadeAlpha;
-        FadeSprite.width = sSize.x + 20;
-        FadeSprite.height = sSize.y + 20;
-        FadeSprite.SetPosition(0.5f * sSize + new Vector2(10, 10)); //10 pixel buffer, just in case
+        FadeSprite.width = sSize.x * 2f;
+        FadeSprite.height = sSize.y * 2f;
+        FadeSprite.SetPosition(0.5f * sSize);
         this.Container.AddChild(FadeSprite);
 
         Title = new(menu, this, menu.Translate("Inventory"), new(sSize.x * 0.5f - 100, 700), new(200, 50), true);
@@ -118,7 +119,8 @@ public class InventoryCustomizationPage : ChangeablePage
             pm.controlMap.fade = 0; //set everything else to invisible
         }
 
-        FadeSprite.alpha = selectingSlot ? 0.6f : baseFadeAlpha;
+        float targetFadeAlpha = moving ? 0f : (selectingSlot ? 0.6f : baseFadeAlpha);
+        FadeSprite.alpha = Custom.LerpAndTick(FadeSprite.alpha, targetFadeAlpha, 0.2f, 0.02f); //very quickly lerp towards it
 
         //set buttons to be greyed out
         foreach (ColoredSymbolButton b in itemButtons)
