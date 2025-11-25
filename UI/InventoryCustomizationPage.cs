@@ -72,15 +72,22 @@ public class InventoryCustomizationPage : ChangeablePage
         const float sizeX = 50, sizeY = 50;
         int groupHeight = items.Count / maxWidth;
         int actualWidth = Mathf.Min(items.Count, maxWidth);
-        Vector2 itemBankCenter = new(sSize.x * 0.5f - sizeX * 0.5f, 300);
+        Vector2 itemBankTopLeft = new(sSize.x * 0.5f - sizeX * 0.5f - sizeX * (actualWidth - 1) * 0.5f, 300);
+
+        //background for buttons
+        float rectPadding = 10f;
+        RoundedRect rect = new(menu, this, itemBankTopLeft - new Vector2(-rectPadding, sizeY * groupHeight - rectPadding), new(sizeX * actualWidth + 2 * rectPadding, sizeY * groupHeight + 2 * rectPadding), true);
+        rect.borderColor = new(0, 0, 0); //black
+        rect.fillAlpha = 0.75f;
+        this.subObjects.Add(rect);
 
         itemButtons = new ColoredSymbolButton[items.Count];
         for (int i = 0; i < itemButtons.Length; i++)
         {
             float y = -(i / maxWidth);
-            float x = i + y * maxWidth - (actualWidth - 1) * 0.5f;
+            float x = i + y * maxWidth;
             //add the button itself
-            itemButtons[i] = new(menu, this, ItemSymbol.SpriteNameForItem(items[i], 0), "INVENTORY_" + items[i].value, new(itemBankCenter.x + x * sizeX, itemBankCenter.y + y * sizeY));
+            itemButtons[i] = new(menu, this, ItemSymbol.SpriteNameForItem(items[i], 0), "INVENTORY_" + items[i].value, new(itemBankTopLeft.x + x * sizeX, itemBankTopLeft.y + y * sizeY));
             itemButtons[i].size = new(sizeX, sizeY);
             itemButtons[i].roundedRect.size = new(sizeX, sizeY); //also set the roundedRect. stupid weird behavior
             itemButtons[i].symbolSprite.scale = Mathf.Min(sizeX / itemButtons[i].symbolSprite.width, sizeY / itemButtons[i].symbolSprite.height); //scale to fit
