@@ -70,6 +70,8 @@ public static class Health
 
             if (CurrentHealth == 0)
                 self.playerState.permanentDamageTracking = 0.98f; //make the player injured
+            else
+                self.playerState.permanentDamageTracking *= 0.5f; //halve the player's tracked damage, so the player doesn't die from rocks
         }
 
         //set iFrames

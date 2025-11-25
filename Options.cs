@@ -79,6 +79,11 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Unlock All Inventory Items", "Makes all inventory items available", rightSide = true)]
     public static bool UnlockAllInventoryItems = false;
 
+    [Config("Abilities", "Acid Immunity", "Makes the player immune to acid")]
+    public static bool AcidImmunity = false;
+    [Config("Abilities", "Extra Run Speed", "Increases or decreases the player's run speed. For reference, Survivor's speed is normally 1.", rightSide = true), LimitRange(-1, 5)]
+    public static float ExtraRunSpeed = 0;
+
 
     //GENERAL
 

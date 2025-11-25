@@ -18,6 +18,9 @@ public static class CollectibleTokens
      * Green (SlugcatUnlockID) = Health Upgrade
      */
 
+    [Collectible(10, "Increased running speed!")]
+    public static SandboxUnlockID[] RunSpeedUnlocks;
+
     //public static float JumpBoost = 1;
     [Collectible(10, "Increased jump height!")]
     public static SandboxUnlockID[] JumpBoostUnlocks;
@@ -72,6 +75,9 @@ public static class CollectibleTokens
 
     [Collectible(1, "Unlocked Ability: Glide. Slugcat has now become airplane. NNYYOOOM!!")]
     public static SafariUnlockID GlideUnlock;
+
+    [Collectible(1, "Unlocked Ability: Acid Immunity. The slugcat's stin has toughened, and it can now resist touching corrosive acids!")]
+    public static SafariUnlockID AcidImmunityUnlock;
 
     //glide efficiency unlocks...? idk
 

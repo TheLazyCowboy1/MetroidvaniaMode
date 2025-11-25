@@ -10,6 +10,8 @@ public static class CurrentAbilities
     public static bool CountCollectibles(SlugcatStats.Name slugcat) => slugcat == SlugcatStats.Name.White;
 
 
+    public static float ExtraRunSpeed = 0;
+
     public static float JumpBoost = 1;
     public static float PoleJumpBoost = 1;
     public static float JumpBoostDecrement = 1;
@@ -43,6 +45,8 @@ public static class CurrentAbilities
 
     public static bool HasInventory = false;
 
+    public static bool AcidImmunity = false;
+
     public static void ResetAbilities(RainWorldGame game)
     {
         try
@@ -61,7 +65,8 @@ public static class CurrentAbilities
 
                 //blue unlocks
 
-                JumpBoost += 0.02f * CollectibleTokens.UnlockedCount(data.UnlockedBlueTokens, CollectibleTokens.JumpBoostUnlocks);
+                ExtraRunSpeed += 0.1f * CollectibleTokens.UnlockedCount(data.UnlockedBlueTokens, CollectibleTokens.RunSpeedUnlocks);
+                JumpBoost += 0.03f * CollectibleTokens.UnlockedCount(data.UnlockedBlueTokens, CollectibleTokens.JumpBoostUnlocks);
                 PoleJumpBoost += (1f - PoleJumpBoost) * CollectibleTokens.UnlockedCount(data.UnlockedBlueTokens, CollectibleTokens.PoleJumpUnlocks); //1 pole jump unlock => PoleJumpBoost == 1
                 DashSpeed += 1f * CollectibleTokens.UnlockedCount(data.UnlockedBlueTokens, CollectibleTokens.DashSpeedUnlocks);
 
@@ -119,6 +124,9 @@ public static class CurrentAbilities
                 if (!CanGlide)
                     CanGlide = CollectibleTokens.IsUnlocked(data.UnlockedRedTokens, CollectibleTokens.GlideUnlock);
 
+                if (!AcidImmunity)
+                    CanGlide = CollectibleTokens.IsUnlocked(data.UnlockedRedTokens, CollectibleTokens.AcidImmunityUnlock);
+
 
                 //green unlocks
 
@@ -133,7 +141,9 @@ public static class CurrentAbilities
     {
         if (slugcat == SlugcatStats.Name.White)
         {
-            JumpBoost = 0.8f;
+            ExtraRunSpeed = -0.1f;
+
+            JumpBoost = 0.75f;
             PoleJumpBoost = 0.7f;
             JumpBoostDecrement = 0.5f;
 
@@ -165,6 +175,8 @@ public static class CurrentAbilities
             MaxHealth = Math.Max(0, 3 + Options.ExtraHealth); //add extra health. Don't let MaxHealth be less than 0.
 
             HasInventory = true;
+
+            AcidImmunity = false;
         }
         else
         {
@@ -174,6 +186,8 @@ public static class CurrentAbilities
 
     private static void OptionsAbilities()
     {
+        ExtraRunSpeed = Options.ExtraRunSpeed;
+
         JumpBoost = Options.JumpBoost;
         PoleJumpBoost = Options.PoleJumpBoost;
         JumpBoostDecrement = Options.JumpBoostDecrement;
@@ -206,5 +220,7 @@ public static class CurrentAbilities
         MaxHealth = Options.MaxHealth;
 
         HasInventory = Options.HasInventory;
+
+        AcidImmunity = Options.AcidImmunity;
     }
 }

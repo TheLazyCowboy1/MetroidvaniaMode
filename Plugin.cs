@@ -73,6 +73,7 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.DoubleJump.RemoveHooks();
             Abilities.Health.RemoveHooks();
             Abilities.Glide.RemoveHooks();
+            Abilities.StatAbilities.RemoveHooks();
 
             Items.Inventory.RemoveHooks();
             Items.CustomItems.RemoveHooks();
@@ -121,6 +122,7 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.DoubleJump.ApplyHooks();
             Abilities.Health.ApplyHooks();
             Abilities.Glide.ApplyHooks();
+            Abilities.StatAbilities.ApplyHooks();
 
             Items.Inventory.ApplyHooks();
             Items.CustomItems.ApplyHooks();
@@ -150,6 +152,7 @@ public partial class Plugin : BaseUnityPlugin
         orig(self, manager);
 
         Abilities.CurrentAbilities.ResetAbilities(self);
+        Abilities.StatAbilities.ApplyStaticStats();
         Items.CurrentItems.ResetItems(self);
         Items.CurrentItems.RestockItems();
     }
