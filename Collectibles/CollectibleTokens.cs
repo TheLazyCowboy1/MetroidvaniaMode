@@ -99,6 +99,10 @@ public static class CollectibleTokens
     public static LevelUnlockID[] BubbleWeedItem;
     [Collectible(5, msg = Collectible.SpecialMessage.ItemMessage, specialMessageInfo = new string[] { "Flashbang" })]
     public static LevelUnlockID[] FlashbangItem;
+    [Collectible(2, msg = Collectible.SpecialMessage.ItemMessage, specialMessageInfo = new string[] { "Lantern" })]
+    public static LevelUnlockID[] LanternItem;
+    [Collectible(5, msg = Collectible.SpecialMessage.ItemMessage, specialMessageInfo = new string[] { "Mushroom" })]
+    public static LevelUnlockID[] MushroomItem;
     [Collectible(5, msg = Collectible.SpecialMessage.ItemMessage, specialMessageInfo = new string[] { "Heal Fruit" })]
     public static LevelUnlockID[] HealFruitItem;
 

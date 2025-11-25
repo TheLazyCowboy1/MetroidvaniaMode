@@ -76,7 +76,7 @@ public class InventoryCustomizationPage : ChangeablePage
 
         //background for buttons
         float rectPadding = 10f;
-        RoundedRect rect = new(menu, this, itemBankTopLeft + new Vector2(-rectPadding, -sizeY * groupHeight - rectPadding), new(sizeX * actualWidth + 2 * rectPadding, sizeY * groupHeight + 2 * rectPadding), true);
+        RoundedRect rect = new(menu, this, itemBankTopLeft + new Vector2(-rectPadding, -rectPadding), new(sizeX * actualWidth + 2 * rectPadding, sizeY * groupHeight + 2 * rectPadding), true);
         rect.borderColor = new(0, 0, 0); //black
         rect.fillAlpha = 0.75f;
         this.subObjects.Add(rect);

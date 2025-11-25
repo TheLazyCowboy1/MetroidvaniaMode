@@ -20,6 +20,8 @@ public static class CurrentItems
         new(AbstractPhysicalObject.AbstractObjectType.ScavengerBomb, new(() => CollectibleTokens.GrenadeItem)),
         new(AbstractPhysicalObject.AbstractObjectType.BubbleGrass, new(() => CollectibleTokens.BubbleWeedItem)),
         new(AbstractPhysicalObject.AbstractObjectType.FlareBomb, new(() => CollectibleTokens.FlashbangItem)),
+        new(AbstractPhysicalObject.AbstractObjectType.Lantern, new(() => CollectibleTokens.LanternItem)),
+        new(AbstractPhysicalObject.AbstractObjectType.Mushroom, new(() => CollectibleTokens.MushroomItem)),
         new(CustomItems.HealFruit, new(() => CollectibleTokens.HealFruitItem)),
     });
 
