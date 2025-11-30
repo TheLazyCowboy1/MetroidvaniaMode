@@ -79,6 +79,9 @@ public static class CollectibleTokens
     [Collectible(1, "Unlocked Ability: Glide. Slugcat has now become airplane. NNYYOOOM!!")]
     public static SafariUnlockID GlideUnlock;
 
+    [Collectible(1, "Unlocked Ability: Shield. Try pressing left trigger if you're on a controller. It took too long to implement use of the left trigger.")]
+    public static SafariUnlockID ShieldUnlock;
+
     [Collectible(1, "Unlocked Ability: Acid Immunity. The slugcat's stin has toughened, and it can now resist touching corrosive acids!")]
     public static SafariUnlockID AcidImmunityUnlock;
 

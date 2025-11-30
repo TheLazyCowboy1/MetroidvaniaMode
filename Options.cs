@@ -76,6 +76,9 @@ public class Options : AutoConfigOptions
     [Config("Abilities", "Max Health", "The maximum amount of health, and the default health", rightSide = true), LimitRange(0, 30)]
     public static int MaxHealth = 3;
 
+    [Config("Abilities", "Has Shield", "Enables the shield ability")]
+    public static bool HasShield = false;
+
     [Config("Abilities", "Has Inventory", "Enables the inventory wheel")]
     public static bool HasInventory = false;
     [Config("Abilities", "Unlock All Inventory Items", "Makes all inventory items available", rightSide = true)]
@@ -122,6 +125,9 @@ public class Options : AutoConfigOptions
     [Config("Accessibility", "Dash Keybind (Controller)", "Which keybind activates the dash ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", rightSide = true, width = 120f)]
     public static KeyCode DashControllerKeyCode = KeyCode.JoystickButton4;
 
+    [Config("Accessibility", "Shield Keybind (Keyboard)", "Which keybind activates the shield ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 80f)]
+    public static KeyCode ShieldKeyCode = KeyCode.S;
+    //DON'T add a controller keycode yet
 
     //ADVANCED
 

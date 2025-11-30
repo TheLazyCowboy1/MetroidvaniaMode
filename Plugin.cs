@@ -73,6 +73,7 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.DoubleJump.RemoveHooks();
             Abilities.Health.RemoveHooks();
             Abilities.Glide.RemoveHooks();
+            Abilities.Shield.RemoveHooks();
             Abilities.StatAbilities.RemoveHooks();
 
             Items.Inventory.RemoveHooks();
@@ -122,6 +123,7 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.DoubleJump.ApplyHooks();
             Abilities.Health.ApplyHooks();
             Abilities.Glide.ApplyHooks();
+            Abilities.Shield.ApplyHooks();
             Abilities.StatAbilities.ApplyHooks();
 
             Items.Inventory.ApplyHooks();
@@ -132,6 +134,8 @@ public partial class Plugin : BaseUnityPlugin
             SaveData.Hooks.ApplyHooks();
             Collectibles.Hooks.ApplyHooks();
             Tools.Keybinds.ApplyHooks();
+
+            Tools.Assets.Load();
 
             Log($"Applied hooks. Mods enabled: ImprovedInput {ImprovedInputEnabled}, FakeAchievements {FakeAchievementsEnabled}", 0);
         }

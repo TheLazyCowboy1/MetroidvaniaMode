@@ -120,10 +120,13 @@ public class InventoryCustomizationPage : ChangeablePage
         if (!inactive && menu is PauseMenu pm && pm.controlMap?.controlsMap != null)
         {
             //manually set these stubborn sprites invisible
-            pm.controlMap.controlsMap.setAlpha = pm.controlMap.controlsMap.alpha = 0;
+            /*pm.controlMap.controlsMap.setAlpha = pm.controlMap.controlsMap.alpha = 0;
             pm.controlMap.controlsMap2.setAlpha = pm.controlMap.controlsMap2.alpha = 0;
             pm.controlMap.controlsMap3.setAlpha = pm.controlMap.controlsMap3.alpha = 0;
             pm.controlMap.fade = 0; //set everything else to invisible
+            */
+            pm.blackFade = 0; //does this work?
+            pm.controlMap.counter = 0;
         }
 
         float targetFadeAlpha = (moving || inactive) ? 0f : (selectingSlot ? 0.6f : baseFadeAlpha);

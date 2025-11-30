@@ -1,40 +1,39 @@
 ﻿using MetroidvaniaMode.ModCompat;
-using Rewired.Dev;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace MetroidvaniaMode.Tools;
 
 public static class Keybinds
 {
-    public const string DASH_ID = "MVM_Dash";
+    public const string DASH_ID = "MVM_Dash",
+        SHIELD_ID = "MVM_Shield";
 
-    //private static Dictionary<string, int> idToAction;
-    private static string[] ids;
-    private static Dictionary<string, KeyCode[]> idToKeyCode;
+    private static string[] ids = new string[] { DASH_ID, SHIELD_ID };
+
+    public const int LEFT_TRIGGER_AXIS = 6;
+
+    private static Dictionary<string, KeyCode[]> idToKeyCode = new(ids.Length);
+
+    private static Dictionary<int, int> axisToAction = new(new KeyValuePair<int, int>[]
+    { //0 and 1 are left stick horizontal/vertical
+        //new(2, RewiredConsts.Action.UIHorizontal), //right stick left/right
+        //new(3, RewiredConsts.Action.UIVertical), //right up up/down
+        new(6, RewiredConsts.Action.UICheatHoldLeft) //left trigger
+        //new(5, RewiredConsts.Action.UICheatHoldRight) //right trigger
+    });
+
 
     public static void Bind()
     {
-        //if (Plugin.ImprovedInputEnabled)
-        //{
+        //if (Plugin.ImprovedInputEnabled) //this doesn't even work, since we don't know if it's enabled yet!
         try
         {
-            ImprovedInputCompat.Register("MVM_Dash", "Dash", KeyCode.D, KeyCode.JoystickButton4);
+            ImprovedInputCompat.Register(DASH_ID, "Dash", KeyCode.D, KeyCode.JoystickButton4);
+            ImprovedInputCompat.Register(SHIELD_ID, "Shield", KeyCode.S, KeyCode.None);
             Plugin.Log("Successfully bound keybinds with Improved Input Config!");
-            return; //don't enable the other code
         } catch { }
-        //}
-        //else
-        //{
-            ids = new string[] { DASH_ID };
-            idToKeyCode = new();
-            /*idToAction = new(new KeyValuePair<string, int>[] {
-                new(DASH_ID, 20)
-            });*/
-            //do nothing!
-        //}
     }
 
 
@@ -43,7 +42,8 @@ public static class Keybinds
         return id switch
         {
             DASH_ID => Options.DashKeyCode,
-            _ => KeyCode.D,
+            SHIELD_ID => Options.ShieldKeyCode,
+            _ => KeyCode.None,
         };
     }
     private static KeyCode IdToControllerKeyCode(string id)
@@ -51,19 +51,30 @@ public static class Keybinds
         return id switch
         {
             DASH_ID => Options.DashControllerKeyCode,
-            _ => KeyCode.D,
+            _ => KeyCode.None,
+        };
+    }
+
+    private static string AxisToId(int axis)
+    {
+        return axis switch
+        {
+            LEFT_TRIGGER_AXIS => SHIELD_ID,
+            _ => null
         };
     }
 
 
     public static void ApplyHooks()
     {
-        On.Options.ControlSetup.UpdateActiveController_Controller_int_bool += ControlSetup_UpdateActiveController_Controller_int_bool;
+        if (Plugin.ImprovedInputEnabled) //don't bother adding the hook if it's not needed
+            On.Options.ControlSetup.UpdateActiveController_Controller_int_bool += ControlSetup_UpdateActiveController_Controller_int_bool;
     }
 
     public static void RemoveHooks()
     {
-        On.Options.ControlSetup.UpdateActiveController_Controller_int_bool -= ControlSetup_UpdateActiveController_Controller_int_bool;
+        if (Plugin.ImprovedInputEnabled)
+            On.Options.ControlSetup.UpdateActiveController_Controller_int_bool -= ControlSetup_UpdateActiveController_Controller_int_bool;
     }
 
     private static void ControlSetup_UpdateActiveController_Controller_int_bool(On.Options.ControlSetup.orig_UpdateActiveController_Controller_int_bool orig, global::Options.ControlSetup self, Rewired.Controller newController, int controllerIndex, bool forceUpdate)
@@ -74,7 +85,7 @@ public static class Keybinds
 
         try
         {
-            if (!Plugin.ImprovedInputEnabled && ids != null && oldController != self.recentController)
+            if (!Plugin.ImprovedInputEnabled && ids != null && oldController?.type != self.recentController?.type) //changing controller type
             {
                 //ensure the keycode is updated for this player!
                 foreach (string id in ids)
@@ -84,15 +95,13 @@ public static class Keybinds
                     //idToKeyCode[id][self.index] = 
                     if (newController.type == Rewired.ControllerType.Joystick)
                     {
-                        KeyCode code = IdToControllerKeyCode(id);
-                        string trimmedCode = code.ToString().Substring(code.ToString().IndexOf("Button"));
-                        idToKeyCode[id][self.index] = (KeyCode)Enum.Parse(typeof(KeyCode), "Joystick" + (controllerIndex + 1) + trimmedCode);
+                        idToKeyCode[id][self.index] = GetControllerCode(IdToControllerKeyCode(id), self.gamePadNumber);
                     }
                     else
                     {
                         idToKeyCode[id][self.index] = IdToKeyCode(id);
                     }
-                    Plugin.Log($"Reassigned keycode for {id}:{self.index} = {idToKeyCode[id][self.index]}");
+                    Plugin.Log($"Reassigned keycode for {id}:{self.index} = {idToKeyCode[id][self.index]}", 2);
                 }
             }
 
@@ -107,8 +116,17 @@ public static class Keybinds
             return ImprovedInputCompat.IsPressed(id, playerNum);
         }
 
-        //return RWCustom.Custom.rainWorld.options.controls[playerNum].GetButtonDown(idToAction[id]);
         return Input.GetKey(idToKeyCode[id][playerNum]);
+    }
+
+    public static float GetAxis(int axis, int playerNum)
+    {
+        var controlSetup = RWCustom.Custom.rainWorld.options.controls[playerNum];
+        if (controlSetup.gamePad)
+            return controlSetup.GetAxis(axisToAction[axis]);
+
+        //for keyboard, use the key press
+        return IsPressed(AxisToId(axis), playerNum) ? 1f : 0f;
     }
 
     public static void GameStarted()
@@ -118,49 +136,66 @@ public static class Keybinds
             if (!Plugin.ImprovedInputEnabled)
             {
                 var controls = RWCustom.Custom.rainWorld.options.controls;
-                int count = controls.Length;
+
+                //assign keybinds
                 foreach (string id in ids)
                 {
-                    KeyCode[] arr = new KeyCode[count];
+                    KeyCode[] codes = new KeyCode[controls.Length];
                     KeyCode keyboardCode = IdToKeyCode(id);
                     KeyCode controllerCode = IdToControllerKeyCode(id);
-                    string trimmedCode = controllerCode.ToString().Substring(controllerCode.ToString().IndexOf("Button"));
 
-                    for (int i = 0; i < count; i++)
+                    for (int i = 0; i < controls.Length; i++)
                     {
                         if (controls[i].gamePad)
                         {
-                            arr[i] = (KeyCode)Enum.Parse(typeof(KeyCode), "Joystick" + (controls[i].gamePadNumber + 1) + trimmedCode);
-                            Plugin.Log("Controller code: " + arr[i].ToString());
+                            codes[i] = GetControllerCode(controllerCode, controls[i].gamePadNumber);
+                            Plugin.Log("Controller code: " + codes[i].ToString());
                         }
                         else
                         {
-                            arr[i] = keyboardCode;
+                            codes[i] = keyboardCode;
                         }
                     }
 
-                    idToKeyCode[id] = arr;
+                    idToKeyCode[id] = codes;
                 }
 
-                /*foreach (var control in RWCustom.Custom.rainWorld.options.controls)
+                //assign axes
+                foreach (var control in RWCustom.Custom.rainWorld.options.controls)
                 {
                     if (control?.gameControlMap == null)
                         continue;
-                    foreach (var kvp in idToAction)
-                    {
-                        //Rewired.ActionElementMap prevMap = control.gameControlMap.ButtonMaps.FirstOrDefault(m => m.actionId == kvp.Value);
-                        //if (prevMap != null)
-                        //control.gameControlMap.ButtonMaps
-                        //if (!control.gameControlMap.ContainsAction(kvp.Value))
-                        control.gameControlMap.DeleteElementMapsWithAction(kvp.Value);
-                        control.gameControlMap.CreateElementMap(kvp.Value, Rewired.Pole.Positive, IdToKeyCode(kvp.Key, control.gamePad), Rewired.ModifierKeyFlags.None);
-                        //control.gameControlMap.ReplaceOrCreateElementMap(kvp.Value, Rewired.Pole.Positive, Options.DashKeyCode, Rewired.ModifierKeyFlags.None);
-                        //control.gameControlMap.ReplaceOrCreateElementMap(new(IdToKeyCode(kvp.Key, control.gamePad), Rewired.ModifierKeyFlags.None, kvp.Value, Rewired.Pole.Positive));
 
-                        Plugin.Log("Created action keybind: " + kvp.Key, 2);
+                    foreach (var kvp in axisToAction)
+                    {
+                        //remove previous binding
+                        control.gameControlMap.DeleteElementMapsWithAction(kvp.Value);
+
+                        //bind axis KEY to action VALUE
+                        control.gameControlMap.ReplaceOrCreateElementMap(new(Rewired.ControllerType.Joystick, Rewired.ControllerElementType.Axis, kvp.Key, Rewired.AxisRange.Full, KeyCode.None, Rewired.ModifierKeyFlags.None, kvp.Value, Rewired.Pole.Positive, false));
+                        Plugin.Log($"Mapped controller axis {kvp.Key} to action {kvp.Value}");
                     }
-                }*/
+                }
+
+                //assign axis buttons for keyboard
+                foreach (int axis in axisToAction.Keys)
+                {
+                    string id = AxisToId(axis);
+                    KeyCode[] codes = new KeyCode[controls.Length];
+                    KeyCode code = IdToKeyCode(id);
+                    for (int i = 0; i < codes.Length; i++) codes[i] = code; //just make every player use the same keycode for it!
+                    idToKeyCode[id] = codes;
+                }
+
             }
         } catch (Exception ex) { Plugin.Error(ex); }
     }
+
+    private static KeyCode GetControllerCode(KeyCode code, int controllerNum)
+    {
+        string s = code.ToString();
+        string trimmedCode = s.Substring(s.IndexOf("Button"));
+        return (KeyCode)Enum.Parse(typeof(KeyCode), "Joystick" + (controllerNum + 1) + trimmedCode);
+    }
+
 }
