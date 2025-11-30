@@ -84,6 +84,11 @@ public static class Shield
             if (player.input[0].analogueDir != new Vector2(0, 0)) //for now, don't give myself the headache of dealing with no input
                 rot = RWCustom.Custom.VecToDeg(player.input[0].analogueDir) - 90f;
 
+            if (rot - lastRot > 180f) //to smooth out the transition between 0 and 360
+                lastRot += 360f;
+            else if (rot - lastRot < -180f)
+                lastRot -= 360f;
+
             lastAlpha = alpha;
         }
 

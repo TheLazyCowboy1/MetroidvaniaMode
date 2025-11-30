@@ -201,6 +201,8 @@ public static class Keybinds
     private static KeyCode GetControllerCode(KeyCode code, int controllerNum)
     {
         string s = code.ToString();
+        if (!s.Contains("Button")) return KeyCode.None; //just in case we have a bad keybind
+
         string trimmedCode = s.Substring(s.IndexOf("Button"));
         return (KeyCode)Enum.Parse(typeof(KeyCode), "Joystick" + (controllerNum + 1) + trimmedCode);
     }
