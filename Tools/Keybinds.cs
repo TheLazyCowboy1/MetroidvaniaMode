@@ -12,17 +12,12 @@ public static class Keybinds
 
     private static string[] ids = new string[] { DASH_ID, SHIELD_ID };
 
-    public const int LEFT_TRIGGER_AXIS = 6;
+    public const int LEFT_TRIGGER_AXIS = 4;
+
+    private static int[] axes = new int[] { LEFT_TRIGGER_AXIS };
+
 
     private static Dictionary<string, KeyCode[]> idToKeyCode = new(ids.Length);
-
-    private static Dictionary<int, int> axisToAction = new(new KeyValuePair<int, int>[]
-    { //0 and 1 are left stick horizontal/vertical
-        //new(2, RewiredConsts.Action.UIHorizontal), //right stick left/right
-        //new(3, RewiredConsts.Action.UIVertical), //right up up/down
-        new(6, RewiredConsts.Action.UICheatHoldLeft) //left trigger
-        //new(5, RewiredConsts.Action.UICheatHoldRight) //right trigger
-    });
 
 
     public static void Bind()
@@ -61,6 +56,17 @@ public static class Keybinds
         {
             LEFT_TRIGGER_AXIS => SHIELD_ID,
             _ => null
+        };
+    }
+
+    private static int AxisToAction(int axis) {
+        return axis switch
+        { //0 and 1 are left stick horizontal/vertical
+            //new(2, RewiredConsts.Action.UIHorizontal), //right stick left/right
+            //new(3, RewiredConsts.Action.UIVertical), //right up up/down
+            LEFT_TRIGGER_AXIS => RewiredConsts.Action.UICheatHoldLeft, //left trigger
+            //new(5, RewiredConsts.Action.UICheatHoldRight) //right trigger
+            _ => -1
         };
     }
 
@@ -123,7 +129,7 @@ public static class Keybinds
     {
         var controlSetup = RWCustom.Custom.rainWorld.options.controls[playerNum];
         if (controlSetup.gamePad)
-            return controlSetup.GetAxis(axisToAction[axis]);
+            return controlSetup.GetAxis(AxisToAction(axis));
 
         //for keyboard, use the key press
         return IsPressed(AxisToId(axis), playerNum) ? 1f : 0f;
@@ -166,19 +172,20 @@ public static class Keybinds
                     if (control?.gameControlMap == null)
                         continue;
 
-                    foreach (var kvp in axisToAction)
+                    foreach (int axis in axes)
                     {
+                        int action = AxisToAction(axis);
                         //remove previous binding
-                        control.gameControlMap.DeleteElementMapsWithAction(kvp.Value);
+                        control.gameControlMap.DeleteElementMapsWithAction(action);
 
                         //bind axis KEY to action VALUE
-                        control.gameControlMap.ReplaceOrCreateElementMap(new(Rewired.ControllerType.Joystick, Rewired.ControllerElementType.Axis, kvp.Key, Rewired.AxisRange.Full, KeyCode.None, Rewired.ModifierKeyFlags.None, kvp.Value, Rewired.Pole.Positive, false));
-                        Plugin.Log($"Mapped controller axis {kvp.Key} to action {kvp.Value}");
+                        control.gameControlMap.ReplaceOrCreateElementMap(new(Rewired.ControllerType.Joystick, Rewired.ControllerElementType.Axis, axis, Rewired.AxisRange.Full, KeyCode.None, Rewired.ModifierKeyFlags.None, action, Rewired.Pole.Positive, false));
+                        Plugin.Log($"Mapped controller axis {axis} to action {action}");
                     }
                 }
 
                 //assign axis buttons for keyboard
-                foreach (int axis in axisToAction.Keys)
+                foreach (int axis in axes)
                 {
                     string id = AxisToId(axis);
                     KeyCode[] codes = new KeyCode[controls.Length];
