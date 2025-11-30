@@ -102,10 +102,10 @@ public static class Shield
                     Vector2 shieldDir = Custom.DegToVec(info.ShieldDir);
                     Vector2 hitDir = directionAndMomentum ?? -shieldDir;
 
-                    if (Vector2.Dot(shieldDir, hitDir) > 0) //if the shield was actually hit
+                    if (Vector2.Dot(shieldDir, hitDir) < 0) //if the shield was actually hit
                     {
                         //set shield strength
-                        float hitStrength = damage + stunBonus;
+                        float hitStrength = damage + stunBonus / 80f;
                         info.ShieldCounter = Mathf.Min(info.ShieldCounter + Options.ShieldFullTime * hitStrength / Options.ShieldDamageFac, Options.ShieldMaxTime + Options.ShieldFullTime); //can go above normal max time!!
                         info.ShieldStrength = GetShieldStrength(info);
 
@@ -124,7 +124,27 @@ public static class Shield
                         {
                             damage = 0;
                             stunBonus = 0;
+                        } else
+                        {
+                            //increase stunBonus
+                            stunBonus += 10f;
+                            stunBonus *= 2f;
                         }
+                    }
+                    else //shield was NOT hit
+                    {
+                        //break shield
+                        info.ShieldCounter = Options.ShieldMaxTime + Options.ShieldFullTime;
+                        info.ShieldStrength = 0;
+                        if (info.Shield != null)
+                            info.Shield.nextWhite = 1;
+
+                        //play sound
+                        self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, hitChunk);
+
+                        //increase stunBonus
+                        stunBonus += 10f;
+                        stunBonus *= 2f;
                     }
                 }
             }
