@@ -169,10 +169,15 @@ public class Options : AutoConfigOptions
     [Config(ADVANCED, "Glide Angle Enforcement", "How strongly the slugcat is forced to be facing the right way when gliding")]
     public static float GlideAngleEnforcement = 0.25f;
 
-    [Config(ADVANCED, "/40 Shield Full Time", "How long the shield can be at full strength, expressed in ticks (40 ticks == 1 second)")]
+    [Config(ADVANCED, "/40 Shield Full Time", "How long the shield can be at full strength, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 4000)]
     public static int ShieldFullTime = 40;
-    [Config(ADVANCED, "/40 Shield Max Time", "How long the shield can be up at all, expressed in ticks (40 ticks == 1 second)", rightSide = true)]
+    [Config(ADVANCED, "/40 Shield Max Time", "How long the shield can be up at all, expressed in ticks (40 ticks == 1 second).\nPlease ensure this is greater than ShieldFullTime.", rightSide = true), LimitRange(0, 4000)]
     public static int ShieldMaxTime = 60;
+
+    [Config(ADVANCED, "Shield Recovery Speed", "How quickly the shield cooldown decreases so it can be used again.\n2.0 == half as long as ShieldMaxTime"), LimitRange(0, 100)]
+    public static float ShieldRecoverySpeed = 2f;
+    [Config(ADVANCED, "Shield Damage Fac", "How much damage the shield can block", rightSide = true), LimitRange(0, 100)]
+    public static float ShieldDamageFac = 2f;
 
 
     private class AcceptableControllerButton : ConfigAcceptableBase

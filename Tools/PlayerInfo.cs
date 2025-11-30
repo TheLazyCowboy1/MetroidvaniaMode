@@ -16,6 +16,7 @@ public class PlayerInfo
 
     public float ShieldStrength = 0;
     public float ShieldCounter = 0;
+    public float ShieldDir = 0;
     public Abilities.Shield.ShieldSprite Shield = null;
 
     public bool ReleaseQueued = false;

@@ -14,11 +14,20 @@ public static class Shield
     {
         //On.Player.Update += Player_Update;
         On.Player.checkInput += Player_checkInput;
+        On.Creature.Violence += Creature_Violence;
     }
 
     public static void RemoveHooks()
     {
         On.Player.checkInput -= Player_checkInput;
+        On.Creature.Violence -= Creature_Violence;
+    }
+
+
+    private static float GetShieldStrength(PlayerInfo info)
+    {
+        float maxStrength = Mathf.Clamp01((Options.ShieldMaxTime - info.ShieldCounter) / (float)(Options.ShieldMaxTime - Options.ShieldFullTime));
+        return Mathf.Min(info.ShieldStrength, maxStrength);
     }
 
 
@@ -41,8 +50,7 @@ public static class Shield
 
             if (info.ShieldStrength > 0)
             {
-                float maxStrength = Mathf.Clamp01((Options.ShieldMaxTime - info.ShieldCounter) / (float)(Options.ShieldMaxTime - Options.ShieldFullTime));
-                info.ShieldStrength = Mathf.Min(info.ShieldStrength, maxStrength);
+                info.ShieldStrength = GetShieldStrength(info);
 
                 if (info.Shield != null && info.Shield.slatedForDeletetion)
                     info.Shield = null; //we need a new shield
@@ -54,20 +62,75 @@ public static class Shield
                     Plugin.Log("Added shield!", 2);
                 }
 
+                //set dir
+                if (self.input[0].analogueDir != new Vector2(0, 0)) //for now, don't give myself the headache of dealing with no input
+                    info.ShieldDir = Custom.VecToDeg(self.input[0].analogueDir);
+
                 //prevent the player from grabbing or throwing and stuff like that
                 self.input[0].thrw = false;
                 self.input[0].pckp = false;
+
+                //give i-frames
+                info.iFrames = Mathf.Max(info.iFrames, 1);
 
                 //count how long the shield has been up
                 info.ShieldCounter += info.ShieldStrength;
             }
             else //if the shield is down, decrement the counter
-                info.ShieldCounter = Mathf.Max(0, info.ShieldCounter - 1);
+                info.ShieldCounter = Mathf.Max(0, info.ShieldCounter - Options.ShieldRecoverySpeed);
 
             if (info.Shield != null)
+            {
                 info.Shield.nextAlpha = info.ShieldStrength;
+                info.Shield.nextRot = info.ShieldDir - 90f;
+            }
         }
         catch (Exception ex) { Plugin.Error(ex); }
+    }
+
+
+    private static void Creature_Violence(On.Creature.orig_Violence orig, Creature self, BodyChunk source, Vector2? directionAndMomentum, BodyChunk hitChunk, PhysicalObject.Appendage.Pos hitAppendage, Creature.DamageType type, float damage, float stunBonus)
+    {
+        try
+        {
+            if (self is Player p)
+            {
+                PlayerInfo info = p.GetInfo();
+                if (info.ShieldStrength > 0)
+                {
+                    //get direction
+                    Vector2 shieldDir = Custom.DegToVec(info.ShieldDir);
+                    Vector2 hitDir = directionAndMomentum ?? -shieldDir;
+
+                    if (Vector2.Dot(shieldDir, hitDir) > 0) //if the shield was actually hit
+                    {
+                        //set shield strength
+                        float hitStrength = damage + stunBonus;
+                        info.ShieldCounter = Mathf.Min(info.ShieldCounter + Options.ShieldFullTime * hitStrength / Options.ShieldDamageFac, Options.ShieldMaxTime + Options.ShieldFullTime); //can go above normal max time!!
+                        info.ShieldStrength = GetShieldStrength(info);
+
+                        //visual effect
+                        if (info.Shield != null)
+                            info.Shield.nextWhite = Mathf.Clamp01(hitStrength * 5);
+
+                        //audio effect
+                        if (info.ShieldStrength > 0)
+                            self.room.PlaySound(SoundID.Zapper_Zap, hitChunk, false, 0.8f, 0.6f + UnityEngine.Random.value * 0.2f);
+                        else
+                            self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, hitChunk);
+
+                        directionAndMomentum = hitDir * (1 + 2 * info.ShieldStrength);
+                        if (info.ShieldStrength > 0)
+                        {
+                            damage = 0;
+                            stunBonus = 0;
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) { Plugin.Error(ex); }
+
+        orig(self, source, directionAndMomentum, hitChunk, hitAppendage, type, damage, stunBonus);
     }
 
 
@@ -76,8 +139,14 @@ public static class Shield
         private Player player;
         private Vector2 lastPos, pos;
         private float lastRot, rot;
-        private float lastAlpha, alpha = 0;
+        public float nextRot = 0;
+        private float lastAlpha, alpha;
         public float nextAlpha = 0;
+        private float lastWhite, white;
+        public float nextWhite = 0;
+
+        private static Color baseColor = new(0.2f, 0.4f, 1f); //blue
+        private static Color whiteColor = new(1, 1, 1);
 
         private bool posDirty = false;
 
@@ -101,24 +170,36 @@ public static class Shield
             pos = player.mainBodyChunk.pos;
 
             lastRot = rot;
-            if (player.input[0].analogueDir != new Vector2(0, 0)) //for now, don't give myself the headache of dealing with no input
-                rot = Custom.LerpAndTick(rot, Custom.VecToDeg(player.input[0].analogueDir) - 90f, 0.1f, 5f);
 
-            if (rot - lastRot > 180f) //to smooth out the transition between 0 and 360
-                lastRot += 360f;
-            else if (rot - lastRot < -180f)
-                lastRot -= 360f;
+            AdjustAngle(ref rot, nextRot); //don't have it snap weirdly from 0 to 360
+
+            rot = Custom.LerpAndTick(rot, nextRot, 0.1f, 5f);
+
+            AdjustAngle(ref lastRot, rot); //don't have it snap weirdly from 0 to 360
 
             lastAlpha = alpha;
             alpha = Custom.LerpAndTick(alpha, nextAlpha, 0.1f, 0.05f);
+
+            lastWhite = white;
+            if (nextWhite > white) white = nextWhite; //instantly brighten
+            else white = Custom.LerpAndTick(white, nextWhite, 0.1f, 0.05f); //slowly fade
 
             if (posDirty) //snap it into place; don't let it fly across the screen whenever the sprites are initialized
             {
                 lastPos = pos;
                 lastRot = rot;
                 lastAlpha = alpha;
+                lastWhite = white;
                 posDirty = false;
             }
+        }
+
+        private static void AdjustAngle(ref float a, float b)
+        {
+            if (b - a > 180f) //to smooth out the transition between 0 and 360
+                a += 360f;
+            else if (b - a < -180f)
+                a -= 360f;
         }
 
         public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContainer)
@@ -137,10 +218,12 @@ public static class Shield
             Vector2 curPos = Vector2.Lerp(lastPos, pos, timeStacker);
             float curRot = Mathf.Lerp(lastRot, rot, timeStacker);
             float curAlpha = Mathf.Lerp(lastAlpha, alpha, timeStacker);
+            float curWhite = Mathf.Lerp(lastWhite, white, timeStacker);
 
             sLeaser.sprites[0].SetPosition(curPos - camPos);
             sLeaser.sprites[0].rotation = curRot;
-            sLeaser.sprites[0].alpha = curAlpha;
+            sLeaser.sprites[0].alpha = curAlpha + curWhite * 0.5f;
+            sLeaser.sprites[0].color = Color.Lerp(baseColor, whiteColor, curWhite);
 
             if (!sLeaser.deleteMeNextFrame && (this.slatedForDeletetion || this.room != rCam.room))
             {
@@ -158,7 +241,7 @@ public static class Shield
                 shader = Tools.Assets.ShieldEffect,
                 width = 40,
                 height = 120,
-                color = new(0.2f, 0.4f, 1f),
+                color = baseColor,
                 alpha = 0
             };
 

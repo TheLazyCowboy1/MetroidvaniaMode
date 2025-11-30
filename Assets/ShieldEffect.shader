@@ -86,7 +86,7 @@ half4 frag (v2f i) : SV_Target
 	}
 
 	//vertical lines
-	half sinTime = sin(30*_Time.y + 300*i.uv.y);
+	half sinTime = sin(53*_Time.y + 300*i.uv.y);
 	half opacity = 0.7 + 0.3 * (sinTime * 0.5 + 0.5);
 
 	//outside edge opaque
@@ -98,8 +98,8 @@ half4 frag (v2f i) : SV_Target
 	opacity = opacity * saturate(1 - (sqrDist - 1 + outsideFadeOut) / outsideFadeOut);
 	
 	//noise flicker
-	half noiseStrength = 0.2;
-	half2 noiseSamplePos = i.uv*0.5 + 0.25*half2(1+sinTime, 1-sinTime);
+	half noiseStrength = 0.4;
+	half2 noiseSamplePos = i.uv*0.5 + 0.25*half2(1+_SinTime.w, 1-_SinTime.z);
 	half4 noise = tex2D(_NoiseTex2, noiseSamplePos);
 	half2 noiseDiff = abs(noise.xy - i.uv);
 	opacity = opacity + saturate((noiseStrength - noiseDiff.x - noiseDiff.y - abs((1+sinTime)-noise.z*2)) * 1000);
@@ -112,8 +112,15 @@ half4 frag (v2f i) : SV_Target
 	half insideFadeOutTo = 0.5 + 0.6*sqrYDist; //0.5 to 1.1
 	opacity = opacity * saturate((sqrDist - insideFadeOutFrom) / (insideFadeOutTo - insideFadeOutFrom));
 
-	i.clr.w = saturate(opacity) * (1-invWSqrd);
-	return i.clr;
+	half a = opacity * (1-invWSqrd);
+	i.clr.w = saturate(a);
+
+	half colMod = 1 + a - i.clr.w;
+	i.clr.x = i.clr.x * colMod;
+	i.clr.y = i.clr.y * colMod;
+	i.clr.z = i.clr.z * colMod;
+
+	return saturate(i.clr);
 
 }
 ENDCG
