@@ -12,6 +12,7 @@ public static class Keybinds
 
     private static string[] ids = new string[] { DASH_ID, SHIELD_ID };
 
+    //0 = LSx, 1 = LSy, 2 = RSx, 3 = RSy, 4 = LT, 5 = RT
     public const int LEFT_TRIGGER_AXIS = 4;
 
     private static int[] axes = new int[] { LEFT_TRIGGER_AXIS };
@@ -73,14 +74,12 @@ public static class Keybinds
 
     public static void ApplyHooks()
     {
-        if (Plugin.ImprovedInputEnabled) //don't bother adding the hook if it's not needed
-            On.Options.ControlSetup.UpdateActiveController_Controller_int_bool += ControlSetup_UpdateActiveController_Controller_int_bool;
+        On.Options.ControlSetup.UpdateActiveController_Controller_int_bool += ControlSetup_UpdateActiveController_Controller_int_bool;
     }
 
     public static void RemoveHooks()
     {
-        if (Plugin.ImprovedInputEnabled)
-            On.Options.ControlSetup.UpdateActiveController_Controller_int_bool -= ControlSetup_UpdateActiveController_Controller_int_bool;
+        On.Options.ControlSetup.UpdateActiveController_Controller_int_bool -= ControlSetup_UpdateActiveController_Controller_int_bool;
     }
 
     private static void ControlSetup_UpdateActiveController_Controller_int_bool(On.Options.ControlSetup.orig_UpdateActiveController_Controller_int_bool orig, global::Options.ControlSetup self, Rewired.Controller newController, int controllerIndex, bool forceUpdate)
@@ -91,7 +90,10 @@ public static class Keybinds
 
         try
         {
-            if (!Plugin.ImprovedInputEnabled && ids != null && oldController?.type != self.recentController?.type) //changing controller type
+            if (self.recentController == null || oldController?.type == self.recentController.type)
+                return; //must changing controller type
+            //re-assign keycodes
+            if (!Plugin.ImprovedInputEnabled)
             {
                 //ensure the keycode is updated for this player!
                 foreach (string id in ids)
@@ -109,6 +111,12 @@ public static class Keybinds
                     }
                     Plugin.Log($"Reassigned keycode for {id}:{self.index} = {idToKeyCode[id][self.index]}", 2);
                 }
+            }
+
+            //re-assign axes
+            if (self.recentController.type == Rewired.ControllerType.Joystick && self.gameControlMap != null)
+            {
+                AssignAxesToControlMap(self.gameControlMap);
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }
@@ -166,24 +174,6 @@ public static class Keybinds
                     idToKeyCode[id] = codes;
                 }
 
-                //assign axes
-                foreach (var control in RWCustom.Custom.rainWorld.options.controls)
-                {
-                    if (control?.gameControlMap == null)
-                        continue;
-
-                    foreach (int axis in axes)
-                    {
-                        int action = AxisToAction(axis);
-                        //remove previous binding
-                        control.gameControlMap.DeleteElementMapsWithAction(action);
-
-                        //bind axis KEY to action VALUE
-                        control.gameControlMap.ReplaceOrCreateElementMap(new(Rewired.ControllerType.Joystick, Rewired.ControllerElementType.Axis, axis, Rewired.AxisRange.Full, KeyCode.None, Rewired.ModifierKeyFlags.None, action, Rewired.Pole.Positive, false));
-                        Plugin.Log($"Mapped controller axis {axis} to action {action}");
-                    }
-                }
-
                 //assign axis buttons for keyboard
                 foreach (int axis in axes)
                 {
@@ -194,8 +184,31 @@ public static class Keybinds
                     idToKeyCode[id] = codes;
                 }
 
+                //assign axes for THIS map
+                foreach (var control in RWCustom.Custom.rainWorld.options.controls)
+                {
+                    if (control?.gameControlMap == null || control.recentController?.type != Rewired.ControllerType.Joystick)
+                        continue;
+
+                    AssignAxesToControlMap(control.gameControlMap);
+                }
+
             }
         } catch (Exception ex) { Plugin.Error(ex); }
+    }
+
+    private static void AssignAxesToControlMap(Rewired.ControllerMap map)
+    {
+        foreach (int axis in axes)
+        {
+            int action = AxisToAction(axis);
+            //remove previous binding
+            map.DeleteElementMapsWithAction(action);
+
+            //bind axis KEY to action VALUE
+            map.ReplaceOrCreateElementMap(new(Rewired.ControllerType.Joystick, Rewired.ControllerElementType.Axis, axis, Rewired.AxisRange.Full, KeyCode.None, Rewired.ModifierKeyFlags.None, action, Rewired.Pole.Positive, false));
+            Plugin.Log($"Mapped controller axis {axis} to action {action}", 2);
+        }
     }
 
     private static KeyCode GetControllerCode(KeyCode code, int controllerNum)

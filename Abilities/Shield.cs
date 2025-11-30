@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RWCustom;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,43 +12,60 @@ public static class Shield
 {
     public static void ApplyHooks()
     {
-        On.Player.Update += Player_Update;
+        //On.Player.Update += Player_Update;
+        On.Player.checkInput += Player_checkInput;
     }
 
     public static void RemoveHooks()
     {
-        On.Player.Update -= Player_Update;
+        On.Player.checkInput -= Player_checkInput;
     }
 
 
-    private static void Player_Update(On.Player.orig_Update orig, Player self, bool eu)
+    //checkInput is used so that we can prevent throwing or grabbing
+    private static void Player_checkInput(On.Player.orig_checkInput orig, Player self)
     {
-        orig(self, eu);
+        orig(self);
 
         try
         {
+            if (self.isNPC) return; //just in case
+
             PlayerInfo info = self.GetInfo();
 
-            float a = 0;
+            info.ShieldStrength = 0;
             if (Options.HasShield && !self.Stunned && !self.dead)
             {
-                a = Tools.Keybinds.GetAxis(Tools.Keybinds.LEFT_TRIGGER_AXIS, self.playerState.playerNumber);
+                info.ShieldStrength = Tools.Keybinds.GetAxis(Tools.Keybinds.LEFT_TRIGGER_AXIS, self.playerState.playerNumber);
             }
 
-            if (a > 0)
+            if (info.ShieldStrength > 0)
             {
+                float maxStrength = Mathf.Clamp01((Options.ShieldMaxTime - info.ShieldCounter) / (float)(Options.ShieldMaxTime - Options.ShieldFullTime));
+                info.ShieldStrength = Mathf.Min(info.ShieldStrength, maxStrength);
+
                 if (info.Shield != null && info.Shield.slatedForDeletetion)
-                    info.Shield = null; //we need a new one anyway
-                if (info.Shield == null)
+                    info.Shield = null; //we need a new shield
+
+                if (info.Shield == null) //create a new shield
                 {
                     info.Shield = new(self);
                     self.room.AddObject(info.Shield);
-                    Plugin.Log("Added shield!");
+                    Plugin.Log("Added shield!", 2);
                 }
+
+                //prevent the player from grabbing or throwing and stuff like that
+                self.input[0].thrw = false;
+                self.input[0].pckp = false;
+
+                //count how long the shield has been up
+                info.ShieldCounter += info.ShieldStrength;
             }
+            else //if the shield is down, decrement the counter
+                info.ShieldCounter = Mathf.Max(0, info.ShieldCounter - 1);
 
             if (info.Shield != null)
-                info.Shield.alpha = a;
+                info.Shield.nextAlpha = info.ShieldStrength;
         }
         catch (Exception ex) { Plugin.Error(ex); }
     }
@@ -58,8 +76,10 @@ public static class Shield
         private Player player;
         private Vector2 lastPos, pos;
         private float lastRot, rot;
-        private float lastAlpha;
-        public float alpha = 0;
+        private float lastAlpha, alpha = 0;
+        public float nextAlpha = 0;
+
+        private bool posDirty = false;
 
         public ShieldSprite(Player player)
         {
@@ -82,7 +102,7 @@ public static class Shield
 
             lastRot = rot;
             if (player.input[0].analogueDir != new Vector2(0, 0)) //for now, don't give myself the headache of dealing with no input
-                rot = RWCustom.Custom.VecToDeg(player.input[0].analogueDir) - 90f;
+                rot = Custom.LerpAndTick(rot, Custom.VecToDeg(player.input[0].analogueDir) - 90f, 0.1f, 5f);
 
             if (rot - lastRot > 180f) //to smooth out the transition between 0 and 360
                 lastRot += 360f;
@@ -90,6 +110,15 @@ public static class Shield
                 lastRot -= 360f;
 
             lastAlpha = alpha;
+            alpha = Custom.LerpAndTick(alpha, nextAlpha, 0.1f, 0.05f);
+
+            if (posDirty) //snap it into place; don't let it fly across the screen whenever the sprites are initialized
+            {
+                lastPos = pos;
+                lastRot = rot;
+                lastAlpha = alpha;
+                posDirty = false;
+            }
         }
 
         public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContainer)
@@ -121,6 +150,8 @@ public static class Shield
 
         public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
         {
+            posDirty = true;
+
             sLeaser.sprites = new FSprite[1];
             sLeaser.sprites[0] = new FSprite("Futile_White", true)
             {

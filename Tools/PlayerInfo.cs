@@ -15,7 +15,7 @@ public class PlayerInfo
     public bool Gliding = false;
 
     public float ShieldStrength = 0;
-    public int ShieldCounter = 0;
+    public float ShieldCounter = 0;
     public Abilities.Shield.ShieldSprite Shield = null;
 
     public bool ReleaseQueued = false;
