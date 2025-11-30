@@ -17,7 +17,7 @@ public static class Keybinds
     private static int[] axes = new int[] { LEFT_TRIGGER_AXIS };
 
 
-    private static Dictionary<string, KeyCode[]> idToKeyCode = new(ids.Length);
+    private static Dictionary<string, KeyCode[]> idToKeyCode = new(ids.Length+axes.Length);
 
 
     public static void Bind()
