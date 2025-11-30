@@ -61,7 +61,7 @@ public static class Shield
                 }
 
                 //add a bit of white when turning it on
-                info.Shield.nextWhite = Mathf.Max(info.Shield.nextWhite, Mathf.Min(1, info.ShieldStrength - prevStrength));
+                info.Shield.nextWhite = Mathf.Clamp01(info.ShieldStrength - prevStrength);
 
                 //prevent the player from grabbing or throwing and stuff like that
                 self.input[0].thrw = false;
