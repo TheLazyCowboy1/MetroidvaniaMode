@@ -131,12 +131,11 @@ public static class Shield
                         if (info.ShieldStrength > 0)
                         {
                             damage = 0;
-                            stunBonus = 0;
+                            stunBonus = -40f;
                         } else
                         {
                             //increase stunBonus
-                            stunBonus += 10f;
-                            stunBonus *= 2f;
+                            stunBonus += 20f;
                         }
 
                         Plugin.Log("Shield hit!", 2);
@@ -153,8 +152,7 @@ public static class Shield
                         self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, hitChunk);
 
                         //increase stunBonus
-                        stunBonus += 10f;
-                        stunBonus *= 2f;
+                        stunBonus += 20f;
 
                         Plugin.Log("Shielding player hit, but the shield was missed", 2);
                     }

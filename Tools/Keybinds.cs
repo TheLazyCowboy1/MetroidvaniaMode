@@ -137,7 +137,7 @@ public static class Keybinds
     {
         var controlSetup = RWCustom.Custom.rainWorld.options.controls[playerNum];
         if (controlSetup.gamePad)
-            return controlSetup.GetAxis(AxisToAction(axis));
+            return controlSetup.player.GetAxisRaw(AxisToAction(axis));
 
         //for keyboard, use the key press
         return IsPressed(AxisToId(axis), playerNum) ? 1f : 0f;
@@ -196,32 +196,29 @@ public static class Keybinds
                     var maps = control.player.controllers.maps.GetAllMaps();
                     foreach (var map in maps)
                     {
-                        if (map.categoryId == RewiredConsts.Category.Default
-                            && map.controllerType == Rewired.ControllerType.Joystick)
+                        if (map.controllerType != Rewired.ControllerType.Joystick)
+                            continue; //only applies to Joysticks
+
+                        foreach (int axis in axes)
                         {
-                            AssignAxesToControlMap(map);
+                            int action = AxisToAction(axis);
+
+                            //remove previous binding
+                            if (map.DeleteElementMapsWithAction(action)) Plugin.Log("Deleted element maps for action " + action, 2);
+
+                            //bind axis to action
+                            if (map.categoryId == RewiredConsts.Category.Default)
+                            {
+                                map.ReplaceOrCreateElementMap(new(Rewired.ControllerType.Joystick, Rewired.ControllerElementType.Axis, axis, Rewired.AxisRange.Full, KeyCode.None, Rewired.ModifierKeyFlags.None, action, Rewired.Pole.Positive, false));
+                                Plugin.Log($"Mapped controller axis {axis} to action {action}");
+                            }
                         }
                     }
 
-                    //AssignAxesToControlMap(control.gameControlMap);
                 }
 
             }
         } catch (Exception ex) { Plugin.Error(ex); }
-    }
-
-    private static void AssignAxesToControlMap(Rewired.ControllerMap map)
-    {
-        foreach (int axis in axes)
-        {
-            int action = AxisToAction(axis);
-            //remove previous binding
-            map.DeleteElementMapsWithAction(action);
-
-            //bind axis KEY to action VALUE
-            map.ReplaceOrCreateElementMap(new(Rewired.ControllerType.Joystick, Rewired.ControllerElementType.Axis, axis, Rewired.AxisRange.Full, KeyCode.None, Rewired.ModifierKeyFlags.None, action, Rewired.Pole.Positive, false));
-            Plugin.Log($"Mapped controller axis {axis} to action {action}", 2);
-        }
     }
 
     private static KeyCode GetControllerCode(KeyCode code, int controllerNum)

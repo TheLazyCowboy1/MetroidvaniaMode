@@ -46,7 +46,7 @@ public static class Health
     }
 
     /// <summary>
-    /// Deals damage to the player
+    /// Deals damage to the player, unless the player has i-frames
     /// </summary>
     /// <param name="self">The player to deal damage to</param>
     /// <param name="damage">The amount of damage to deal</param>
@@ -72,11 +72,13 @@ public static class Health
                 self.playerState.permanentDamageTracking = 0.98f; //make the player injured
             else
                 self.playerState.permanentDamageTracking *= 0.5f; //halve the player's tracked damage, so the player doesn't die from rocks
+
+            //only set maxIFrames when actually taking damage
+            info.maxIFrames = Options.MaxInvincibilityFrames;
         }
 
         //set iFrames
         info.iFrames = Options.InvincibilityFrames; //1 second of i-frames
-        info.maxIFrames = Options.MaxInvincibilityFrames;
         self.showKarmaFoodRainTime = Options.InvincibilityFrames; //show the HUD
         UI.HealthMeter.HealthFlash = Options.InvincibilityFrames;
 
