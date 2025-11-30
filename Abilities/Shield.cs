@@ -1,9 +1,5 @@
 ﻿using RWCustom;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MetroidvaniaMode.Abilities;
@@ -42,6 +38,8 @@ public static class Shield
 
             PlayerInfo info = self.GetInfo();
 
+            float prevStrength = info.ShieldStrength;
+
             info.ShieldStrength = 0;
             if (Options.HasShield && !self.Stunned && !self.dead)
             {
@@ -62,9 +60,8 @@ public static class Shield
                     Plugin.Log("Added shield!", 2);
                 }
 
-                //set dir
-                if (self.input[0].analogueDir != new Vector2(0, 0)) //for now, don't give myself the headache of dealing with no input
-                    info.ShieldDir = Custom.VecToDeg(self.input[0].analogueDir);
+                //add a bit of white when turning it on
+                info.Shield.nextWhite = Mathf.Max(info.Shield.nextWhite, Mathf.Min(1, info.ShieldStrength - prevStrength));
 
                 //prevent the player from grabbing or throwing and stuff like that
                 self.input[0].thrw = false;
@@ -79,11 +76,19 @@ public static class Shield
             else //if the shield is down, decrement the counter
                 info.ShieldCounter = Mathf.Max(0, info.ShieldCounter - Options.ShieldRecoverySpeed);
 
+
+            //set dir
+            if (self.input[0].analogueDir != new Vector2(0, 0)) //for now, don't give myself the headache of dealing with no input
+                info.ShieldDir = Custom.VecToDeg(self.input[0].analogueDir);
+
+
+            //apply visuals
             if (info.Shield != null)
             {
                 info.Shield.nextAlpha = info.ShieldStrength;
                 info.Shield.nextRot = info.ShieldDir - 90f;
             }
+
         }
         catch (Exception ex) { Plugin.Error(ex); }
     }
@@ -119,7 +124,7 @@ public static class Shield
                         else
                             self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, hitChunk);
 
-                        directionAndMomentum = hitDir * (1 + 2 * info.ShieldStrength);
+                        directionAndMomentum = hitDir * (3 - 2 * info.ShieldStrength);
                         if (info.ShieldStrength > 0)
                         {
                             damage = 0;
@@ -130,6 +135,8 @@ public static class Shield
                             stunBonus += 10f;
                             stunBonus *= 2f;
                         }
+
+                        Plugin.Log("Shield hit!", 2);
                     }
                     else //shield was NOT hit
                     {
@@ -145,6 +152,8 @@ public static class Shield
                         //increase stunBonus
                         stunBonus += 10f;
                         stunBonus *= 2f;
+
+                        Plugin.Log("Shielding player hit, but the shield was missed", 2);
                     }
                 }
             }

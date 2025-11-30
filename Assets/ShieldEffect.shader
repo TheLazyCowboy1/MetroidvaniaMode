@@ -98,11 +98,13 @@ half4 frag (v2f i) : SV_Target
 	opacity = opacity * saturate(1 - (sqrDist - 1 + outsideFadeOut) / outsideFadeOut);
 	
 	//noise flicker
-	half noiseStrength = 0.4;
+	half noiseStrength = 0.3;
 	half2 noiseSamplePos = i.uv*0.5 + 0.25*half2(1+_SinTime.w, 1-_SinTime.z);
 	half4 noise = tex2D(_NoiseTex2, noiseSamplePos);
-	half2 noiseDiff = noise.xy - (i.uv*0.5 + half2(0.25, 0.25));
-	opacity = opacity + saturate((noiseStrength - abs(noiseDiff.x) - abs(noiseDiff.y) - abs((1+sinTime)-noise.z*2)) * 1000);
+	half2 noiseDiff = noise.xy - i.uv;
+	noiseDiff.x = abs(noiseDiff.x) % 0.25;
+	noiseDiff.y = abs(noiseDiff.y) % 0.25;
+	opacity = opacity + saturate((noiseStrength - noiseDiff.x - noiseDiff.y - abs((1+sinTime)-noise.z*2)) * 1000);
 
 	//inside fade out
 	half invWSqrd = (1-i.clr.w)*(1-i.clr.w);
