@@ -46,6 +46,9 @@ public static class Shield
                 info.ShieldStrength = Tools.Keybinds.GetAxis(Tools.Keybinds.LEFT_TRIGGER_AXIS, self.playerState.playerNumber);
             }
 
+            if (info.Shield != null)
+                info.Shield.nextWhite = 0; //don't let it stay white when stunned
+
             if (info.ShieldStrength > 0)
             {
                 info.ShieldStrength = GetShieldStrength(info);

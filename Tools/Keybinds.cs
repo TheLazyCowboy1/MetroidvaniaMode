@@ -114,10 +114,10 @@ public static class Keybinds
             }
 
             //re-assign axes
-            if (self.recentController.type == Rewired.ControllerType.Joystick && self.gameControlMap != null)
+            /*if (self.recentController.type == Rewired.ControllerType.Joystick && self.gameControlMap != null)
             {
                 AssignAxesToControlMap(self.gameControlMap);
-            }
+            }*/
 
         } catch (Exception ex) { Plugin.Error(ex); }
     }
@@ -187,10 +187,23 @@ public static class Keybinds
                 //assign axes for THIS map
                 foreach (var control in RWCustom.Custom.rainWorld.options.controls)
                 {
-                    if (control?.gameControlMap == null || control.recentController?.type != Rewired.ControllerType.Joystick)
+                    if (control.player == null)
+                    {
+                        Plugin.Error("Cannot map axes because player is null!");
                         continue;
+                    }
 
-                    AssignAxesToControlMap(control.gameControlMap);
+                    var maps = control.player.controllers.maps.GetAllMaps();
+                    foreach (var map in maps)
+                    {
+                        if (map.categoryId == RewiredConsts.Category.Default
+                            && map.controllerType == Rewired.ControllerType.Joystick)
+                        {
+                            AssignAxesToControlMap(map);
+                        }
+                    }
+
+                    //AssignAxesToControlMap(control.gameControlMap);
                 }
 
             }
