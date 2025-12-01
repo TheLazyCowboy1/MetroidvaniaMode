@@ -135,10 +135,15 @@ public static class Shield
                     int oldStun = player.stun;
                     float oldAerobicLevel = player.aerobicLevel;
 
+                    if (Health.CurrentHealth > 0)
+                        player.playerState.permanentDamageTracking *= 0.5f;
+
                     orig(self, source, directionAndMomentum, hitChunk, hitAppendage, type, 0, 0);
 
                     player.stun = oldStun;
                     player.aerobicLevel = oldAerobicLevel;
+
+                    return;
                 }
             }
         } catch (Exception ex) { Plugin.Error(ex); }
