@@ -50,6 +50,10 @@ public static class Shield
             if (info.Shield != null)
                 info.Shield.nextWhite = 0; //don't let it stay white when stunned
 
+            //set dir
+            if (self.input[0].analogueDir != new Vector2(0, 0)) //for now, don't give myself the headache of dealing with no input
+                info.ShieldDir = Custom.VecToDeg(self.input[0].analogueDir);
+
             if (info.ShieldStrength > 0)
             {
                 info.ShieldStrength = GetShieldStrength(info);
@@ -67,12 +71,19 @@ public static class Shield
                 //add a bit of white when turning it on
                 info.Shield.nextWhite = Mathf.Clamp01(info.ShieldStrength - prevStrength);
 
+                //add a sound for turning the shield on
+                if (info.ShieldStrength > 0.5f && prevStrength < 0.5f)
+                    self.room.PlaySound(SoundID.Coral_Circuit_Reactivate, self.mainBodyChunk, false, 0.7f, 1.2f);
+
+                //make the slugcat put its arms out
+                if (self.graphicsModule is PlayerGraphics graph)
+                {
+                    //graph.hands[0].
+                }
+
                 //prevent the player from grabbing or throwing and stuff like that
                 self.input[0].thrw = false;
                 self.input[0].pckp = false;
-
-                //give i-frames
-                info.iFrames = Mathf.Max(info.iFrames, 1);
 
                 //count how long the shield has been up
                 info.ShieldCounter += info.ShieldStrength;
@@ -81,9 +92,9 @@ public static class Shield
                 info.ShieldCounter = Mathf.Max(0, info.ShieldCounter - Options.ShieldRecoverySpeed);
 
 
-            //set dir
-            if (self.input[0].analogueDir != new Vector2(0, 0)) //for now, don't give myself the headache of dealing with no input
-                info.ShieldDir = Custom.VecToDeg(self.input[0].analogueDir);
+            //give i-frames
+            if (info.ShieldStrength > 0.01f)
+                info.iFrames = Mathf.Max(info.iFrames, 1);
 
 
             //apply visuals
@@ -266,6 +277,8 @@ public static class Shield
             float curRot = Mathf.Lerp(lastRot, rot, timeStacker);
             float curAlpha = Mathf.Lerp(lastAlpha, alpha, timeStacker);
             float curWhite = Mathf.Lerp(lastWhite, white, timeStacker);
+
+            curPos += Custom.DegToVec(curRot + 90f) * 30f; //make the shield be in FRONT of the player, not inside the player
 
             sLeaser.sprites[0].SetPosition(curPos - camPos);
             sLeaser.sprites[0].rotation = curRot;
