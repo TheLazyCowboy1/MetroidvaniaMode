@@ -19,6 +19,9 @@ public static class WarpNoiseBloom
     public static void RemoveHooks()
     {
         On.RoomCamera.ApplyPalette -= RoomCamera_ApplyPalette;
+        On.RoomSettings.RoomEffect.GetSliderCount -= RoomEffect_GetSliderCount;
+        On.RoomSettings.RoomEffect.GetSliderDefault -= RoomEffect_GetSliderDefault;
+        On.RoomSettings.RoomEffect.GetSliderName -= RoomEffect_GetSliderName;
     }
 
     private static void RoomCamera_ApplyPalette(On.RoomCamera.orig_ApplyPalette orig, RoomCamera self)

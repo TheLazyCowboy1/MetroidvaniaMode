@@ -168,7 +168,8 @@ public static class Shield
         {
             //alter sound start time
             ChunkSoundEmitter sound = self.room.PlaySound(SoundID.Zapper_Zap, hitChunk, false, 0.8f, 0.6f + UnityEngine.Random.value * 0.2f);
-            sound.currentSoundObject.audioSource.time = 0.5f * sound.currentSoundObject.audioSource.clip.length;
+            if (sound.currentSoundObject?.audioSource?.clip != null)
+                sound.currentSoundObject.audioSource.time = 0.5f * sound.currentSoundObject.audioSource.clip.length;
         }
         else
             self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, hitChunk);

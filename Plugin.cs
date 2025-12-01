@@ -131,6 +131,8 @@ public partial class Plugin : BaseUnityPlugin
 
             UI.Hooks.ApplyHooks();
 
+            VFX.WarpNoiseBloom.ApplyHooks();
+
             SaveData.Hooks.ApplyHooks();
             Collectibles.Hooks.ApplyHooks();
             Tools.Keybinds.ApplyHooks();
