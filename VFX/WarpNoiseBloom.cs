@@ -45,7 +45,7 @@ public static class WarpNoiseBloom
                 //apply colors
                 self.fullScreenEffect.color = new(effect.extraAmounts[0], effect.extraAmounts[1], effect.extraAmounts[2]);
 
-                Plugin.Log("Set up WarpNoiseBloom effect in room " + self.room.abstractRoom.name, 2);
+                Plugin.Log($"Set up WarpNoiseBloom effect in room {self.room.abstractRoom.name}. Amounts: {effect.amount}, {effect.extraAmounts[0]}, {effect.extraAmounts[1]}, {effect.extraAmounts[2]}", 2);
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }

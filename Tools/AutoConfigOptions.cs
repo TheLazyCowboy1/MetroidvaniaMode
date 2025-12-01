@@ -177,6 +177,8 @@ public abstract class AutoConfigOptions : OptionInterface
                 }
                 catch (Exception ex) { Plugin.Error("Error with " + cInfo.label); Plugin.Error(ex); }
             }
+
+            Tabs[i].items.Reverse(); //reverse the order so that dropdowns work better
         }
 
         MenuInitialized();

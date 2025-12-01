@@ -81,6 +81,8 @@ public partial class Plugin : BaseUnityPlugin
 
             UI.Hooks.RemoveHooks();
 
+            VFX.WarpNoiseBloom.RemoveHooks();
+
             SaveData.Hooks.RemoveHooks();
             Collectibles.Hooks.RemoveHooks();
             Tools.Keybinds.RemoveHooks();

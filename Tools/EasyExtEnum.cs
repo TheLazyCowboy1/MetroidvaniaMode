@@ -8,6 +8,8 @@ public class EasyExtEnum : Attribute
 {
     private const string PREFIX = "MVM_";
 
+    public string ID = null; //used to specify the ID
+
     public static void Register()
     {
         try
@@ -23,8 +25,9 @@ public class EasyExtEnum : Attribute
                         EasyExtEnum att = info.GetCustomAttribute<EasyExtEnum>();
                         if (att != null)
                         {
-                            info.SetValue(null, Activator.CreateInstance(info.FieldType, PREFIX + info.Name, true));
-                            debug += type.Name + ":" + PREFIX + info.Name + ", ";
+                            string name = att.ID ?? info.Name;
+                            info.SetValue(null, Activator.CreateInstance(info.FieldType, PREFIX + name, true));
+                            debug += type.Name + ":" + PREFIX + name + ", ";
                         }
                     }
                     catch (Exception ex) { Plugin.Error("Error with field " + info.Name); Plugin.Error(ex); }

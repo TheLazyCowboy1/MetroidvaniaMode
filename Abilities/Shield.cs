@@ -105,6 +105,13 @@ public static class Shield
             if (self is Player player)
             {
                 PlayerInfo info = player.GetInfo();
+
+                if (info.iFrames > 0)
+                {
+                    damage = 0;
+                    stunBonus = 0;
+                }
+
                 if (info.ShieldStrength > 0)
                 {
                     //get direction
@@ -119,30 +126,11 @@ public static class Shield
                         HitShield(player, hitChunk, info, hitStrength);
 
                         directionAndMomentum = hitDir * (3 - 2 * info.ShieldStrength);
-                        if (info.ShieldStrength > 0)
-                        {
-                            damage = 0;
-                            stunBonus = -40f;
-                        }
-                        else
-                        {
-                            //increase stunBonus
-                            stunBonus += 20f;
-                        }
                     }
                     else //shield was NOT hit
                     {
                         //break shield
-                        info.ShieldCounter = Options.ShieldMaxTime + Options.ShieldFullTime;
-                        info.ShieldStrength = 0;
-                        if (info.Shield != null)
-                            info.Shield.nextWhite = 1;
-
-                        //play sound
-                        self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, hitChunk);
-
-                        //increase stunBonus
-                        stunBonus += 20f;
+                        HitShield(player, hitChunk, info, 2f);
 
                         Plugin.Log("Shielding player hit, but the shield was missed", 2);
                     }
@@ -167,12 +155,16 @@ public static class Shield
         if (info.ShieldStrength > 0)
         {
             //alter sound start time
-            ChunkSoundEmitter sound = self.room.PlaySound(SoundID.Zapper_Zap, hitChunk, false, 0.8f, 0.6f + UnityEngine.Random.value * 0.2f);
+            ChunkSoundEmitter sound = self.room.PlaySound(SoundID.Zapper_Zap, hitChunk, false, hitStrength, 0.6f + UnityEngine.Random.value * 0.2f);
             if (sound.currentSoundObject?.audioSource?.clip != null)
                 sound.currentSoundObject.audioSource.time = 0.5f * sound.currentSoundObject.audioSource.clip.length;
         }
         else
             self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, hitChunk);
+
+        //stun player if broken
+        if (info.ShieldStrength <= 0)
+            self.Stun(40);
 
         Plugin.Log("Shield hit!", 2);
     }

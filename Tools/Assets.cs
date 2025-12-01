@@ -32,6 +32,8 @@ public static class Assets
             if (_warpNoiseBloom == null) Plugin.Error("WarpNoiseTex.shader is null!");
             WarpNoiseBloom = FShader.CreateShader("MVM_WarpNoiseBloom", _warpNoiseBloom);
 
+            Plugin.Log("Loaded assets");
+
         }
         catch (Exception ex) { Plugin.Error(ex); }
     }
