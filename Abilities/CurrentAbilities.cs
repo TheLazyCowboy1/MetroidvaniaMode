@@ -44,6 +44,8 @@ public static class CurrentAbilities
     public static bool HasHealth = false;
     public static int MaxHealth = 3;
 
+    public static bool HasShield = false;
+
     public static bool HasInventory = false;
 
     public static bool AcidImmunity = false;
@@ -128,6 +130,9 @@ public static class CurrentAbilities
                 if (!CanGlide)
                     CanGlide = CollectibleTokens.IsUnlocked(data.UnlockedRedTokens, CollectibleTokens.GlideUnlock);
 
+                if (!HasShield)
+                    HasShield = CollectibleTokens.IsUnlocked(data.UnlockedRedTokens, CollectibleTokens.ShieldUnlock);
+
                 if (!AcidImmunity)
                     CanGlide = CollectibleTokens.IsUnlocked(data.UnlockedRedTokens, CollectibleTokens.AcidImmunityUnlock);
 
@@ -175,6 +180,8 @@ public static class CurrentAbilities
             ExtraJumps = 0;
 
             CanGlide = false;
+
+            HasShield = false;
 
             HasHealth = true;
             MaxHealth = Math.Max(0, 3 + Options.ExtraHealth); //add extra health. Don't let MaxHealth be less than 0.
@@ -224,6 +231,8 @@ public static class CurrentAbilities
 
         HasHealth = Options.HasHealth;
         MaxHealth = Options.MaxHealth;
+
+        HasShield = Options.HasShield;
 
         HasInventory = Options.HasInventory;
 

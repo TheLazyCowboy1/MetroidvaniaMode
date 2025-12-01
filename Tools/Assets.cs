@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MetroidvaniaMode.Tools;
@@ -12,6 +8,11 @@ public static class Assets
 {
     private static Shader _shieldEffect;
     public static FShader ShieldEffect;
+
+    public static Texture2D ColoredNoiseTex;
+
+    private static Shader _warpNoiseBloom;
+    public static FShader WarpNoiseBloom;
 
     public static void Load()
     {
@@ -23,7 +24,14 @@ public static class Assets
             if (_shieldEffect == null) Plugin.Error("ShieldEffect.shader is null!");
             ShieldEffect = FShader.CreateShader("MVM_ShieldEffect", _shieldEffect);
 
-            //load the other stuff too of course
+            ColoredNoiseTex = assets.LoadAsset<Texture2D>("ColoredFractalNoise.png");
+            if (ColoredNoiseTex == null) Plugin.Error("ColoredFractalNoise.png is null!");
+            Shader.SetGlobalTexture("TheLazyCowboy1_ColoredNoiseTex", ColoredNoiseTex);
+
+            _warpNoiseBloom = assets.LoadAsset<Shader>("WarpNoiseTex.shader");
+            if (_warpNoiseBloom == null) Plugin.Error("WarpNoiseTex.shader is null!");
+            WarpNoiseBloom = FShader.CreateShader("MVM_WarpNoiseBloom", _warpNoiseBloom);
+
         }
         catch (Exception ex) { Plugin.Error(ex); }
     }

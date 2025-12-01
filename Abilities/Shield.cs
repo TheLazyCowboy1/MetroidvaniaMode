@@ -42,7 +42,7 @@ public static class Shield
             float prevStrength = info.ShieldStrength;
 
             info.ShieldStrength = 0;
-            if (Options.HasShield && !self.Stunned && !self.dead)
+            if (CurrentAbilities.HasShield && !self.Stunned && !self.dead)
             {
                 info.ShieldStrength = Tools.Keybinds.GetAxis(Tools.Keybinds.SHIELD_ID, self.playerState.playerNumber);
             }
