@@ -202,8 +202,6 @@ public static class Health
             if (info.ShieldStrength > 0)
             {
                 Shield.HitShield(self, grasp.grabbedChunk, info, 0.25f * grasp.grabber.TotalMass / self.TotalMass);
-                if (info.ShieldStrength <= 0)
-                    self.Stun(20); //stun for a bit because shield broke
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }

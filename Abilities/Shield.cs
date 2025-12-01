@@ -109,7 +109,7 @@ public static class Shield
                 if (info.iFrames > 0)
                 {
                     damage = 0;
-                    stunBonus = 0;
+                    stunBonus = -40f;
                 }
 
                 if (info.ShieldStrength > 0)
@@ -155,7 +155,7 @@ public static class Shield
         if (info.ShieldStrength > 0)
         {
             //alter sound start time
-            ChunkSoundEmitter sound = self.room.PlaySound(SoundID.Zapper_Zap, hitChunk, false, hitStrength, 0.6f + UnityEngine.Random.value * 0.2f);
+            ChunkSoundEmitter sound = self.room.PlaySound(SoundID.Zapper_Zap, hitChunk, false, Mathf.Clamp01(hitStrength + 0.5f), 0.6f + UnityEngine.Random.value * 0.2f);
             if (sound.currentSoundObject?.audioSource?.clip != null)
                 sound.currentSoundObject.audioSource.time = 0.5f * sound.currentSoundObject.audioSource.clip.length;
         }

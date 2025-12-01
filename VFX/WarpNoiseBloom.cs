@@ -39,7 +39,7 @@ public static class WarpNoiseBloom
             {
                 self.SetUpFullScreenEffect("Bloom");
                 self.fullScreenEffect.shader = Assets.WarpNoiseBloom;
-                self.lightBloomAlphaEffect = RoomSettings.RoomEffect.Type.Bloom;
+                self.lightBloomAlphaEffect = WarpNoiseEffectType;
                 self.lightBloomAlpha = effect.amount;
 
                 //apply colors
