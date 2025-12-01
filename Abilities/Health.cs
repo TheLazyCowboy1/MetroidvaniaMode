@@ -197,6 +197,15 @@ public static class Health
                 info.ReleaseQueued = true;
                 //TakeDamage(self, 1); //take damage on Player.Update() instead, so that lethal lizard bites deal 2 damage still
             }
+
+            //shield effect
+            if (info.ShieldStrength > 0)
+            {
+                Shield.HitShield(self, grasp.grabbedChunk, info, 0.25f * grasp.grabber.TotalMass / self.TotalMass);
+                if (info.ShieldStrength <= 0)
+                    self.Stun(20); //stun for a bit because shield broke
+            }
+
         } catch (Exception ex) { Plugin.Error(ex); }
     }
 

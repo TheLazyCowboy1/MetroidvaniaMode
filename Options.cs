@@ -2,6 +2,7 @@
 using MetroidvaniaMode.Tools;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace MetroidvaniaMode;
@@ -130,9 +131,14 @@ public class Options : AutoConfigOptions
     [Config(ACCESSIBILITY, "Dash Keybind (Controller)", "Which keybind activates the dash ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", rightSide = true, width = 120f)]
     public static KeyCode DashControllerKeyCode = KeyCode.JoystickButton4;
 
+    [Config(ACCESSIBILITY, "Shield Input (Controller)", "What activates the shield ability for gamepads/controllers. Select Button to use a normal button.", width = 100f, extraMargin = 20f, dropdownOptions = new string[] {"LT", "RT", "Button"})]
+    public static string ShieldInputType = "LT";
+
     [Config(ACCESSIBILITY, "Shield Keybind (Keyboard)", "Which keybind activates the shield ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 80f)]
     public static KeyCode ShieldKeyCode = KeyCode.S;
-    //DON'T add a controller keycode yet
+    [Config(ACCESSIBILITY, "Shield Keybind (Controller)", "Which keybind activates the shield ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 120f, rightSide = true)]
+    public static KeyCode ShieldControllerKeyCode = KeyCode.JoystickButton6;
+
 
     //ADVANCED
 
@@ -205,7 +211,8 @@ public class Options : AutoConfigOptions
     }
     public override ConfigAcceptableBase AcceptableForConfig(string id)
     {
-        if (id == nameof(DashControllerKeyCode)) return new AcceptableControllerButton(KeyCode.Joystick1Button4);
+        if (id == nameof(DashControllerKeyCode)) return new AcceptableControllerButton(KeyCode.JoystickButton4);
+        if (id == nameof(ShieldControllerKeyCode)) return new AcceptableControllerButton(KeyCode.JoystickButton6);
         return base.AcceptableForConfig(id);
     }
 
@@ -222,6 +229,36 @@ public class Options : AutoConfigOptions
                 {
                     if (item is OpKeyBinder keyBinder)
                         keyBinder.greyedOut = true; //disable it!
+                }
+            }
+        }
+        else
+        {
+            //controller keybind insanity
+            foreach (OpTab tab in Tabs)
+            {
+                foreach (UIelement item in tab.items)
+                {
+                    try
+                    {
+                        if (item is OpComboBox comboBox)
+                        {
+                            string findName = comboBox.cfgEntry.key switch
+                            {
+                                nameof(ShieldInputType) => nameof(ShieldControllerKeyCode),
+                                _ => null
+                            };
+                            if (findName == null) continue;
+
+                            OpKeyBinder keyBinder = (OpKeyBinder)tab.items.First(el => el is OpKeyBinder k && k.cfgEntry.key == findName);
+                            keyBinder.greyedOut = comboBox.value != "Button"; //grey out unless value is Button
+
+                            comboBox.OnValueChanged += (UIconfig config, string value, string oldValue) =>
+                            {
+                                keyBinder.greyedOut = value != "Button";
+                            };
+                        }
+                    } catch (Exception ex) { Plugin.Error(ex); }
                 }
             }
         }

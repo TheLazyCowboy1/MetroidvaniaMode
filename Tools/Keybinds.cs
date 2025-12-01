@@ -10,15 +10,18 @@ public static class Keybinds
     public const string DASH_ID = "MVM_Dash",
         SHIELD_ID = "MVM_Shield";
 
+    //which ids should be registered
     private static string[] ids = new string[] { DASH_ID, SHIELD_ID };
 
     //0 = LSx, 1 = LSy, 2 = RSx, 3 = RSy, 4 = LT, 5 = RT
-    public const int LEFT_TRIGGER_AXIS = 4;
+    public const int LEFT_TRIGGER_AXIS = 4,
+        RIGHT_TRIGGER_AXIS = 5;
 
-    private static int[] axes = new int[] { LEFT_TRIGGER_AXIS };
+    //which axes should be bound in the controlMap
+    private static int[] axes = new int[] { LEFT_TRIGGER_AXIS, RIGHT_TRIGGER_AXIS };
 
-
-    private static Dictionary<string, KeyCode[]> idToKeyCode = new(ids.Length+axes.Length);
+    //used for button binds for controllers
+    private static Dictionary<string, KeyCode[]> idToControllerCode = new(ids.Length);
 
 
     public static void Bind()
@@ -42,31 +45,50 @@ public static class Keybinds
             _ => KeyCode.None,
         };
     }
-    private static KeyCode IdToControllerKeyCode(string id)
+    private static KeyCode IdToBaseControllerKeyCode(string id)
     {
         return id switch
         {
             DASH_ID => Options.DashControllerKeyCode,
+            SHIELD_ID => Options.ShieldKeyCode,
             _ => KeyCode.None,
         };
     }
 
-    private static string AxisToId(int axis)
+    /*private static string AxisToId(int axis)
     {
         return axis switch
         {
             LEFT_TRIGGER_AXIS => SHIELD_ID,
             _ => null
         };
+    }*/
+
+    private static int IdToAxis(string id)
+    {
+        return id switch
+        {
+            SHIELD_ID => InputTypeToAxis(Options.ShieldInputType),
+            _ => -1
+        };
+    }
+    private static int InputTypeToAxis(string inputType)
+    {
+        return inputType switch
+        {
+            "LT" => LEFT_TRIGGER_AXIS,
+            "RT" => RIGHT_TRIGGER_AXIS,
+            _ => -1
+        };
     }
 
     private static int AxisToAction(int axis) {
         return axis switch
-        { //0 and 1 are left stick horizontal/vertical
-            //new(2, RewiredConsts.Action.UIHorizontal), //right stick left/right
-            //new(3, RewiredConsts.Action.UIVertical), //right up up/down
+        {
+            //2 => RewiredConsts.Action.UIHorizontal, //right stick left/right //I am unsure if these actions are actually used
+            //3 => RewiredConsts.Action.UIVertical, //right stick up/down
             LEFT_TRIGGER_AXIS => RewiredConsts.Action.UICheatHoldLeft, //left trigger
-            //new(5, RewiredConsts.Action.UICheatHoldRight) //right trigger
+            RIGHT_TRIGGER_AXIS => RewiredConsts.Action.UIAlternate, //right trigger //UICheatHoldRight is used in the region menu and remix menu
             _ => -1
         };
     }
@@ -74,15 +96,15 @@ public static class Keybinds
 
     public static void ApplyHooks()
     {
-        On.Options.ControlSetup.UpdateActiveController_Controller_int_bool += ControlSetup_UpdateActiveController_Controller_int_bool;
+        //On.Options.ControlSetup.UpdateActiveController_Controller_int_bool += ControlSetup_UpdateActiveController_Controller_int_bool;
     }
 
     public static void RemoveHooks()
     {
-        On.Options.ControlSetup.UpdateActiveController_Controller_int_bool -= ControlSetup_UpdateActiveController_Controller_int_bool;
+        //On.Options.ControlSetup.UpdateActiveController_Controller_int_bool -= ControlSetup_UpdateActiveController_Controller_int_bool;
     }
 
-    private static void ControlSetup_UpdateActiveController_Controller_int_bool(On.Options.ControlSetup.orig_UpdateActiveController_Controller_int_bool orig, global::Options.ControlSetup self, Rewired.Controller newController, int controllerIndex, bool forceUpdate)
+    /*private static void ControlSetup_UpdateActiveController_Controller_int_bool(On.Options.ControlSetup.orig_UpdateActiveController_Controller_int_bool orig, global::Options.ControlSetup self, Rewired.Controller newController, int controllerIndex, bool forceUpdate)
     {
         var oldController = self.recentController;
 
@@ -98,31 +120,31 @@ public static class Keybinds
                 //ensure the keycode is updated for this player!
                 foreach (string id in ids)
                 {
-                    if (!idToKeyCode.ContainsKey(id) || self.index >= idToKeyCode[id].Length) //don't cause annoying errors pls
+                    if (!idToControllerCode.ContainsKey(id) || self.index >= idToControllerCode[id].Length) //don't cause annoying errors pls
                         continue;
                     //idToKeyCode[id][self.index] = 
                     if (newController.type == Rewired.ControllerType.Joystick)
                     {
-                        idToKeyCode[id][self.index] = GetControllerCode(IdToControllerKeyCode(id), self.gamePadNumber);
+                        idToControllerCode[id][self.index] = GetControllerCode(IdToBaseControllerKeyCode(id), self.gamePadNumber);
                     }
                     else
                     {
-                        idToKeyCode[id][self.index] = IdToKeyCode(id);
+                        idToControllerCode[id][self.index] = IdToKeyCode(id);
                     }
-                    Plugin.Log($"Reassigned keycode for {id}:{self.index} = {idToKeyCode[id][self.index]}", 2);
+                    Plugin.Log($"Reassigned keycode for {id}:{self.index} = {idToControllerCode[id][self.index]}", 2);
                 }
             }
 
-            //re-assign axes
-            /*if (self.recentController.type == Rewired.ControllerType.Joystick && self.gameControlMap != null)
-            {
-                AssignAxesToControlMap(self.gameControlMap);
-            }*/
-
         } catch (Exception ex) { Plugin.Error(ex); }
-    }
+    }*/
 
 
+    /// <summary>
+    /// Whether the player is currently pressing a certain input button
+    /// </summary>
+    /// <param name="id">The input to search for. Using a non-existent ID may throw an error.</param>
+    /// <param name="playerNum">The player number: PlayerState.playerNumber</param>
+    /// <returns>True if the button is currently down; otherwise, false</returns>
     public static bool IsPressed(string id, int playerNum)
     {
         if (Plugin.ImprovedInputEnabled)
@@ -130,17 +152,39 @@ public static class Keybinds
             return ImprovedInputCompat.IsPressed(id, playerNum);
         }
 
-        return Input.GetKey(idToKeyCode[id][playerNum]);
+        var controlSetup = RWCustom.Custom.rainWorld.options.controls[playerNum];
+        if (controlSetup.gamePad)
+        {
+            int axis = IdToAxis(id);
+            if (axis < 0)
+            {
+                return Input.GetKey(idToControllerCode[id][controlSetup.gamePadNumber]); //controller key bind
+            }
+            return controlSetup.player.GetAxisRaw(AxisToAction(axis)) > 0.1f; //axis
+        }
+        return Input.GetKey(IdToKeyCode(id)); //keyboard
     }
 
-    public static float GetAxis(int axis, int playerNum)
+    /// <summary>
+    /// How much the player is currently pressing a certain input
+    /// </summary>
+    /// <param name="id">The input to search for. Using a non-existent ID may throw an error.</param>
+    /// <param name="playerNum">The player number: PlayerState.playerNumber</param>
+    /// <returns>How depressed the axis is from 0 to 1 (or -1 to 1 if applicable). If the input is mapped to a button, returns 1 if pressed; else 0.</returns>
+    public static float GetAxis(string id, int playerNum)
     {
         var controlSetup = RWCustom.Custom.rainWorld.options.controls[playerNum];
         if (controlSetup.gamePad)
-            return controlSetup.player.GetAxisRaw(AxisToAction(axis));
+        {
+            int axis = IdToAxis(id);
+            if (axis >= 0) //only return the axis if the input is actually bound to this axis
+            {
+                return controlSetup.player.GetAxisRaw(AxisToAction(axis));
+            }
+        }
 
         //for keyboard, use the key press
-        return IsPressed(AxisToId(axis), playerNum) ? 1f : 0f;
+        return IsPressed(id, playerNum) ? 1f : 0f;
     }
 
     public static void GameStarted()
@@ -154,35 +198,28 @@ public static class Keybinds
                 //assign keybinds
                 foreach (string id in ids)
                 {
-                    KeyCode[] codes = new KeyCode[controls.Length];
-                    KeyCode keyboardCode = IdToKeyCode(id);
-                    KeyCode controllerCode = IdToControllerKeyCode(id);
+                    KeyCode[] codes = new KeyCode[8];
+                    //KeyCode keyboardCode = IdToKeyCode(id);
+                    KeyCode controllerCode = IdToBaseControllerKeyCode(id);
 
-                    for (int i = 0; i < controls.Length; i++)
+                    for (int i = 0; i < codes.Length; i++)
                     {
-                        if (controls[i].gamePad)
-                        {
-                            codes[i] = GetControllerCode(controllerCode, controls[i].gamePadNumber);
-                            Plugin.Log("Controller code: " + codes[i].ToString());
-                        }
-                        else
-                        {
-                            codes[i] = keyboardCode;
-                        }
+                        codes[i] = GetControllerCode(controllerCode, i);
+                        Plugin.Log("Controller code: " + codes[i].ToString(), 2);
                     }
 
-                    idToKeyCode[id] = codes;
+                    idToControllerCode[id] = codes;
                 }
 
                 //assign axis buttons for keyboard
-                foreach (int axis in axes)
+                /*foreach (int axis in axes)
                 {
                     string id = AxisToId(axis);
                     KeyCode[] codes = new KeyCode[controls.Length];
                     KeyCode code = IdToKeyCode(id);
                     for (int i = 0; i < codes.Length; i++) codes[i] = code; //just make every player use the same keycode for it!
-                    idToKeyCode[id] = codes;
-                }
+                    idToControllerCode[id] = codes;
+                }*/
 
                 //assign axes for THIS map
                 foreach (var control in RWCustom.Custom.rainWorld.options.controls)
@@ -196,7 +233,7 @@ public static class Keybinds
                     var maps = control.player.controllers.maps.GetAllMaps();
                     foreach (var map in maps)
                     {
-                        if (map.controllerType != Rewired.ControllerType.Joystick)
+                        if (map.controllerType != Rewired.ControllerType.Joystick)// || map.categoryId != RewiredConsts.Category.UI)
                             continue; //only applies to Joysticks
 
                         foreach (int axis in axes)
@@ -214,7 +251,6 @@ public static class Keybinds
                             }
                         }
                     }
-
                 }
 
             }

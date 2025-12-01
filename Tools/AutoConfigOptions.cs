@@ -14,7 +14,7 @@ public abstract class AutoConfigOptions : OptionInterface
         public string Tab, Label = "", Desc = "";
         public bool rightSide = false;
         public bool hide = false;
-        public float width = -1f, spaceBefore = 0f, spaceAfter = 0f, height = -1f;
+        public float width = -1f, spaceBefore = 0f, spaceAfter = 0f, height = -1f, extraMargin = 0;
         /// <summary>
         /// Used for float configs
         /// </summary>
@@ -49,7 +49,7 @@ public abstract class AutoConfigOptions : OptionInterface
         public string desc;
         public bool rightSide;
         public bool hide;
-        public float width, spaceBefore, spaceAfter, height;
+        public float width, spaceBefore, spaceAfter, height, extraMargin;
         public byte precision;
         public string[] dropdownOptions;
     }
@@ -96,8 +96,8 @@ public abstract class AutoConfigOptions : OptionInterface
 
                     configs.Add(new() { config = configBase, tab = att.Tab, label = att.Label.Length > 0 ? att.Label : FieldNameToLabel(info.Name), desc = att.Desc,
                         hide = att.hide, rightSide = att.rightSide, width = att.width, spaceBefore = att.spaceBefore,
-                        spaceAfter = att.spaceAfter, height = att.height, precision = att.precision,
-                        dropdownOptions = att.dropdownOptions
+                        spaceAfter = att.spaceAfter, height = att.height, extraMargin = att.extraMargin,
+                        precision = att.precision, dropdownOptions = att.dropdownOptions
                     });
                 }
             } catch (Exception ex) { Plugin.Error(ex); }
@@ -137,7 +137,7 @@ public abstract class AutoConfigOptions : OptionInterface
                 {
                     if (cInfo.tab == name)
                     {
-                        float x = cInfo.rightSide ? tInfo.rightMargin : tInfo.leftMargin;
+                        float x = (cInfo.rightSide ? tInfo.rightMargin : tInfo.leftMargin) + cInfo.extraMargin;
                         float w = cInfo.width >= 0 ? cInfo.width : tInfo.updownWidth;
                         float h = cInfo.height >= 0 ? cInfo.height : tInfo.defaultHeight;
                         float t = tInfo.textOffset + w - tInfo.updownWidth; //updownWidth is the default

@@ -1,4 +1,5 @@
-﻿using RWCustom;
+﻿using Epic.OnlineServices.Presence;
+using RWCustom;
 using System;
 using UnityEngine;
 
@@ -43,7 +44,7 @@ public static class Shield
             info.ShieldStrength = 0;
             if (Options.HasShield && !self.Stunned && !self.dead)
             {
-                info.ShieldStrength = Tools.Keybinds.GetAxis(Tools.Keybinds.LEFT_TRIGGER_AXIS, self.playerState.playerNumber);
+                info.ShieldStrength = Tools.Keybinds.GetAxis(Tools.Keybinds.SHIELD_ID, self.playerState.playerNumber);
             }
 
             if (info.Shield != null)
@@ -101,9 +102,9 @@ public static class Shield
     {
         try
         {
-            if (self is Player p)
+            if (self is Player player)
             {
-                PlayerInfo info = p.GetInfo();
+                PlayerInfo info = player.GetInfo();
                 if (info.ShieldStrength > 0)
                 {
                     //get direction
@@ -114,31 +115,20 @@ public static class Shield
                     {
                         //set shield strength
                         float hitStrength = damage + stunBonus / 80f;
-                        info.ShieldCounter = Mathf.Min(info.ShieldCounter + Options.ShieldFullTime * hitStrength / Options.ShieldDamageFac, Options.ShieldMaxTime + Options.ShieldFullTime); //can go above normal max time!!
-                        info.ShieldStrength = GetShieldStrength(info);
 
-                        //visual effect
-                        if (info.Shield != null)
-                            info.Shield.nextWhite = Mathf.Clamp01(hitStrength * 5);
-
-                        //audio effect
-                        if (info.ShieldStrength > 0)
-                            self.room.PlaySound(SoundID.Zapper_Zap, hitChunk, false, 0.8f, 0.6f + UnityEngine.Random.value * 0.2f);
-                        else
-                            self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, hitChunk);
+                        HitShield(player, hitChunk, info, hitStrength);
 
                         directionAndMomentum = hitDir * (3 - 2 * info.ShieldStrength);
                         if (info.ShieldStrength > 0)
                         {
                             damage = 0;
                             stunBonus = -40f;
-                        } else
+                        }
+                        else
                         {
                             //increase stunBonus
                             stunBonus += 20f;
                         }
-
-                        Plugin.Log("Shield hit!", 2);
                     }
                     else //shield was NOT hit
                     {
@@ -161,6 +151,29 @@ public static class Shield
         } catch (Exception ex) { Plugin.Error(ex); }
 
         orig(self, source, directionAndMomentum, hitChunk, hitAppendage, type, damage, stunBonus);
+    }
+
+    public static void HitShield(Player self, BodyChunk hitChunk, PlayerInfo info, float hitStrength)
+    {
+
+        info.ShieldCounter = Mathf.Min(info.ShieldCounter + Options.ShieldFullTime * hitStrength / Options.ShieldDamageFac, Options.ShieldMaxTime + Options.ShieldFullTime); //can go above normal max time!!
+        info.ShieldStrength = GetShieldStrength(info);
+
+        //visual effect
+        if (info.Shield != null)
+            info.Shield.nextWhite = Mathf.Clamp01(hitStrength * 5);
+
+        //audio effect
+        if (info.ShieldStrength > 0)
+        {
+            //alter sound start time
+            ChunkSoundEmitter sound = self.room.PlaySound(SoundID.Zapper_Zap, hitChunk, false, 0.8f, 0.6f + UnityEngine.Random.value * 0.2f);
+            sound.currentSoundObject.audioSource.time = 0.5f * sound.currentSoundObject.audioSource.clip.length;
+        }
+        else
+            self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, hitChunk);
+
+        Plugin.Log("Shield hit!", 2);
     }
 
 
