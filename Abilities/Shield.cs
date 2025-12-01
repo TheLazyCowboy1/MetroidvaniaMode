@@ -132,8 +132,13 @@ public static class Shield
 
                 if (info.iFrames > 0)
                 {
-                    damage = 0;
-                    stunBonus = -40f;
+                    int oldStun = player.stun;
+                    float oldAerobicLevel = player.aerobicLevel;
+
+                    orig(self, source, directionAndMomentum, hitChunk, hitAppendage, type, 0, 0);
+
+                    player.stun = oldStun;
+                    player.aerobicLevel = oldAerobicLevel;
                 }
             }
         } catch (Exception ex) { Plugin.Error(ex); }

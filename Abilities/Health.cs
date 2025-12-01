@@ -68,14 +68,14 @@ public static class Health
 
             CurrentHealth = Mathf.Max(0, CurrentHealth - damage);
 
-            if (CurrentHealth == 0)
-                self.playerState.permanentDamageTracking = 0.98f; //make the player injured
-            else
-                self.playerState.permanentDamageTracking *= 0.5f; //halve the player's tracked damage, so the player doesn't die from rocks
-
             //only set maxIFrames when actually taking damage
             info.maxIFrames = Options.MaxInvincibilityFrames;
         }
+
+        if (CurrentHealth == 0)
+            self.playerState.permanentDamageTracking = Math.Max(self.playerState.permanentDamageTracking, 0.98); //make the player injured
+        else
+            self.playerState.permanentDamageTracking *= 0.5f; //halve the player's tracked damage, so the player doesn't die from rocks
 
         //set iFrames
         info.iFrames = Options.InvincibilityFrames; //1 second of i-frames
