@@ -50,7 +50,7 @@ public static class Keybinds
         return id switch
         {
             DASH_ID => Options.DashControllerKeyCode,
-            SHIELD_ID => Options.ShieldKeyCode,
+            SHIELD_ID => Options.ShieldControllerKeyCode,
             _ => KeyCode.None,
         };
     }

@@ -178,7 +178,13 @@ public abstract class AutoConfigOptions : OptionInterface
                 catch (Exception ex) { Plugin.Error("Error with " + cInfo.label); Plugin.Error(ex); }
             }
 
-            Tabs[i].items = Tabs[i].items.Reverse().ToHashSet(); //reverse the order so that dropdowns work better
+            //Tabs[i].items = Tabs[i].items.Reverse().ToHashSet(); //attempt to make dropdowns not be behind the configs
+            //move comboBoxes to the front
+            foreach (UIelement el in Tabs[i].items)
+            {
+                if (el is OpComboBox comboBox)
+                    comboBox.myContainer.MoveToFront();
+            }
         }
 
         MenuInitialized();

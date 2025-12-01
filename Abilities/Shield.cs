@@ -106,12 +106,6 @@ public static class Shield
             {
                 PlayerInfo info = player.GetInfo();
 
-                if (info.iFrames > 0)
-                {
-                    damage = 0;
-                    stunBonus = -40f;
-                }
-
                 if (info.ShieldStrength > 0)
                 {
                     //get direction
@@ -135,6 +129,12 @@ public static class Shield
                         Plugin.Log("Shielding player hit, but the shield was missed", 2);
                     }
                 }
+
+                if (info.iFrames > 0)
+                {
+                    damage = 0;
+                    stunBonus = -40f;
+                }
             }
         } catch (Exception ex) { Plugin.Error(ex); }
 
@@ -144,7 +144,8 @@ public static class Shield
     public static void HitShield(Player self, BodyChunk hitChunk, PlayerInfo info, float hitStrength)
     {
 
-        info.ShieldCounter = Mathf.Min(info.ShieldCounter + Options.ShieldFullTime * hitStrength / Options.ShieldDamageFac, Options.ShieldMaxTime + Options.ShieldFullTime); //can go above normal max time!!
+        info.ShieldCounter = Mathf.Clamp(info.ShieldCounter + Options.ShieldFullTime * hitStrength / Options.ShieldDamageFac,
+            0, Options.ShieldMaxTime + Options.ShieldFullTime); //can go above normal max time!!
         info.ShieldStrength = GetShieldStrength(info);
 
         //visual effect
@@ -166,7 +167,7 @@ public static class Shield
         if (info.ShieldStrength <= 0)
             self.Stun(40);
 
-        Plugin.Log("Shield hit!", 2);
+        Plugin.Log("Shield hit! Force = " + hitStrength, 2);
     }
 
 
@@ -207,7 +208,7 @@ public static class Shield
 
             lastRot = rot;
 
-            AdjustAngle(ref rot, nextRot); //don't have it snap weirdly from 0 to 360
+            AdjustAngle(ref nextRot, rot); //don't have it snap weirdly from 0 to 360
 
             rot = Custom.LerpAndTick(rot, nextRot, 0.1f, 5f);
 
