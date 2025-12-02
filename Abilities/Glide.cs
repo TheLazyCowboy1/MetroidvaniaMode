@@ -41,7 +41,8 @@ public static class Glide
             PlayerInfo info = self.GetInfo();
 
             //check if we should stop gliding
-            if (info.Gliding && (!self.input[0].jmp || self.canJump > 0 || self.bodyMode == Player.BodyModeIndex.Swimming))
+            if (info.Gliding && (!self.input[0].jmp || self.canJump > 0
+                || (self.bodyMode != Player.BodyModeIndex.Default && self.bodyMode != Player.BodyModeIndex.Crawl && self.bodyMode != Player.BodyModeIndex.Stand && self.bodyMode != Player.BodyModeIndex.ZeroG)))
             {
                 info.Gliding = false; //stop gliding if we're not holding jump, or if we regain our ability to jump
             }

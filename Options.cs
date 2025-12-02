@@ -126,18 +126,21 @@ public class Options : AutoConfigOptions
     [Config(ACCESSIBILITY, "Extra Health", "Increases your health in order to make the game easier. Increase this number if the game is too difficult for you."), LimitRange(-10, 20)]
     public static int ExtraHealth = 0;
 
-    [Config(ACCESSIBILITY, "Dash Keybind (Keyboard)", "Which keybind activates the dash ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 80f)]
+    [Config(ACCESSIBILITY, "Dash Input (Controller)", "What activates the dash ability for gamepads/controllers.\nMap the input to a trigger, or select Button to use a normal controller button.", width = 100f, dropdownOptions = new string[] { "LT", "RT", "Button" })]
+    public static string DashInputType = "Button";
+    [Config(ACCESSIBILITY, "Dash Keybind (Keyboard)", "Which keybind activates the dash ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 80f, rightSide = true)]
     public static KeyCode DashKeyCode = KeyCode.D;
-    [Config(ACCESSIBILITY, "Dash Keybind (Controller)", "Which keybind activates the dash ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", rightSide = true, width = 120f)]
+
+    [Config(ACCESSIBILITY, "Dash Keybind (Controller)", "Which keybind activates the dash ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 120f, rightSide = true)]
     public static KeyCode DashControllerKeyCode = KeyCode.JoystickButton4;
 
-    [Config(ACCESSIBILITY, "Shield Input (Controller)", "What activates the shield ability for gamepads/controllers. Select Button to use a normal button.", width = 100f, extraMargin = 20f, dropdownOptions = new string[] {"LT", "RT", "Button"})]
+    [Config(ACCESSIBILITY, "Shield Input (Controller)", "What activates the shield ability for gamepads/controllers.\nMap the input to a trigger, or select Button to use a normal controller button.", width = 100f, dropdownOptions = new string[] {"LT", "RT", "Button"})]
     public static string ShieldInputType = "LT";
-
-    [Config(ACCESSIBILITY, "Shield Keybind (Keyboard)", "Which keybind activates the shield ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 80f)]
+    [Config(ACCESSIBILITY, "Shield Keybind (Keyboard)", "Which keybind activates the shield ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 80f, rightSide = true)]
     public static KeyCode ShieldKeyCode = KeyCode.S;
+
     [Config(ACCESSIBILITY, "Shield Keybind (Controller)", "Which keybind activates the shield ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 120f, rightSide = true)]
-    public static KeyCode ShieldControllerKeyCode = KeyCode.JoystickButton6;
+    public static KeyCode ShieldControllerKeyCode = KeyCode.JoystickButton8;
 
 
     //ADVANCED

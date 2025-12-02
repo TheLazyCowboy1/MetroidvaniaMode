@@ -74,7 +74,7 @@ public static class Shield
                 info.Shield.nextWhite = Mathf.Clamp01(info.ShieldStrength - prevStrength);
 
                 //add a sound for turning the shield on
-                if (info.ShieldStrength > 0.5f && prevStrength < 0.5f)
+                if (info.ShieldStrength >= 0.5f && prevStrength < 0.5f)
                     self.room.PlaySound(SoundID.Slugcat_Pick_Up_Spear, self.mainBodyChunk, false, 1f, 0.6f + 0.15f * UnityEngine.Random.value);
 
                 //make the slugcat put its arms out
@@ -95,7 +95,7 @@ public static class Shield
                 self.input[0].pckp = false;
 
                 //count how long the shield has been up
-                info.ShieldCounter += info.ShieldStrength;
+                info.ShieldCounter += info.ShieldStrength * 0.5f * (info.ShieldStrength + 1); //squared-ish, so lowering shield is encouraged
             }
             else //if the shield is down, decrement the counter
                 info.ShieldCounter = Mathf.Max(0, info.ShieldCounter - Options.ShieldRecoverySpeed);
@@ -122,7 +122,7 @@ public static class Shield
     {
         try
         {
-            if (Options.HasHealth && self is Player player)
+            if (CurrentAbilities.HasShield && self is Player player)
             {
                 PlayerInfo info = player.GetInfo();
 
@@ -134,10 +134,8 @@ public static class Shield
 
                     if (Vector2.Dot(shieldDir, hitDir) < 0) //if the shield was actually hit
                     {
-                        //set shield strength
-                        float hitStrength = damage + stunBonus / 80f;
-
-                        HitShield(player, hitChunk, info, hitStrength);
+                        //impact shield
+                        HitShield(player, hitChunk, info, damage + stunBonus / 80f);
 
                         directionAndMomentum = hitDir * (3 - 2 * info.ShieldStrength);
                     }
@@ -148,14 +146,14 @@ public static class Shield
 
                         Plugin.Log("Shielding player hit, but the shield was missed", 2);
                     }
-                }
 
-                if (info.iFrames > 0)
-                {
+
+                    //prevent the player from being stunned or taking damage
+
                     int oldStun = player.stun;
                     float oldAerobicLevel = player.aerobicLevel;
                     //if (Health.CurrentHealth > 0)
-                        //player.playerState.permanentDamageTracking *= 0.5f;
+                    //player.playerState.permanentDamageTracking *= 0.5f;
 
                     orig(self, source, directionAndMomentum, hitChunk, hitAppendage, type, 0, 0);
 
@@ -175,7 +173,7 @@ public static class Shield
     {
         try
         {
-            if (Options.HasHealth)
+            if (CurrentAbilities.HasShield)
             {
                 PlayerInfo info = self.GetInfo();
 
@@ -216,7 +214,7 @@ public static class Shield
     public static void HitShield(Player self, BodyChunk hitChunk, PlayerInfo info, float hitStrength)
     {
 
-        info.ShieldCounter = Mathf.Clamp(info.ShieldCounter + Options.ShieldFullTime * hitStrength / Options.ShieldDamageFac,
+        info.ShieldCounter = Mathf.Clamp(info.ShieldCounter + Options.ShieldFullTime * hitStrength / Options.ShieldDamageFac / info.ShieldStrength, //hit harder when at lower shield strength
             0, Options.ShieldMaxTime + Options.ShieldFullTime); //can go above normal max time!!
         info.ShieldStrength = GetShieldStrength(info);
 
@@ -227,13 +225,12 @@ public static class Shield
         //audio effect
         if (info.ShieldStrength > 0)
         {
-            //alter sound start time
-            ChunkSoundEmitter sound = self.room.PlaySound(SoundID.Zapper_Zap, hitChunk, false, Mathf.Clamp01(hitStrength), 1.1f + UnityEngine.Random.value * 0.2f);
-            if (sound.currentSoundObject?.audioSource?.clip != null)
-                sound.currentSoundObject.audioSource.time = 0.5f * sound.currentSoundObject.audioSource.clip.length;
+            self.room.PlaySound(SoundID.Flare_Bomb_Hit_Creature, hitChunk, false, Mathf.Clamp01(hitStrength), 0.7f + UnityEngine.Random.value * 0.2f);
         }
         else
-            self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, hitChunk, false, 1f, 1.3f);
+        {
+            self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, hitChunk, false, 1f, 1.3f + UnityEngine.Random.value * 0.2f);
+        }
 
         //stun player if broken
         if (info.ShieldStrength <= 0)

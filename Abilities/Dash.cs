@@ -65,6 +65,8 @@ public static class Dash
                     self.canJump = 0; //don't double-jump!
                     self.wantToJump = 0;
 
+                    self.noGrabCounter = 10; //don't grab poles for a bit
+
                     //sounds
                     self.room.PlaySound(SoundID.Slugcat_Throw_Rock, self.mainBodyChunk, false, 1f, 0.9f);
 

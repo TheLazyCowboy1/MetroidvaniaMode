@@ -29,8 +29,8 @@ public static class Keybinds
         //if (Plugin.ImprovedInputEnabled) //this doesn't even work, since we don't know if it's enabled yet!
         try
         {
-            ImprovedInputCompat.Register(DASH_ID, "Dash", KeyCode.D, KeyCode.JoystickButton4);
-            ImprovedInputCompat.Register(SHIELD_ID, "Shield", KeyCode.S, KeyCode.None);
+            ImprovedInputCompat.Register(DASH_ID, "Dash", Options.DashKeyCode, Options.DashControllerKeyCode);
+            ImprovedInputCompat.Register(SHIELD_ID, "Shield", Options.ShieldKeyCode, Options.ShieldControllerKeyCode);
             Plugin.Log("Successfully bound keybinds with Improved Input Config!");
         } catch { }
     }
@@ -55,19 +55,11 @@ public static class Keybinds
         };
     }
 
-    /*private static string AxisToId(int axis)
-    {
-        return axis switch
-        {
-            LEFT_TRIGGER_AXIS => SHIELD_ID,
-            _ => null
-        };
-    }*/
-
     private static int IdToAxis(string id)
     {
         return id switch
         {
+            DASH_ID => InputTypeToAxis(Options.DashInputType),
             SHIELD_ID => InputTypeToAxis(Options.ShieldInputType),
             _ => -1
         };
@@ -94,51 +86,6 @@ public static class Keybinds
     }
 
 
-    public static void ApplyHooks()
-    {
-        //On.Options.ControlSetup.UpdateActiveController_Controller_int_bool += ControlSetup_UpdateActiveController_Controller_int_bool;
-    }
-
-    public static void RemoveHooks()
-    {
-        //On.Options.ControlSetup.UpdateActiveController_Controller_int_bool -= ControlSetup_UpdateActiveController_Controller_int_bool;
-    }
-
-    /*private static void ControlSetup_UpdateActiveController_Controller_int_bool(On.Options.ControlSetup.orig_UpdateActiveController_Controller_int_bool orig, global::Options.ControlSetup self, Rewired.Controller newController, int controllerIndex, bool forceUpdate)
-    {
-        var oldController = self.recentController;
-
-        orig(self, newController, controllerIndex, forceUpdate);
-
-        try
-        {
-            if (self.recentController == null || oldController?.type == self.recentController.type)
-                return; //must changing controller type
-            //re-assign keycodes
-            if (!Plugin.ImprovedInputEnabled)
-            {
-                //ensure the keycode is updated for this player!
-                foreach (string id in ids)
-                {
-                    if (!idToControllerCode.ContainsKey(id) || self.index >= idToControllerCode[id].Length) //don't cause annoying errors pls
-                        continue;
-                    //idToKeyCode[id][self.index] = 
-                    if (newController.type == Rewired.ControllerType.Joystick)
-                    {
-                        idToControllerCode[id][self.index] = GetControllerCode(IdToBaseControllerKeyCode(id), self.gamePadNumber);
-                    }
-                    else
-                    {
-                        idToControllerCode[id][self.index] = IdToKeyCode(id);
-                    }
-                    Plugin.Log($"Reassigned keycode for {id}:{self.index} = {idToControllerCode[id][self.index]}", 2);
-                }
-            }
-
-        } catch (Exception ex) { Plugin.Error(ex); }
-    }*/
-
-
     /// <summary>
     /// Whether the player is currently pressing a certain input button
     /// </summary>
@@ -147,20 +94,24 @@ public static class Keybinds
     /// <returns>True if the button is currently down; otherwise, false</returns>
     public static bool IsPressed(string id, int playerNum)
     {
-        if (Plugin.ImprovedInputEnabled)
-        {
-            return ImprovedInputCompat.IsPressed(id, playerNum);
-        }
-
         var controlSetup = RWCustom.Custom.rainWorld.options.controls[playerNum];
+
         if (controlSetup.gamePad)
         {
             int axis = IdToAxis(id);
-            if (axis < 0)
+            if (axis >= 0)
             {
-                return Input.GetKey(idToControllerCode[id][controlSetup.gamePadNumber]); //controller key bind
+                return controlSetup.player.GetAxisRaw(AxisToAction(axis)) > 0.2f; //axis
             }
-            return controlSetup.player.GetAxisRaw(AxisToAction(axis)) > 0.1f; //axis
+        }
+
+        if (Plugin.ImprovedInputEnabled)
+        {
+            return ImprovedInputCompat.IsPressed(id, playerNum); //improved input config
+        }
+        if (controlSetup.gamePad)
+        {
+            return Input.GetKey(idToControllerCode[id][controlSetup.gamePadNumber]); //controller key bind
         }
         return Input.GetKey(IdToKeyCode(id)); //keyboard
     }
@@ -187,6 +138,9 @@ public static class Keybinds
         return IsPressed(id, playerNum) ? 1f : 0f;
     }
 
+    /// <summary>
+    /// Maps the axes (e.g: left and right trigger) to their actions, and maps the gamepad buttons to keycodes
+    /// </summary>
     public static void GameStarted()
     {
         try
@@ -205,21 +159,12 @@ public static class Keybinds
                     for (int i = 0; i < codes.Length; i++)
                     {
                         codes[i] = GetControllerCode(controllerCode, i);
-                        Plugin.Log("Controller code: " + codes[i].ToString(), 2);
+                        if (i == 0)
+                            Plugin.Log("Controller code: " + codes[i].ToString(), 2);
                     }
 
                     idToControllerCode[id] = codes;
                 }
-
-                //assign axis buttons for keyboard
-                /*foreach (int axis in axes)
-                {
-                    string id = AxisToId(axis);
-                    KeyCode[] codes = new KeyCode[controls.Length];
-                    KeyCode code = IdToKeyCode(id);
-                    for (int i = 0; i < codes.Length; i++) codes[i] = code; //just make every player use the same keycode for it!
-                    idToControllerCode[id] = codes;
-                }*/
 
                 //assign axes for THIS map
                 foreach (var control in RWCustom.Custom.rainWorld.options.controls)
