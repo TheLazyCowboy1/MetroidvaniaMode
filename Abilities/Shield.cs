@@ -1,5 +1,4 @@
-﻿using Epic.OnlineServices.Presence;
-using RWCustom;
+﻿using RWCustom;
 using System;
 using UnityEngine;
 
@@ -225,7 +224,7 @@ public static class Shield
         //audio effect
         if (info.ShieldStrength > 0)
         {
-            self.room.PlaySound(SoundID.Flare_Bomb_Hit_Creature, hitChunk, false, Mathf.Clamp01(hitStrength), 0.7f + UnityEngine.Random.value * 0.2f);
+            self.room.PlaySound(SoundID.Spear_Bounce_Off_Wall, hitChunk, false, Mathf.Clamp01(hitStrength), 0.6f + UnityEngine.Random.value * 0.2f);
         }
         else
         {

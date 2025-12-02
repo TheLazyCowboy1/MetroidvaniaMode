@@ -131,7 +131,7 @@ public class Options : AutoConfigOptions
     [Config(ACCESSIBILITY, "Dash Keybind (Keyboard)", "Which keybind activates the dash ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 80f, rightSide = true)]
     public static KeyCode DashKeyCode = KeyCode.D;
 
-    [Config(ACCESSIBILITY, "Dash Keybind (Controller)", "Which keybind activates the dash ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 120f, rightSide = true)]
+    [Config(ACCESSIBILITY, "Dash Keybind (Controller)", "Which keybind activates the dash ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 120f, rightSide = true, spaceAfter = 15f)] //leave room for dropdown
     public static KeyCode DashControllerKeyCode = KeyCode.JoystickButton4;
 
     [Config(ACCESSIBILITY, "Shield Input (Controller)", "What activates the shield ability for gamepads/controllers.\nMap the input to a trigger, or select Button to use a normal controller button.", width = 100f, dropdownOptions = new string[] {"LT", "RT", "Button"})]
@@ -139,7 +139,7 @@ public class Options : AutoConfigOptions
     [Config(ACCESSIBILITY, "Shield Keybind (Keyboard)", "Which keybind activates the shield ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 80f, rightSide = true)]
     public static KeyCode ShieldKeyCode = KeyCode.S;
 
-    [Config(ACCESSIBILITY, "Shield Keybind (Controller)", "Which keybind activates the shield ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 120f, rightSide = true)]
+    [Config(ACCESSIBILITY, "Shield Keybind (Controller)", "Which keybind activates the shield ability, if it is enabled\nTHIS OPTION DOES NOTHING IF YOU HAVE IMPROVED INPUT CONFIG ENABLED!", width = 120f, rightSide = true, spaceAfter = 15f)] //leave room for dropdown
     public static KeyCode ShieldControllerKeyCode = KeyCode.JoystickButton8;
 
 
@@ -186,7 +186,7 @@ public class Options : AutoConfigOptions
     [Config(ADVANCED, "Shield Recovery Speed", "How quickly the shield cooldown decreases so it can be used again.\n2.0 == half as long as ShieldMaxTime"), LimitRange(0, 100)]
     public static float ShieldRecoverySpeed = 3f;
     [Config(ADVANCED, "Shield Damage Fac", "How much damage the shield can block", rightSide = true), LimitRange(0, 100)]
-    public static float ShieldDamageFac = 2f;
+    public static float ShieldDamageFac = 3f;
 
     [Config(ADVANCED, "/40 Shield Break Stun", "The maximum time that the player can be stunned when the shield breaks, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 800)]
     public static int ShieldStunTime = 140;
@@ -251,6 +251,7 @@ public class Options : AutoConfigOptions
                         {
                             string findName = comboBox.cfgEntry.key switch
                             {
+                                nameof(DashInputType) => nameof(DashControllerKeyCode),
                                 nameof(ShieldInputType) => nameof(ShieldControllerKeyCode),
                                 _ => null
                             };
