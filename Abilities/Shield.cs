@@ -12,12 +12,14 @@ public static class Shield
         //On.Player.Update += Player_Update;
         On.Player.checkInput += Player_checkInput;
         On.Creature.Violence += Creature_Violence;
+        On.Player.SpearStick += Player_SpearStick;
     }
 
     public static void RemoveHooks()
     {
         On.Player.checkInput -= Player_checkInput;
         On.Creature.Violence -= Creature_Violence;
+        On.Player.SpearStick -= Player_SpearStick;
     }
 
 
@@ -58,7 +60,7 @@ public static class Shield
             {
                 info.ShieldStrength = GetShieldStrength(info);
 
-                if (info.Shield != null && info.Shield.slatedForDeletetion)
+                if (info.Shield != null && (info.Shield.slatedForDeletetion || info.Shield.room != self.room))
                     info.Shield = null; //we need a new shield
 
                 if (info.Shield == null) //create a new shield
@@ -73,12 +75,19 @@ public static class Shield
 
                 //add a sound for turning the shield on
                 if (info.ShieldStrength > 0.5f && prevStrength < 0.5f)
-                    self.room.PlaySound(SoundID.Coral_Circuit_Reactivate, self.mainBodyChunk, false, 0.7f, 1.2f);
+                    self.room.PlaySound(SoundID.Slugcat_Pick_Up_Spear, self.mainBodyChunk, false, 0.7f, 0.7f);
 
                 //make the slugcat put its arms out
                 if (self.graphicsModule is PlayerGraphics graph)
                 {
-                    //graph.hands[0].
+                    graph.blink = Mathf.Max(graph.blink, 2); //keep eyes shut
+                    Vector2 reachPos = graph.head.pos + 60f * Custom.DegToVec(info.ShieldDir);
+                    graph.LookAtPoint(reachPos, 0.5f); //look at the shield
+                    foreach (SlugcatHand hand in graph.hands)
+                    {
+                        hand.reachingForObject = true; //put hands out towards the shield
+                        hand.absoluteHuntPos = reachPos;
+                    }
                 }
 
                 //prevent the player from grabbing or throwing and stuff like that
@@ -113,7 +122,7 @@ public static class Shield
     {
         try
         {
-            if (self is Player player)
+            if (Options.HasHealth && self is Player player)
             {
                 PlayerInfo info = player.GetInfo();
 
@@ -145,9 +154,8 @@ public static class Shield
                 {
                     int oldStun = player.stun;
                     float oldAerobicLevel = player.aerobicLevel;
-
-                    if (Health.CurrentHealth > 0)
-                        player.playerState.permanentDamageTracking *= 0.5f;
+                    //if (Health.CurrentHealth > 0)
+                        //player.playerState.permanentDamageTracking *= 0.5f;
 
                     orig(self, source, directionAndMomentum, hitChunk, hitAppendage, type, 0, 0);
 
@@ -161,6 +169,49 @@ public static class Shield
 
         orig(self, source, directionAndMomentum, hitChunk, hitAppendage, type, damage, stunBonus);
     }
+
+    //prevent players from becoming pincushions
+    private static bool Player_SpearStick(On.Player.orig_SpearStick orig, Player self, Weapon source, float dmg, BodyChunk chunk, PhysicalObject.Appendage.Pos appPos, Vector2 direction)
+    {
+        try
+        {
+            if (Options.HasHealth)
+            {
+                PlayerInfo info = self.GetInfo();
+
+                if (info.ShieldStrength > 0)
+                {
+                    //get direction
+                    Vector2 shieldDir = Custom.DegToVec(info.ShieldDir);
+
+                    if (Vector2.Dot(shieldDir, direction) < 0) //if the shield was actually hit
+                    {
+                        //set shield strength
+
+                        HitShield(self, chunk, info, 2f * dmg);
+
+                        //add extra force to the hit
+                        chunk.vel += source.firstChunk.vel * source.firstChunk.mass / chunk.mass * (2 - 2 * info.ShieldStrength);
+
+                        Plugin.Log("Spear deflected by a shield!", 2);
+
+                        return false; //DO NOT STAB THE PLAYER
+                    }
+                    else //shield was NOT hit
+                    {
+                        //break shield
+                        HitShield(self, chunk, info, 2f);
+
+                        Plugin.Log("Shielding player stabbed, but the shield was missed", 2);
+                    }
+                }
+
+            }
+        } catch (Exception ex) { Plugin.Error(ex); }
+
+        return orig(self, source, dmg, chunk, appPos, direction);
+    }
+
 
     public static void HitShield(Player self, BodyChunk hitChunk, PlayerInfo info, float hitStrength)
     {
@@ -186,7 +237,7 @@ public static class Shield
 
         //stun player if broken
         if (info.ShieldStrength <= 0)
-            self.Stun(40);
+            self.Stun(Mathf.RoundToInt(Options.ShieldStunTime * (info.ShieldCounter - Options.ShieldMaxTime) / Options.ShieldFullTime));
 
         Plugin.Log("Shield hit! Force = " + hitStrength, 2);
     }
@@ -278,7 +329,7 @@ public static class Shield
             float curAlpha = Mathf.Lerp(lastAlpha, alpha, timeStacker);
             float curWhite = Mathf.Lerp(lastWhite, white, timeStacker);
 
-            curPos += Custom.DegToVec(curRot + 90f) * 30f; //make the shield be in FRONT of the player, not inside the player
+            curPos += Custom.DegToVec(curRot + 90f) * 15f; //make the shield be in FRONT of the player, not inside the player
 
             sLeaser.sprites[0].SetPosition(curPos - camPos);
             sLeaser.sprites[0].rotation = curRot;
@@ -300,7 +351,7 @@ public static class Shield
             {
                 shader = Tools.Assets.ShieldEffect,
                 width = 40,
-                height = 120,
+                height = 100,
                 color = baseColor,
                 alpha = 0
             };
