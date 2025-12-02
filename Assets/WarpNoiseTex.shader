@@ -111,26 +111,30 @@ half4 frag (v2f i) : SV_Target
 	half4 thisCol = tex2D(_GrabTexture, i.scrPos);
 	half4 sum = half4(0, 0, 0, 0);
 	half4 realSum = half4(0, 0, 0, 0);
-	for (int a = -1; a <= 1; a++) {
-		for (int b = -1; b <= 1; b++) {
-			if (a != 0 || b != 0) {
-				for (int c = 1; c <= 2; c++) {
-					half2 offset = half2(a, b) * c * ((a == 0 || b == 0) ? 1 : 0.7071068) * 0.005;
-					half4 newCol = tex2D(_GrabTexture, i.scrPos + offset);
-					sum = sum + abs(newCol - thisCol);
-					realSum = realSum + newCol - thisCol;
-				}
+	half weight = 1;
+	half totalWeight = 0;
+	for (int c = 1; c <= 5; c++) {
+		for (int a = 0; a < 2; a++) {
+			for (int b = 0; b < 2; b++) {
+				half2 offset = ((c&1)
+					? half2((a|b) + (a&b) - 1, a - b) //00, 10, 01, 11 => -1, -1, 1, 1; -1, 1, 1, -1
+					: half2(b + b - 1, (a^b) + (a^b) - 1)) //00, 10, 01, 11 => -1, 0, 0, 1; 0, 1, -1, 0
+					* c * 0.003;
+				half4 newCol = tex2D(_GrabTexture, i.scrPos + offset);
+				sum = sum + abs(newCol - thisCol) * weight;
+				realSum = realSum + (newCol - thisCol) * weight;
 			}
 		}
+		totalWeight = totalWeight + weight * 4;
+		weight = weight * 0.8;
 	}
-	sum = sum * 0.125 * 0.5;
-	realSum = realSum * 0.125 * 0.5;
-	//sum = half4(1, 1, 1, 1) - saturate(3 * sum * warpNoise(i.scrPos, 0.4 * saturate(3 * (sum.x + sum.y + sum.z + sum.w))));
-	//return thisCol * sum;
-	//sum = saturate(3 * sum * warpNoise(i.scrPos, 0.3 + 0.1 * saturate(3 * (sum.x + sum.y + sum.z + sum.w))));
-	//sum = saturate(4 * (sum * warpNoise(i.scrPos, 0.3 + 0.1 * saturate(3 * (sum.x + sum.y + sum.z + sum.w))) * (1 - 2 * realSum)));
 
-	//return customLerp(thisCol, i.clr, sum);
+	totalWeight = 1 / totalWeight;
+	sum = sum * totalWeight;
+	realSum = realSum * totalWeight;
+
+	//return lerp(thisCol, i.clr, sum);
+	//return sum;
 	
 	//desired lerp factors
 	//1. warpNoise, duh
@@ -140,10 +144,10 @@ half4 frag (v2f i) : SV_Target
 	half3 sum3 = sum.xyz;
 	half3 realSum3 = realSum.xyz;
 
-	half3 noise = warpNoise(i.scrPos, 0.2 + 0.25 * saturate(1.5 * 0.5 * (sum.x - sum.y + sum.z - sum.w))).xyz;
+	half3 noise = warpNoise(i.scrPos, 0.3 + 0.1 * saturate(0.5 * (sum.x + sum.y + sum.z))).xyz;
 	half3 lerps = saturate(effectStrength
 		* (noise - half3(0.2,0.2,0.2))
-		* (0.5 - 4 * realSum3)
+		* (0.5 - 2 * realSum3)
 		* thisCol3 * thisCol3// * (half3(0.5,0.5,0.5) + 0.5*thisCol3)
 		);
 	
@@ -152,11 +156,16 @@ half4 frag (v2f i) : SV_Target
 	//2. the opposite of the current color (same brightness)
 	//3. the opposite of the changing color (same brightness)
 
-	half3 mixedCol = 0.25 * (thisCol3 + saturate(4 * sum3 * effectStrength));
+	half3 mixedCol = 0.25 * (thisCol3 + saturate(sum3 * effectStrength));
 	//half4 mixedCol = 0.5 * saturate(3*sum);
-	mixedCol = half3(1 - mixedCol.y-mixedCol.z, 1 - mixedCol.x-mixedCol.z, 1 - mixedCol.x-mixedCol.y) * (half3(1,1,1) - noise * targetColor * 0.1);
+	mixedCol = half3(1.02 - mixedCol.y-mixedCol.z, 1.02 - mixedCol.x-mixedCol.z, 1.02 - mixedCol.x-mixedCol.y) * (half3(1.02,1.02,1.02) - noise * targetColor * 0.05);
 	//mixedCol = 0.5 * (i.clr + mixedCol);
 	mixedCol = lerp(targetColor, mixedCol, noise * 0.5);
+
+	//make mixedCol just as bright as targetColor
+	half targetBright = targetColor.x*targetColor.x + targetColor.y*targetColor.y + targetColor.z*targetColor.z;
+	half mixedBright = mixedCol.x*mixedCol.x + mixedCol.y*mixedCol.y + mixedCol.z*mixedCol.z;
+	mixedCol = mixedCol * sqrt(targetBright / mixedBright);
 
 	half3 ret = lerp(thisCol3, mixedCol, lerps);
 	//ret.w = 1;

@@ -185,8 +185,8 @@ public class Options : AutoConfigOptions
     [Config(ADVANCED, "Shield Damage Fac", "How much damage the shield can block", rightSide = true), LimitRange(0, 100)]
     public static float ShieldDamageFac = 2f;
 
-    [Config(ADVANCED, "/40 Shield Break Stun", "How long the player is stunned when the shield breaks, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 400)]
-    public static int ShieldStunTime = 80;
+    [Config(ADVANCED, "/40 Shield Break Stun", "The maximum time that the player can be stunned when the shield breaks, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 800)]
+    public static int ShieldStunTime = 140;
 
 
     private class AcceptableControllerButton : ConfigAcceptableBase

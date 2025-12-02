@@ -75,13 +75,13 @@ public static class Shield
 
                 //add a sound for turning the shield on
                 if (info.ShieldStrength > 0.5f && prevStrength < 0.5f)
-                    self.room.PlaySound(SoundID.Slugcat_Pick_Up_Spear, self.mainBodyChunk, false, 0.7f, 0.7f);
+                    self.room.PlaySound(SoundID.Slugcat_Pick_Up_Spear, self.mainBodyChunk, false, 1f, 0.6f + 0.15f * UnityEngine.Random.value);
 
                 //make the slugcat put its arms out
                 if (self.graphicsModule is PlayerGraphics graph)
                 {
                     graph.blink = Mathf.Max(graph.blink, 2); //keep eyes shut
-                    Vector2 reachPos = graph.head.pos + 60f * Custom.DegToVec(info.ShieldDir);
+                    Vector2 reachPos = graph.head.pos + 120f * Custom.DegToVec(info.ShieldDir); //6 tiles away from player head
                     graph.LookAtPoint(reachPos, 0.5f); //look at the shield
                     foreach (SlugcatHand hand in graph.hands)
                     {
@@ -228,12 +228,12 @@ public static class Shield
         if (info.ShieldStrength > 0)
         {
             //alter sound start time
-            ChunkSoundEmitter sound = self.room.PlaySound(SoundID.Zapper_Zap, hitChunk, false, Mathf.Clamp01(hitStrength + 0.5f), 0.6f + UnityEngine.Random.value * 0.2f);
+            ChunkSoundEmitter sound = self.room.PlaySound(SoundID.Zapper_Zap, hitChunk, false, Mathf.Clamp01(hitStrength), 1.1f + UnityEngine.Random.value * 0.2f);
             if (sound.currentSoundObject?.audioSource?.clip != null)
                 sound.currentSoundObject.audioSource.time = 0.5f * sound.currentSoundObject.audioSource.clip.length;
         }
         else
-            self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, hitChunk);
+            self.room.PlaySound(MoreSlugcats.MoreSlugcatsEnums.MSCSoundID.Chain_Break, hitChunk, false, 1f, 1.3f);
 
         //stun player if broken
         if (info.ShieldStrength <= 0)
