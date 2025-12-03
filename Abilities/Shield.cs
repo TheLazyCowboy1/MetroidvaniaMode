@@ -60,7 +60,10 @@ public static class Shield
                 info.ShieldStrength = GetShieldStrength(info);
 
                 if (info.Shield != null && (info.Shield.slatedForDeletetion || info.Shield.room != self.room))
+                {
+                    info.Shield.Destroy();
                     info.Shield = null; //we need a new shield
+                }
 
                 if (info.Shield == null) //create a new shield
                 {
@@ -251,6 +254,7 @@ public static class Shield
         public float nextAlpha = 0;
         private float lastWhite, white;
         public float nextWhite = 0;
+        private float lastVol, vol = 0;
 
         private static Color baseColor = new(0.2f, 0.4f, 1f); //blue
         private static Color whiteColor = new(1, 1, 1);
@@ -293,6 +297,11 @@ public static class Shield
             if (nextWhite > white) white = nextWhite; //instantly brighten
             else white = Custom.LerpAndTick(white, nextWhite, 0.1f, 0.05f); //slowly fade
 
+            //volume
+            lastVol = vol;
+            if (white > vol) vol = Custom.LerpAndTick(vol, white, 0.3f, 0.15f); //very quickly fade up
+            else vol = Custom.LerpAndTick(vol, white, 0.05f, 0.025f); //very slowly fade
+
             if (posDirty) //snap it into place; don't let it fly across the screen whenever the sprites are initialized
             {
                 lastPos = pos;
@@ -303,20 +312,20 @@ public static class Shield
             }
 
             //sound
-            if (white > 0 || lastWhite > 0)
+            if (vol > 0 || lastVol > 0)
             {
-                Vector2 soundPos = DrawnPos(pos, rot);
+                Vector2 soundPos = pos + DrawOffset(rot);
                 FloatRect rect = new(soundPos.x - 60f, soundPos.y - 60f, soundPos.x + 60f, soundPos.y + 60f);
-                soundLoop ??= new(this, rect, room) { Pitch = 0.8f };
+                soundLoop ??= new(this, rect, room) { Pitch = 1.1f };
 
                 soundLoop.rect = rect; //position
-                soundLoop.sound = white > 0 ? SoundID.Electricity_Loop : SoundID.None;
-                soundLoop.Volume = white; //volume
+                soundLoop.sound = vol > 0 ? SoundID.Electricity_Loop : SoundID.None;
+                soundLoop.Volume = vol; //volume
                 soundLoop.Update();
             }
         }
 
-        private Vector2 DrawnPos(Vector2 p, float r) => p + Custom.DegToVec(r + 90f) * 15f;
+        private Vector2 DrawOffset(float rotation) => Custom.DegToVec(rotation + 90f) * 15f;
 
         private static void AdjustAngle(ref float a, float b)
         {
@@ -344,7 +353,7 @@ public static class Shield
             float curAlpha = Mathf.Lerp(lastAlpha, alpha, timeStacker);
             float curWhite = Mathf.Lerp(lastWhite, white, timeStacker);
 
-            curPos += DrawnPos(curPos, curRot); //make the shield be in FRONT of the player, not inside the player
+            curPos += DrawOffset(curRot); //make the shield be in FRONT of the player, not inside the player
 
             sLeaser.sprites[0].SetPosition(curPos - camPos);
             sLeaser.sprites[0].rotation = curRot;

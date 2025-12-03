@@ -59,11 +59,13 @@ public static class Inventory
                 {
                     open = true;
 
-                    if (info.InventoryWheel == null || info.InventoryWheel.slatedForDeletion) //need a new InventoryWheel
+                    HUD.HUD hud = self.abstractPhysicalObject.world.game.cameras[0].hud;
+                    if (info.InventoryWheel == null || info.InventoryWheel.slatedForDeletion || info.InventoryWheel.hud != hud) //need a new InventoryWheel
                     {
-                        HUD.HUD hud = self.abstractPhysicalObject.world.game.cameras[0].hud;
                         if (hud != null)
                         {
+                            if (info.InventoryWheel != null) info.InventoryWheel.slatedForDeletion = true;
+
                             info.InventoryWheel = new(hud);
                             hud.AddPart(info.InventoryWheel);
                             Plugin.Log("Created InventoryWheel for player " + self.playerState.playerNumber);

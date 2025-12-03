@@ -71,6 +71,8 @@ public class InventoryWheel : HudPart
         {
             slots[i].ClearSprites();
         }
+
+        this.slatedForDeletion = true;
     }
 
 
