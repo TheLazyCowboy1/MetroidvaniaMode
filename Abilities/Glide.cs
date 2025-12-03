@@ -41,17 +41,17 @@ public static class Glide
             PlayerInfo info = self.GetInfo();
 
             //check if we should stop gliding
-            bool forbiddenBodyMode = self.bodyMode != Player.BodyModeIndex.Default && self.bodyMode != Player.BodyModeIndex.Crawl
-                && self.bodyMode != Player.BodyModeIndex.Stand && self.bodyMode != Player.BodyModeIndex.ZeroG //only glide if we're in one of these body modes
+            bool allowedBodyMode = (self.bodyMode == Player.BodyModeIndex.Default || self.bodyMode == Player.BodyModeIndex.Crawl
+                || self.bodyMode == Player.BodyModeIndex.Stand || self.bodyMode == Player.BodyModeIndex.ZeroG) //only glide if we're in one of these body modes
                 && self.animation != Player.AnimationIndex.ClimbOnBeam; //ClimbOnBeam is specifically banned because pole-climbing is weird
 
-            if (info.Gliding && (!self.input[0].jmp || self.canJump > 0 || forbiddenBodyMode))
+            if (info.Gliding && (!self.input[0].jmp || self.canJump > 0 || !allowedBodyMode))
             {
                 info.Gliding = false; //stop gliding if we're not holding jump, or if we regain our ability to jump
             }
 
             //check if we should start gliding
-            if (!info.Gliding && self.wantToJump > 0 && self.canJump <= 0 && self.input[0].jmp && !forbiddenBodyMode)
+            if (!info.Gliding && self.wantToJump > 0 && self.canJump <= 0 && self.input[0].jmp && allowedBodyMode)
             {
                 info.Gliding = true; //start gliding
             }
