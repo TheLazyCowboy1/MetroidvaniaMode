@@ -189,7 +189,7 @@ public class Options : AutoConfigOptions
     public static float ShieldDamageFac = 3f;
 
     [Config(ADVANCED, "/40 Shield Break Stun", "The maximum time that the player can be stunned when the shield breaks, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 800)]
-    public static int ShieldStunTime = 140;
+    public static int ShieldStunTime = 100;
 
     [Config(ADVANCED, "Inventory Slows Time", "How much having the inventory wheel open slows down time. 0 == not at all, 1 == same as mushrooms")]
     public static float InventorySlowTimeFac = 0f;

@@ -224,7 +224,8 @@ public static class Shield
         //audio effect
         if (info.ShieldStrength > 0)
         {
-            self.room.PlaySound(SoundID.Spear_Bounce_Off_Wall, hitChunk, false, Mathf.Clamp01(hitStrength), 0.6f + UnityEngine.Random.value * 0.2f);
+            //self.room.PlaySound(SoundID.Spear_Bounce_Off_Wall, hitChunk, false, Mathf.Clamp01(hitStrength), 0.6f + UnityEngine.Random.value * 0.2f);
+            //actually, have a sound managed by the shield...?
         }
         else
         {
@@ -237,6 +238,7 @@ public static class Shield
 
         Plugin.Log("Shield hit! Force = " + hitStrength, 2);
     }
+
 
 
     public class ShieldSprite : UpdatableAndDeletable, IDrawable
@@ -254,6 +256,8 @@ public static class Shield
         private static Color whiteColor = new(1, 1, 1);
 
         private bool posDirty = false;
+
+        private RectangularDynamicSoundLoop soundLoop = null;
 
         public ShieldSprite(Player player)
         {
@@ -297,7 +301,22 @@ public static class Shield
                 lastWhite = white;
                 posDirty = false;
             }
+
+            //sound
+            if (white > 0 || lastWhite > 0)
+            {
+                Vector2 soundPos = DrawnPos(pos, rot);
+                FloatRect rect = new(soundPos.x - 60f, soundPos.y - 60f, soundPos.x + 60f, soundPos.y + 60f);
+                soundLoop ??= new(this, rect, room) { Pitch = 0.8f };
+
+                soundLoop.rect = rect; //position
+                soundLoop.sound = white > 0 ? SoundID.Electricity_Loop : SoundID.None;
+                soundLoop.Volume = white; //volume
+                soundLoop.Update();
+            }
         }
+
+        private Vector2 DrawnPos(Vector2 p, float r) => p + Custom.DegToVec(r + 90f) * 15f;
 
         private static void AdjustAngle(ref float a, float b)
         {
@@ -325,7 +344,7 @@ public static class Shield
             float curAlpha = Mathf.Lerp(lastAlpha, alpha, timeStacker);
             float curWhite = Mathf.Lerp(lastWhite, white, timeStacker);
 
-            curPos += Custom.DegToVec(curRot + 90f) * 15f; //make the shield be in FRONT of the player, not inside the player
+            curPos += DrawnPos(curPos, curRot); //make the shield be in FRONT of the player, not inside the player
 
             sLeaser.sprites[0].SetPosition(curPos - camPos);
             sLeaser.sprites[0].rotation = curRot;

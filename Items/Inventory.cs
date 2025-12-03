@@ -24,15 +24,11 @@ public static class Inventory
     public static void ApplyHooks()
     {
         On.Player.GrabUpdate += Player_GrabUpdate;
-
-        //On.HUD.HUD.InitSinglePlayerHud += HUD_InitSinglePlayerHud;
     }
 
     public static void RemoveHooks()
     {
         On.Player.GrabUpdate -= Player_GrabUpdate;
-
-        //On.HUD.HUD.InitSinglePlayerHud -= HUD_InitSinglePlayerHud;
     }
 
 
@@ -63,7 +59,7 @@ public static class Inventory
                 {
                     open = true;
 
-                    if (info.InventoryWheel == null)
+                    if (info.InventoryWheel == null || info.InventoryWheel.slatedForDeletion) //need a new InventoryWheel
                     {
                         HUD.HUD hud = self.abstractPhysicalObject.world.game.cameras[0].hud;
                         if (hud != null)
@@ -276,19 +272,4 @@ public static class Inventory
         Plugin.Log("Storing item in inventory: " + obj.abstractPhysicalObject.type, 2);
     }
 
-
-    //Initiate the inventory wheel HUD object
-    private static void HUD_InitSinglePlayerHud(On.HUD.HUD.orig_InitSinglePlayerHud orig, HUD.HUD self, RoomCamera cam)
-    {
-        orig(self, cam);
-
-        try
-        {
-            if (CurrentAbilities.HasInventory)
-            {
-                self.AddPart(new InventoryWheel(self));
-                Plugin.Log("Added InventoryWheel to hud!");
-            }
-        } catch (Exception ex) { Plugin.Error(ex); }
-    }
 }
