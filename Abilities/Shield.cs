@@ -318,8 +318,9 @@ public static class Shield
                 FloatRect rect = new(soundPos.x - 60f, soundPos.y - 60f, soundPos.x + 60f, soundPos.y + 60f);
                 soundLoop ??= new(this, rect, room) { Pitch = 1.1f };
 
+                if (lastVol <= 0) soundLoop.Pitch = 1.2f + 0.1f * UnityEngine.Random.value;
                 soundLoop.rect = rect; //position
-                soundLoop.sound = vol > 0 ? SoundID.Electricity_Loop : SoundID.None;
+                soundLoop.sound = vol > 0 ? SoundID.Zapper_LOOP : SoundID.None;
                 soundLoop.Volume = vol; //volume
                 soundLoop.Update();
             }
