@@ -47,7 +47,7 @@ public static class Inventory
         try
         {
             //check if there are any items to pull out
-            if (!CurrentItems.ItemInfos.Values.Any(i => i.max > 0))
+            if (!CurrentItems.ItemInfos.Values.Any(i => i.max > 0) || self.isNPC)
             {
                 orig(self, eu);
                 return; //no eligible items for inventory, so don't open inventory!
@@ -59,7 +59,7 @@ public static class Inventory
             if (self.input[0].pckp)
             {
                 info.HoldGrabTime++;
-                if (info.HoldGrabTime > Options.InventoryOpenTime - InventoryWheel.OpenTime / 2) //start opening it early
+                if (info.HoldGrabTime > Options.InventoryOpenTime - InventoryWheel.OpenTime / 2 && !self.inShortcut) //start opening it early
                 {
                     open = true;
 
@@ -77,7 +77,7 @@ public static class Inventory
             }
             else
             {
-                if (info.HoldGrabTime >= Options.InventoryOpenTime && info.InventoryWheel != null)
+                if (info.HoldGrabTime >= Options.InventoryOpenTime && info.InventoryWheel != null && !self.inShortcut)
                 {
                     //closing inventory after opening, so we should grab or store an item!
                     int selection = info.InventoryWheel.selection;//Array.IndexOf(UI.InventoryWheel.IntVecs, self.input[0].IntVec);
@@ -104,6 +104,15 @@ public static class Inventory
                 info.InventoryWheel.SetVisible(open, self.mainBodyChunk.pos - self.abstractPhysicalObject.world.game.cameras[0].pos);
                 if (open)
                     info.InventoryWheel.SetSelection(self.input[0].IntVec);
+
+                //handle slowing down time based on InventoryWheel alpha
+                if (Options.InventorySlowTimeFac > 0 && self.mushroomCounter <= 0) //and we haven't eaten a real mushroom
+                {
+                    if (info.InventoryWheel.alpha > 0 || info.InventoryWheel.lastAlpha > 0) //inventory wheel is open or actively closing
+                    {
+                        self.mushroomEffect = info.InventoryWheel.alpha * Options.InventorySlowTimeFac; //set "Adrenaline" (mushroomEffect)
+                    }
+                }
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }

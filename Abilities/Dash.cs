@@ -22,7 +22,7 @@ public static class Dash
 
         try
         {
-            if (CurrentAbilities.DashCount <= 0 || self.playerState.playerNumber < 0) return; //don't run dash code if we can't dash!
+            if (CurrentAbilities.DashCount <= 0 || self.playerState.playerNumber < 0 || self.isNPC) return; //don't run dash code if we can't dash!
 
             PlayerInfo info = self.GetInfo();
 

@@ -36,7 +36,7 @@ public static class Shield
 
         try
         {
-            if (self.isNPC) return; //just in case
+            if (self.isNPC || self.playerState.playerNumber < 0) return; //just in case
 
             PlayerInfo info = self.GetInfo();
 
