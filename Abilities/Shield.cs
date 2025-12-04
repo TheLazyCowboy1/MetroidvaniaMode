@@ -73,7 +73,7 @@ public static class Shield
                 }
 
                 //add a bit of white when turning it on
-                info.Shield.nextWhite = Mathf.Clamp01(info.ShieldStrength - prevStrength);
+                info.Shield.nextWhite = Mathf.Clamp01(info.ShieldStrength - prevStrength) * 0.75f; //only up to 3/4 white
 
                 //add a sound for turning the shield on
                 if (info.ShieldStrength >= 0.5f && prevStrength < 0.5f)
@@ -227,7 +227,7 @@ public static class Shield
         //audio effect
         if (info.ShieldStrength > 0)
         {
-            //self.room.PlaySound(SoundID.Spear_Bounce_Off_Wall, hitChunk, false, Mathf.Clamp01(hitStrength), 0.6f + UnityEngine.Random.value * 0.2f);
+            self.room.PlaySound(SoundID.Jelly_Fish_Tentacle_Stun, hitChunk, false, Mathf.Clamp01(hitStrength), 1.3f + UnityEngine.Random.value * 0.2f);
             //actually, have a sound managed by the shield...?
         }
         else
@@ -320,7 +320,7 @@ public static class Shield
 
                 if (lastVol <= 0) soundLoop.Pitch = 1.3f + 0.2f * UnityEngine.Random.value; //reset pitch when starting up sound again
                 soundLoop.rect = rect; //position
-                soundLoop.sound = vol > 0 ? SoundID.Zapper_LOOP : SoundID.None;
+                soundLoop.sound = vol > 0 ? SoundID.Electricity_Loop : SoundID.None;
                 soundLoop.Volume = vol; //volume
                 soundLoop.Update();
             }
