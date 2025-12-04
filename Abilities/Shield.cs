@@ -299,7 +299,7 @@ public static class Shield
 
             //volume
             lastVol = vol;
-            if (white > vol) vol = Custom.LerpAndTick(vol, white, 0.3f, 0.15f); //very quickly fade up
+            if (white > vol) vol = Custom.LerpAndTick(vol, white, 0.2f, 0.1f); //quickly fade up
             else vol = Custom.LerpAndTick(vol, white, 0.05f, 0.025f); //very slowly fade
 
             if (posDirty) //snap it into place; don't let it fly across the screen whenever the sprites are initialized
@@ -316,11 +316,11 @@ public static class Shield
             {
                 Vector2 soundPos = pos + DrawOffset(rot);
                 FloatRect rect = new(soundPos.x - 60f, soundPos.y - 60f, soundPos.x + 60f, soundPos.y + 60f);
-                soundLoop ??= new(this, rect, room) { Pitch = 1.1f };
+                soundLoop ??= new(this, rect, room); //create the sound loop, if it's null
 
-                if (lastVol <= 0) soundLoop.Pitch = 1.3f + 0.2f * UnityEngine.Random.value; //reset pitch when starting up sound again
+                if (lastVol <= 0) soundLoop.Pitch = 0.8f + 0.2f * UnityEngine.Random.value; //reset pitch when starting up sound again
                 soundLoop.rect = rect; //position
-                soundLoop.sound = vol > 0 ? SoundID.Electricity_Loop : SoundID.None;
+                soundLoop.sound = vol > 0 ? SoundID.Electricity_Loop : SoundID.None; //sound
                 soundLoop.Volume = vol; //volume
                 soundLoop.Update();
             }
