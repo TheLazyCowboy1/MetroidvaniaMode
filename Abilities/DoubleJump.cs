@@ -22,10 +22,10 @@ public static class DoubleJump
         {
             if (CurrentAbilities.ExtraJumps <= 0) return; //don't even run this code if it doesn't apply!
 
-            if (self.canJump <= 0
+            if (self.canJump <= 0 && self.bodyMode != Player.BodyModeIndex.Swimming //don't jump while swimming
                 && (self.wantToJump > 0 //usually, check wantToJump. However, sometimes things like flips make wantToJump always 0
-                    || (self.jumpBoost <= 0 && self.input[0].jmp && !self.input[1].jmp
-                        && self.animation != Player.AnimationIndex.None && self.bodyMode != Player.BodyModeIndex.Swimming)))
+                    || (self.jumpBoost <= 0 && self.input[0].jmp && !self.input[1].jmp //just pressed jump
+                        && self.animation != Player.AnimationIndex.None))) //special check only applies if we're not in the None/default animation
             {
                 PlayerInfo info = self.GetInfo();
                 if (info.ExtraJumpsLeft > 0)

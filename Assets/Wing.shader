@@ -1,6 +1,6 @@
 //Simple parallax shader by TheLazyCowboy1
 
-Shader "TheLazyCowboy1/ShieldEffect" //Unlit Transparent Vertex Colored Additive 
+Shader "TheLazyCowboy1/Wing" //Unlit Transparent Vertex Colored Additive 
 {
 	Properties 
 	{
@@ -48,8 +48,6 @@ CGPROGRAM
 sampler2D _MainTex;
 uniform float2 _MainTex_TexelSize;
 
-sampler2D _NoiseTex2;
-
 struct v2f {
     float4  pos : SV_POSITION;
     float2  uv : TEXCOORD0;
@@ -87,7 +85,7 @@ half4 frag (v2f i) : SV_Target
 
 	//vertical lines
 	half sinTime = sin(53*_Time.y + 300*i.uv.y);
-	half opacity = 0.6 + 0.3 * (sinTime * 0.5 + 0.5);
+	half opacity = 0.7 + 0.3 * (sinTime * 0.5 + 0.5);
 
 	//outside edge opaque
 	half outsideThickness = 0.15;

@@ -41,17 +41,20 @@ public static class Glide
             PlayerInfo info = self.GetInfo();
 
             //check if we should stop gliding
-            bool allowedBodyMode = (self.bodyMode == Player.BodyModeIndex.Default || self.bodyMode == Player.BodyModeIndex.Crawl
-                || self.bodyMode == Player.BodyModeIndex.Stand || self.bodyMode == Player.BodyModeIndex.ZeroG) //only glide if we're in one of these body modes
-                && self.animation != Player.AnimationIndex.ClimbOnBeam; //ClimbOnBeam is specifically banned because pole-climbing is weird
+            bool allowedBodyMode = self.bodyMode == Player.BodyModeIndex.Default || self.bodyMode == Player.BodyModeIndex.Crawl
+                    || self.bodyMode == Player.BodyModeIndex.Stand || self.bodyMode == Player.BodyModeIndex.ZeroG;
+            bool allowedAnimation = self.animation == Player.AnimationIndex.BellySlide || self.animation == Player.AnimationIndex.DownOnFours
+                    || self.animation == Player.AnimationIndex.Flip || self.animation == Player.AnimationIndex.GrapplingSwing
+                    || self.animation == Player.AnimationIndex.None || self.animation == Player.AnimationIndex.RocketJump
+                    || self.animation == Player.AnimationIndex.Roll || self.animation == Player.AnimationIndex.StandUp;
 
-            if (info.Gliding && (!self.input[0].jmp || self.canJump > 0 || !allowedBodyMode))
+            if (info.Gliding && (!allowedBodyMode || !allowedAnimation || !self.input[0].jmp || self.canJump > 0))
             {
                 info.Gliding = false; //stop gliding if we're not holding jump, or if we regain our ability to jump
             }
 
             //check if we should start gliding
-            if (!info.Gliding && self.wantToJump > 0 && self.canJump <= 0 && self.input[0].jmp && allowedBodyMode)
+            if (!info.Gliding && allowedBodyMode && allowedAnimation && self.wantToJump > 0 && self.canJump <= 0 && self.input[0].jmp)
             {
                 info.Gliding = true; //start gliding
             }

@@ -102,7 +102,7 @@ inline half4 sqr(half4 a) {
 half4 frag (v2f i) : SV_Target
 {
 	//i.clr = float4(1, 0.8, 0.5, 0.5); //TEMPORARILY OVERRIDE THE COLOR FOR TESTING PURPOSES
-	half effectStrength = 20 * i.clr.w;
+	half effectStrength = i.clr.w;
 	half3 targetColor = i.clr.xyz;
 		//map screen pos to level tex coord
 	//return warpNoise(i.scrPos, 0.25);
@@ -145,10 +145,11 @@ half4 frag (v2f i) : SV_Target
 	half3 realSum3 = realSum.xyz;
 
 	half3 noise = warpNoise(i.scrPos, 0.3 + 0.1 * saturate(0.5 * (sum.x + sum.y + sum.z))).xyz;
-	half3 lerps = saturate(effectStrength
-		* (noise - half3(0.2,0.2,0.2))
-		* (0.5 - 2 * realSum3)
+	half3 lerps = saturate(effectStrength * 20
+		* noise
+		* (half3(0.5,0.5,0.5) - 2 * realSum3)
 		* thisCol3 * thisCol3// * (half3(0.5,0.5,0.5) + 0.5*thisCol3)
+		* (half3(1,1,1) + 2 * sum3)
 		);
 	
 	//desired color factors
@@ -156,16 +157,26 @@ half4 frag (v2f i) : SV_Target
 	//2. the opposite of the current color (same brightness)
 	//3. the opposite of the changing color (same brightness)
 
-	half3 mixedCol = 0.25 * (thisCol3 + saturate(sum3 * effectStrength));
-	//half4 mixedCol = 0.5 * saturate(3*sum);
+	half3 mixedCol = 0.5 * (thisCol3 + sum3 * effectStrength * 50);
+
+	//adjust mixedCol brightness
+	float origMixedColSize = sqrt(mixedCol.x*mixedCol.x + mixedCol.y*mixedCol.y + mixedCol.z*mixedCol.z);
+	mixedCol = 0.5 * mixedCol / origMixedColSize;
+
+	//invert mixedCol, basically (red becomes cyan, green becomes magenta, etc.)
 	mixedCol = half3(1.02 - mixedCol.y-mixedCol.z, 1.02 - mixedCol.x-mixedCol.z, 1.02 - mixedCol.x-mixedCol.y) * (half3(1.02,1.02,1.02) - noise * targetColor * 0.05);
-	//mixedCol = 0.5 * (i.clr + mixedCol);
-	mixedCol = lerp(targetColor, mixedCol, noise * 0.5);
+
+	mixedCol = lerp(targetColor, mixedCol, saturate(noise * origMixedColSize));
+
+	//return half4(mixedCol.x, mixedCol.y, mixedCol.z, 1);
+	//return half4(lerps.x, lerps.y, lerps.z, 1);
 
 	//make mixedCol just as bright as targetColor
-	half targetBright = targetColor.x*targetColor.x + targetColor.y*targetColor.y + targetColor.z*targetColor.z;
+	half targetBright = (targetColor.x*targetColor.x + targetColor.y*targetColor.y + targetColor.z*targetColor.z) * effectStrength;
 	half mixedBright = mixedCol.x*mixedCol.x + mixedCol.y*mixedCol.y + mixedCol.z*mixedCol.z;
-	mixedCol = mixedCol * sqrt(targetBright / mixedBright);
+	mixedCol = saturate(mixedCol * sqrt(targetBright / mixedBright));
+
+	//return half4(mixedCol.x, mixedCol.y, mixedCol.z, 1);
 
 	half3 ret = lerp(thisCol3, mixedCol, lerps);
 	//ret.w = 1;

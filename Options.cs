@@ -155,6 +155,11 @@ public class Options : AutoConfigOptions
     [Config(ADVANCED, "/40 Water Dash Cooldown", "The minimum time between dashes, expressed in ticks (40 ticks == 1 second).\nUsed instead of Dash Cooldown when in water."), LimitRange(0, 200)]
     public static int WaterDashCooldown = 20;
 
+    [Config(ADVANCED, "Dash Base Y Angle", "Increases the y component of the dash direction in order to somewhat counteract gravity."), LimitRange(-1, 1)]
+    public static float DashBaseDirY = 0.2f;
+    [Config(ADVANCED, "Dash Max Y", "The maximum dash y component. Setting this below 1 makes dash less effective for upward movement, but keeps it useful for horizontal/diagonal movement.", rightSide = true), LimitRange(0, 2)]
+    public static float DashMaxDirY = 0.75f;
+
     [Config(ADVANCED, "Glide Anti-Gravity", "How much to subtract from gravity"), LimitRange(0, 2)]
     public static float GlideAntiGrav = 0.25f;
     [Config(ADVANCED, "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 1)]

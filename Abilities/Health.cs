@@ -243,7 +243,9 @@ public static class Health
                 info.maxIFrames--; //apply maxIFrames
                 info.iFrames = Math.Min(info.iFrames, info.maxIFrames);
 
-                UI.HealthMeter.HealthFlash = Math.Max(UI.HealthMeter.HealthFlash, info.iFrames); //keep health meter reflecting actual i-frames
+                if (info.iFrames > UI.HealthMeter.HealthFlash + 2)
+                    UI.HealthMeter.HealthFlash += 4; //add 4 at a time, so the flash is preserved properly
+                //UI.HealthMeter.HealthFlash = Math.Max(UI.HealthMeter.HealthFlash, info.iFrames); //keep health meter reflecting actual i-frames
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }

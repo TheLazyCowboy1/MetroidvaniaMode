@@ -57,7 +57,7 @@ public static class Dash
 
                 if (dir.x != 0 || dir.y != 0)
                 {
-                    dir.y = Mathf.Min(1, dir.y + 0.15f); //add a little extra upwards speed to help counteract gravity
+                    dir.y = Mathf.Min(Options.DashMaxDirY, dir.y + Options.DashBaseDirY); //add a little extra upwards speed to help counteract gravity
 
                     //actually move the player
                     self.bodyChunks[0].vel = Vector2.LerpUnclamped(self.bodyChunks[0].vel, dir * CurrentAbilities.DashSpeed, CurrentAbilities.DashStrength);
