@@ -44,6 +44,9 @@ public static class DoubleJump
                     if (CurrentAbilities.CanGlide)
                         info.Gliding = true; //start gliding immediately
 
+                    //wings flap
+                    info.Wings?.Flap();
+
                     Plugin.Log("Doubled jumped", 2);
                 }
             }

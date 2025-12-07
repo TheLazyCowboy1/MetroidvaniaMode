@@ -1,4 +1,5 @@
 ﻿using MonoMod.RuntimeDetour;
+using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -174,6 +175,14 @@ public static class Glide
                     self.standing = false;
                 }
 
+                //visual wings
+                if (info.Wings == null)
+                {
+                    info.Wings = new(self, info);
+                    self.room.AddObject(info.Wings);
+                    Plugin.Log("Added PlayerWings", 2);
+                }
+
             }
 
         } catch (Exception ex) { Plugin.Error(ex); }
@@ -190,4 +199,111 @@ public static class Glide
 
         return orig(self) * self.customPlayerGravity / BaseCustomPlayerGravity; //apply customPlayerGravity
     }
+
+
+    //wing sprite
+    public class PlayerWings : UpdatableAndDeletable, IDrawable
+    {
+        public Player player;
+        public PlayerInfo info;
+
+        private float lastFlap = 0, flap = 0;
+        private const float deltaFlap = (1f/40f) / 0.5f; //0.5f = half a second
+
+        public PlayerWings(Player player, PlayerInfo info)
+        {
+            this.player = player;
+            this.info = info;
+        }
+
+        public void Flap() => lastFlap = flap = 1;
+
+        public override void Update(bool eu)
+        {
+            base.Update(eu);
+
+            if (player == null || room == null || player.room != room)
+            {
+                this.Destroy();
+                return;
+            }
+
+            lastFlap = flap;
+            if (flap > 0) flap -= deltaFlap;
+            if (flap < 0) flap = 0;
+        }
+
+        public override void Destroy()
+        {
+            if (info != null && info.Wings == this) //remove reference in PlayerInfo
+                info.Wings = null;
+            base.Destroy();
+        }
+
+        public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContainer)
+        {
+            newContainer ??= rCam.ReturnFContainer("Midground");
+            newContainer.AddChild(sLeaser.sprites[0]);
+            newContainer.AddChild(sLeaser.sprites[1]);
+        }
+
+        public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
+        {
+            //do nothing so far
+        }
+
+        public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
+        {
+            //get player pos
+            Vector2 chunk0Pos = Vector2.LerpUnclamped(player.bodyChunks[0].lastPos, player.bodyChunks[0].pos, timeStacker);
+            Vector2 chunk1Pos = Vector2.LerpUnclamped(player.bodyChunks[1].lastPos, player.bodyChunks[1].pos, timeStacker);
+            Vector2 wingDrawPos = Vector2.LerpUnclamped(chunk0Pos, chunk1Pos, 0.25f) - camPos; //mostly chunk 0, a bit of chunk1
+
+            Vector2 chunkDir = Custom.DirVec(chunk1Pos, chunk0Pos);
+            Vector2 wingDir = Perpendicular(chunkDir);
+
+            float drawFlap = Mathf.LerpUnclamped(lastFlap, flap, timeStacker);
+            float sqrFlapMod = (1 - drawFlap) * (1 - drawFlap);
+            float flapOffset = drawFlap > 0 ? -Mathf.Sin(drawFlap * 1.5f * Mathf.PI) * (1 - sqrFlapMod) : 0;
+            float yVel = player.mainBodyChunk.vel.y;
+            float diveOffset = (yVel * Mathf.Abs(yVel)) / (yVel*yVel + 10f) * sqrFlapMod;
+
+            //set vertices
+            //Vector2[] verts = new Vector2[4];
+            for (int y = 0; y <= 1; y++)
+            {
+                for (int x = 0; x <= 2; x++)
+                {
+                    float relX = x * 0.5f;
+                    float relY = y - 1 + relX * (flapOffset + diveOffset); //add the -1 to position the wing below the slugcat's head
+
+                    Vector2 basePos = wingDrawPos + chunkDir * relY * 25; //25 pixels tall
+                    Vector2 offset = wingDir * (relX * 25 + 4); //25 pixels wide + 4 offset
+                    (sLeaser.sprites[0] as TriangleMesh).MoveVertice(x + y * 3, basePos + offset);
+                    (sLeaser.sprites[1] as TriangleMesh).MoveVertice(x + y * 3, basePos - offset);
+                }
+            }
+
+        }
+
+        public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
+        {
+            sLeaser.sprites = new FSprite[2];
+            /*TriangleMesh.Triangle[] tris = new TriangleMesh.Triangle[] { //verts: 0,0, 1,0, 0,1, 1,1
+                new(0, 1, 3),
+                new(0, 3, 2),
+            };*/
+            TriangleMesh.Triangle[] tris = TriangleMesh.GridTriangles(1, 2);
+            Vector2[] uvs = new Vector2[]
+            {
+                new(0, 0), new(0.7f, 0), new(1, 0),
+                new(0, 1), new(0.7f, 1), new(1, 1)
+            };
+            sLeaser.sprites[0] = new TriangleMesh(Tools.Assets.WingTexName, tris, false) { UVvertices = uvs };
+            sLeaser.sprites[1] = new TriangleMesh(Tools.Assets.WingTexName, tris, false) { UVvertices = uvs };
+
+            AddToContainer(sLeaser, rCam, null);
+        }
+    }
+
 }

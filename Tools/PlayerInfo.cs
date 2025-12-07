@@ -13,6 +13,7 @@ public class PlayerInfo
     public int ExtraJumpsLeft = 0;
 
     public bool Gliding = false;
+    public Abilities.Glide.PlayerWings Wings = null;
 
     public float ShieldStrength = 0;
     public float ShieldCounter = 0;

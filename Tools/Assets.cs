@@ -14,6 +14,8 @@ public static class Assets
     private static Shader _warpNoiseBloom;
     public static FShader WarpNoiseBloom;
 
+    public const string WingTexName = "MVM_Wing";
+
     public static void Load()
     {
         try
@@ -33,6 +35,12 @@ public static class Assets
             WarpNoiseBloom = FShader.CreateShader("MVM_WarpNoiseBloom", _warpNoiseBloom);
 
             Plugin.Log("Loaded assets");
+
+            //TEMP
+            string wingFile = AssetManager.ResolveFilePath(Path.Combine("AssetBundles", "Wing.png"));
+            wingFile = wingFile.Substring(0, wingFile.Length - ".png".Length); //cut off the last 4 characters: ".png"
+            var at = Futile.atlasManager.ActuallyLoadAtlasOrImage(WingTexName, wingFile, "");
+            Plugin.Log("Wing tex name: " + at?.name, 0);
 
         }
         catch (Exception ex) { Plugin.Error(ex); }
