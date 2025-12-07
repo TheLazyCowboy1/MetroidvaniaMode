@@ -213,6 +213,8 @@ public static class Glide
         private float lastFlap = 0, flap = 0;
         private const float deltaFlap = (1f/40f) / 0.5f; //0.5f = half a second
 
+        private Vector2 lastVel, vel;
+
         public PlayerWings(Player player, PlayerInfo info)
         {
             this.player = player;
@@ -234,6 +236,9 @@ public static class Glide
             lastFlap = flap;
             if (flap > 0) flap -= deltaFlap;
             if (flap < 0) flap = 0;
+
+            lastVel = vel;
+            vel = Vector2.LerpUnclamped(vel, player.mainBodyChunk.vel, 0.1f); //constantly lerping towards player vel
         }
 
         public bool NeedsDestroy => player == null || room == null || player.room != room;
@@ -270,13 +275,15 @@ public static class Glide
             float drawFlap = Mathf.LerpUnclamped(lastFlap, flap, timeStacker);
             float sqrFlapMod = (1 - drawFlap) * (1 - drawFlap);
             float flapOffset = drawFlap > 0
-                ? -Mathf.Sin(drawFlap * 1.5f * Mathf.PI) * (1 - sqrFlapMod) * 1.5f
+                ? -Mathf.Sin(drawFlap * 1.5f * Mathf.PI) * (1 - sqrFlapMod)
                 : 0;
-            float sqrVel = player.mainBodyChunk.vel.sqrMagnitude;
-            float diveOffset = -sqrVel / (sqrVel + 40f) * sqrFlapMod;
 
-            float wingWidth = 5f + 20f * (1 - (1 - chunkDir.y) * (1 - chunkDir.y)); //from 5 to 25
-            float wingHeight = 25f;
+            Vector2 playerVel = Vector2.LerpUnclamped(lastVel, vel, timeStacker);
+            float sqrVel = Vector2.Dot(chunkDir, playerVel.normalized) * playerVel.sqrMagnitude; //actually can be negative
+            float diveOffset = -sqrVel / (Mathf.Abs(sqrVel) + 160f) * sqrFlapMod;
+
+            float wingWidth = 15f + 15f * (1 - (1 - chunkDir.y) * (1 - chunkDir.y)); //from 15 to 30
+            float wingHeight = 20f;
             float wingOffset = 4f;
 
             //set vertices
@@ -288,7 +295,8 @@ public static class Glide
                     float relX = x * 0.5f;
                     float relY = y - 1 + relX * (flapOffset + diveOffset); //add the -1 to position the wing below the slugcat's head
 
-                    Vector2 basePos = wingDrawPos + chunkDir * relY * wingHeight;
+                    Vector2 basePos = wingDrawPos + chunkDir * relY * wingHeight
+                        + new Vector2(0, 0.5f * wingHeight * flapOffset); //flap also directly moves wings up/down
                     Vector2 offset = wingDir * (relX * wingWidth + wingOffset);
                     (sLeaser.sprites[0] as TriangleMesh).MoveVertice(x + y * 3, basePos + offset);
                     (sLeaser.sprites[1] as TriangleMesh).MoveVertice(x + y * 3, basePos - offset);

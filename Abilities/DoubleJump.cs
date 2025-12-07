@@ -45,6 +45,15 @@ public static class DoubleJump
                         info.Gliding = true; //start gliding immediately
 
                     //wings flap
+                    if (info.Wings != null && info.Wings.NeedsDestroy)
+                        info.Wings.Destroy();
+
+                    if (info.Wings == null)
+                    {
+                        info.Wings = new(self, info);
+                        self.room.AddObject(info.Wings);
+                        Plugin.Log("Added PlayerWings", 2);
+                    }
                     info.Wings?.Flap();
 
                     Plugin.Log("Doubled jumped", 2);
