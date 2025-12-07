@@ -176,6 +176,9 @@ public static class Glide
                 }
 
                 //visual wings
+                if (info.Wings != null && info.Wings.NeedsDestroy)
+                    info.Wings.Destroy();
+
                 if (info.Wings == null)
                 {
                     info.Wings = new(self, info);
@@ -222,7 +225,7 @@ public static class Glide
         {
             base.Update(eu);
 
-            if (player == null || room == null || player.room != room)
+            if (NeedsDestroy)
             {
                 this.Destroy();
                 return;
@@ -232,6 +235,8 @@ public static class Glide
             if (flap > 0) flap -= deltaFlap;
             if (flap < 0) flap = 0;
         }
+
+        public bool NeedsDestroy => player == null || room == null || player.room != room;
 
         public override void Destroy()
         {
@@ -266,7 +271,7 @@ public static class Glide
             float sqrFlapMod = (1 - drawFlap) * (1 - drawFlap);
             float flapOffset = drawFlap > 0 ? -Mathf.Sin(drawFlap * 1.5f * Mathf.PI) * (1 - sqrFlapMod) : 0;
             float yVel = player.mainBodyChunk.vel.y;
-            float diveOffset = (yVel * Mathf.Abs(yVel)) / (yVel*yVel + 10f) * sqrFlapMod;
+            float diveOffset = (yVel * Mathf.Abs(yVel)) / (yVel*yVel + 20f) * sqrFlapMod;
 
             //set vertices
             //Vector2[] verts = new Vector2[4];
