@@ -244,8 +244,10 @@ public static class Glide
 
             lastAlpha = alpha;
             float targetAlpha = info.Gliding ? 1 : (1 - (1 - flap) * (1 - flap) * (1 - flap)); //if gliding = 1, else ~= flap (on a steeper curve)
-            if (targetAlpha > alpha) alpha = Mathf.Min(Mathf.LerpUnclamped(alpha, targetAlpha, 0.2f) + 0.1f, 1); //lerp UP quickly
-            else if (targetAlpha < alpha) alpha = Mathf.Max(Mathf.LerpUnclamped(alpha, targetAlpha, 0.1f) - 0.05f, 0); //lerp DOWN slower
+            if (targetAlpha > alpha)
+                alpha = Mathf.Min(Mathf.LerpUnclamped(alpha, targetAlpha, 0.2f) + 0.1f, targetAlpha); //lerp UP quickly
+            else if (targetAlpha < alpha)
+                alpha = Mathf.Max(Mathf.LerpUnclamped(alpha, targetAlpha, 0.1f) - 0.05f, targetAlpha); //lerp DOWN slower
 
         }
 
