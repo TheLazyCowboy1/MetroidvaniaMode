@@ -300,12 +300,12 @@ public static class Glide
             float wingOffset = 4f; //how far out from center of slugcat
 
             //set vertices
-            //Vector2[] verts = new Vector2[4];
             for (int y = 0; y <= 1; y++)
             {
                 for (int x = 0; x <= 2; x++)
                 {
                     float relX = x * 0.5f;
+                    relX = 1 - (1 - relX) * (1 - relX); //put it on a curve so that 0.5 increases to 0.75
                     float relY = y - 1 + relX * (flapOffset + diveOffset); //add the -1 to position the wing below the slugcat's head
 
                     Vector2 basePos = wingDrawPos + chunkDir * relY * wingHeight
@@ -317,16 +317,10 @@ public static class Glide
             }
 
             float drawAlpha = Mathf.LerpUnclamped(lastAlpha, alpha, timeStacker);
-            (sLeaser.sprites[0] as TriangleMesh).color = ColWithAlpha((sLeaser.sprites[0] as TriangleMesh).color, drawAlpha);
-            (sLeaser.sprites[1] as TriangleMesh).color = ColWithAlpha((sLeaser.sprites[1] as TriangleMesh).color, drawAlpha);
-            //(sLeaser.sprites[0] as TriangleMesh).alpha = drawAlpha;
-            //(sLeaser.sprites[1] as TriangleMesh).alpha = drawAlpha;
-            float spriteAlpha = drawAlpha <= 0 ? 0 : 1;
-            (sLeaser.sprites[0] as TriangleMesh).alpha = spriteAlpha;
-            (sLeaser.sprites[1] as TriangleMesh).alpha = spriteAlpha;
+            (sLeaser.sprites[0] as TriangleMesh).alpha = drawAlpha;
+            (sLeaser.sprites[1] as TriangleMesh).alpha = drawAlpha;
 
         }
-        private static Color ColWithAlpha(Color c, float a) => new(c.r, c.g, c.b, a);
 
         public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
         {
@@ -335,8 +329,8 @@ public static class Glide
             TriangleMesh.Triangle[] tris = TriangleMesh.GridTriangles(1, 2);
             Vector2[] uvs = new Vector2[]
             {
-                new(0, 0), new(0.7f, 0), new(1, 0),
-                new(0, 1), new(0.7f, 1), new(1, 1)
+                new(0, 0), new(0.5f, 0), new(1, 0),
+                new(0, 1), new(0.5f, 1), new(1, 1)
             };
             sLeaser.sprites[0] = new TriangleMesh(Tools.Assets.WingTexName, tris, false)
                 { UVvertices = uvs, alpha = 0, color = baseColor, shader = Tools.Assets.WingEffect };
