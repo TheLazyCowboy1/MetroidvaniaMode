@@ -181,7 +181,7 @@ public class Options : AutoConfigOptions
     public static float GlideKeyboardYFac = 0.5f;
 
     [Config(ADVANCED, "Glide Angle Enforcement", "How strongly the slugcat is forced to be facing the right way when gliding")]
-    public static float GlideAngleEnforcement = 0.25f;
+    public static float GlideAngleEnforcement = 0.35f;
 
     [Config(ADVANCED, "/40 Shield Full Time", "How long the shield can be at full strength, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 4000)]
     public static int ShieldFullTime = 80;
