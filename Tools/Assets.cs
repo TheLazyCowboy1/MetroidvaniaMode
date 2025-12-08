@@ -15,7 +15,7 @@ public static class Assets
     public static FShader WarpNoiseBloom;
 
     public const string WingTexName = "MVM_Wing";
-    private static Texture2D wingTex;
+    //private static Texture2D wingTex;
 
     private static Shader _wingEffect;
     public static FShader WingEffect;
@@ -38,9 +38,9 @@ public static class Assets
             if (_warpNoiseBloom == null) Plugin.Error("WarpNoiseTex.shader is null!");
             WarpNoiseBloom = FShader.CreateShader("MVM_WarpNoiseBloom", _warpNoiseBloom);
 
-            wingTex = assets.LoadAsset<Texture2D>("Wing.png");
+            Texture2D wingTex = assets.LoadAsset<Texture2D>("Wing.png");
             if (wingTex == null) Plugin.Error("Wing.png is null!");
-            Futile.atlasManager.LoadAtlasFromTexture(WingTexName, wingTex, true);
+            Futile.atlasManager.LoadAtlasFromTexture(WingTexName, wingTex, false);
 
             _wingEffect = assets.LoadAsset<Shader>("Wing.shader");
             if (_wingEffect == null) Plugin.Error("Wing.shader is null!");
