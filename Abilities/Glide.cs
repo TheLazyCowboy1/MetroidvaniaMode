@@ -329,8 +329,8 @@ public static class Glide
             TriangleMesh.Triangle[] tris = TriangleMesh.GridTriangles(1, 2);
             Vector2[] uvs = new Vector2[]
             {
-                new(0, 0), new(0.5f, 0), new(1, 0),
-                new(0, 1), new(0.5f, 1), new(1, 1)
+                new(0, 0), new(0.75f, 0), new(1, 0),
+                new(0, 1), new(0.75f, 1), new(1, 1)
             };
             sLeaser.sprites[0] = new TriangleMesh(Tools.Assets.WingTexName, tris, false)
                 { UVvertices = uvs, alpha = 0, color = baseColor, shader = Tools.Assets.WingEffect };
