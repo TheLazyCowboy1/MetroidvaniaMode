@@ -49,7 +49,6 @@ sampler2D _MainTex;
 uniform float2 _MainTex_TexelSize;
 
 sampler2D _NoiseTex2;
-float TheLazyCowboy1_AlphaMod;
 
 struct v2f {
     float4  pos : SV_POSITION;
@@ -72,7 +71,6 @@ v2f vert (appdata_full v)
 
 half4 frag (v2f i) : SV_Target
 {
-	i.clr.w = i.clr.w * TheLazyCowboy1_AlphaMod;
 	half4 retCol = i.clr * tex2D(_MainTex, i.uv);
 	if (retCol.w <= 0) {
 		discard;
