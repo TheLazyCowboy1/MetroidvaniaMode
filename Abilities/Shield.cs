@@ -349,10 +349,10 @@ public static class Shield
 
         public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
         {
-            Vector2 curPos = Vector2.Lerp(lastPos, pos, timeStacker);
-            float curRot = Mathf.Lerp(lastRot, rot, timeStacker);
-            float curAlpha = Mathf.Lerp(lastAlpha, alpha, timeStacker);
-            float curWhite = Mathf.Lerp(lastWhite, white, timeStacker);
+            Vector2 curPos = Vector2.LerpUnclamped(lastPos, pos, timeStacker);
+            float curRot = Mathf.LerpUnclamped(lastRot, rot, timeStacker);
+            float curAlpha = Mathf.LerpUnclamped(lastAlpha, alpha, timeStacker);
+            float curWhite = Mathf.LerpUnclamped(lastWhite, white, timeStacker);
 
             curPos += DrawOffset(curRot); //make the shield be in FRONT of the player, not inside the player
 

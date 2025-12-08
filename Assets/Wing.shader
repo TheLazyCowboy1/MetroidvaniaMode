@@ -48,6 +48,9 @@ CGPROGRAM
 sampler2D _MainTex;
 uniform float2 _MainTex_TexelSize;
 
+sampler2D _NoiseTex2;
+float TheLazyCowboy1_AlphaMod;
+
 struct v2f {
     float4  pos : SV_POSITION;
     float2  uv : TEXCOORD0;
@@ -69,31 +72,15 @@ v2f vert (appdata_full v)
 
 half4 frag (v2f i) : SV_Target
 {
-	//a semicircle starting on the left
-	half2 circleCenter = half2(0, 0.5);
-
-	//get distance
-	half2 relPos = i.uv - circleCenter;
-	relPos.y = relPos.y * 2;
-	half sqrDist = relPos.x*relPos.x + relPos.y*relPos.y;
-	//half dist = sqrt(sqrDist);
-
-	//don't draw outside of the semi-circle
-	if (sqrDist > 1) {
+	i.clr.w = i.clr.w * TheLazyCowboy1_AlphaMod;
+	half4 retCol = i.clr * tex2D(_MainTex, i.uv);
+	if (retCol.w <= 0) {
 		discard;
 	}
 
 	//vertical lines
-	half sinTime = sin(53*_Time.y + 300*i.uv.y);
-	half opacity = 0.7 + 0.3 * (sinTime * 0.5 + 0.5);
-
-	//outside edge opaque
-	half outsideThickness = 0.15;
-	opacity = opacity + saturate((sqrDist - 1 + outsideThickness) / outsideThickness * 0.4);
-
-	//outside edge fade out
-	half outsideFadeOut = 0.07;
-	opacity = opacity * saturate(1 - (sqrDist - 1 + outsideFadeOut) / outsideFadeOut);
+	half sinTime = sin(-53*_Time.y + 100*i.uv.x);
+	half opacity = -0.2 + 0.3 * (sinTime * 0.5 + 0.5);
 	
 	//noise flicker
 	half noiseStrength = 0.23;
@@ -102,25 +89,14 @@ half4 frag (v2f i) : SV_Target
 	half2 noiseDiff = noise.xy - i.uv;
 	noiseDiff.x = abs(noiseDiff.x) % 0.25;
 	noiseDiff.y = abs(noiseDiff.y) % 0.25;
-	opacity = opacity + saturate((noiseStrength - noiseDiff.x - noiseDiff.y - abs((1+sinTime)-noise.z*2)) * 1000);
+	opacity = opacity + 0.5 * saturate((noiseStrength - noiseDiff.x - noiseDiff.y - abs((1+sinTime)-noise.z*2)) * 1000);
 
-	//inside fade out
-	half invWSqrd = (1-i.clr.w)*(1-i.clr.w);
-	half yDist = saturate(abs(2*(0.5 - i.uv.y)) + invWSqrd);
-	half sqrYDist = yDist*yDist;
-	half insideFadeOutFrom = 0.05 + 0.95*sqrYDist; //0.05 to 1
-	half insideFadeOutTo = 0.5 + 0.6*sqrYDist; //0.5 to 1.1
-	opacity = opacity * saturate((sqrDist - insideFadeOutFrom) / (insideFadeOutTo - insideFadeOutFrom));
+	//fade out horizontally
+	half wMod = (1 - i.clr.w) * (1 - i.clr.w);
+	opacity = opacity - 2 * i.uv.x * wMod;
 
-	half a = opacity * (1-invWSqrd);
-	i.clr.w = saturate(a);
-
-	half colMod = 1 + a - i.clr.w;
-	i.clr.x = i.clr.x * colMod;
-	i.clr.y = i.clr.y * colMod;
-	i.clr.z = i.clr.z * colMod;
-
-	return saturate(i.clr);
+	retCol.w = retCol.w + opacity * (1 - wMod);
+	return retCol;
 
 }
 ENDCG

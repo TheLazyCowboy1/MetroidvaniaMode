@@ -16,6 +16,9 @@ public static class Assets
 
     public const string WingTexName = "MVM_Wing";
 
+    private static Shader _wingEffect;
+    public static FShader WingEffect;
+
     public static void Load()
     {
         try
@@ -34,13 +37,21 @@ public static class Assets
             if (_warpNoiseBloom == null) Plugin.Error("WarpNoiseTex.shader is null!");
             WarpNoiseBloom = FShader.CreateShader("MVM_WarpNoiseBloom", _warpNoiseBloom);
 
+            Texture2D wingTex = assets.LoadAsset<Texture2D>("Wing.png");
+            if (wingTex == null) Plugin.Error("Wing.png is null!");
+            Futile.atlasManager.LoadAtlasFromTexture(WingTexName, wingTex, true);
+
+            _wingEffect = assets.LoadAsset<Shader>("Wing.shader");
+            if (_wingEffect == null) Plugin.Error("Wing.shader is null!");
+            WingEffect = FShader.CreateShader("MVM_WingEffect", _wingEffect);
+
             Plugin.Log("Loaded assets");
 
             //TEMP
-            string wingFile = AssetManager.ResolveFilePath(Path.Combine("AssetBundles", "Wing.png"));
-            wingFile = wingFile.Substring(0, wingFile.Length - ".png".Length); //cut off the last 4 characters: ".png"
-            var at = Futile.atlasManager.ActuallyLoadAtlasOrImage(WingTexName, wingFile, "");
-            Plugin.Log("Wing tex name: " + at?.name, 0);
+            //string wingFile = AssetManager.ResolveFilePath(Path.Combine("AssetBundles", "Wing.png"));
+            //wingFile = wingFile.Substring(0, wingFile.Length - ".png".Length); //cut off the last 4 characters: ".png"
+            //var at = Futile.atlasManager.ActuallyLoadAtlasOrImage(WingTexName, wingFile, "");
+            //Plugin.Log("Wing tex name: " + at?.name, 0);
 
         }
         catch (Exception ex) { Plugin.Error(ex); }

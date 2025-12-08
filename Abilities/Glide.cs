@@ -213,6 +213,8 @@ public static class Glide
         private float lastFlap = 0, flap = 0;
         private const float deltaFlap = (1f/40f) / 0.5f; //0.5f = half a second
 
+        private float lastAlpha = 0, alpha = 0;
+
         private Vector2 lastVel, vel;
 
         public PlayerWings(Player player, PlayerInfo info)
@@ -239,9 +241,15 @@ public static class Glide
 
             lastVel = vel;
             vel = Vector2.LerpUnclamped(vel, player.mainBodyChunk.vel, 0.1f); //constantly lerping towards player vel
+
+            lastAlpha = alpha;
+            float targetAlpha = info.Gliding ? 1 : (1 - (1 - flap) * (1 - flap) * (1 - flap)); //if gliding = 1, else ~= flap (on a steeper curve)
+            if (targetAlpha > alpha) alpha = Mathf.Min(Mathf.LerpUnclamped(alpha, targetAlpha, 0.2f) + 0.1f, 1); //lerp UP quickly
+            else if (targetAlpha < alpha) alpha = Mathf.Max(Mathf.LerpUnclamped(alpha, targetAlpha, 0.1f) - 0.05f, 0); //lerp DOWN slower
+
         }
 
-        public bool NeedsDestroy => player == null || room == null || player.room != room;
+        public bool NeedsDestroy => player == null || room == null || player.room != room || info == null;
 
         public override void Destroy()
         {
@@ -280,11 +288,12 @@ public static class Glide
 
             Vector2 playerVel = Vector2.LerpUnclamped(lastVel, vel, timeStacker);
             float sqrVel = Vector2.Dot(chunkDir, playerVel.normalized) * playerVel.sqrMagnitude; //actually can be negative
-            float diveOffset = -sqrVel / (Mathf.Abs(sqrVel) + 160f) * sqrFlapMod;
+            float diveOffset = -sqrVel / (Mathf.Abs(sqrVel) + 40f) * sqrFlapMod;
 
-            float wingWidth = 15f + 15f * (1 - (1 - chunkDir.y) * (1 - chunkDir.y)); //from 15 to 30
+            float tempA = 1 - Mathf.Abs(chunkDir.y);
+            float wingWidth = 10f + 20f * (1 - tempA * tempA); //from 15 to 30
             float wingHeight = 20f;
-            float wingOffset = 4f;
+            float wingOffset = 4f; //how far out from center of slugcat
 
             //set vertices
             //Vector2[] verts = new Vector2[4];
@@ -296,30 +305,33 @@ public static class Glide
                     float relY = y - 1 + relX * (flapOffset + diveOffset); //add the -1 to position the wing below the slugcat's head
 
                     Vector2 basePos = wingDrawPos + chunkDir * relY * wingHeight
-                        + new Vector2(0, 0.5f * wingHeight * flapOffset); //flap also directly moves wings up/down
+                        + new Vector2(0, 0.5f * wingHeight * relX * flapOffset); //flap also directly moves wings up/down
                     Vector2 offset = wingDir * (relX * wingWidth + wingOffset);
                     (sLeaser.sprites[0] as TriangleMesh).MoveVertice(x + y * 3, basePos + offset);
                     (sLeaser.sprites[1] as TriangleMesh).MoveVertice(x + y * 3, basePos - offset);
                 }
             }
 
+            float drawAlpha = Mathf.LerpUnclamped(lastAlpha, alpha, timeStacker);
+            (sLeaser.sprites[0] as TriangleMesh).alpha = drawAlpha;
+            (sLeaser.sprites[1] as TriangleMesh).alpha = drawAlpha;
+
         }
 
         public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
         {
             sLeaser.sprites = new FSprite[2];
-            /*TriangleMesh.Triangle[] tris = new TriangleMesh.Triangle[] { //verts: 0,0, 1,0, 0,1, 1,1
-                new(0, 1, 3),
-                new(0, 3, 2),
-            };*/
+
             TriangleMesh.Triangle[] tris = TriangleMesh.GridTriangles(1, 2);
             Vector2[] uvs = new Vector2[]
             {
                 new(0, 0), new(0.7f, 0), new(1, 0),
                 new(0, 1), new(0.7f, 1), new(1, 1)
             };
-            sLeaser.sprites[0] = new TriangleMesh(Tools.Assets.WingTexName, tris, false) { UVvertices = uvs };
-            sLeaser.sprites[1] = new TriangleMesh(Tools.Assets.WingTexName, tris, false) { UVvertices = uvs };
+            sLeaser.sprites[0] = new TriangleMesh(Tools.Assets.WingTexName, tris, false)
+                { UVvertices = uvs, alpha = 0, shader = Tools.Assets.WingEffect };
+            sLeaser.sprites[1] = new TriangleMesh(Tools.Assets.WingTexName, tris, false)
+                { UVvertices = uvs, alpha = 0, shader = Tools.Assets.WingEffect };
 
             AddToContainer(sLeaser, rCam, null);
         }
