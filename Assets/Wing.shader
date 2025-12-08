@@ -93,7 +93,7 @@ half4 frag (v2f i) : SV_Target
 	half wMod = (1 - i.clr.w) * (1 - i.clr.w);
 	opacity = opacity - 2 * i.uv.x * wMod;
 
-	retCol.w = retCol.w + opacity * (1 - wMod);
+	retCol.w = saturate(retCol.w + opacity * (1 - wMod));
 	return retCol;
 
 }

@@ -309,7 +309,7 @@ public static class Glide
                     float relY = y - 1 + relX * (flapOffset + diveOffset); //add the -1 to position the wing below the slugcat's head
 
                     Vector2 basePos = wingDrawPos + chunkDir * relY * wingHeight
-                        + new Vector2(0, 0.5f * wingHeight * relX * flapOffset); //flap also directly moves wings up/down
+                        + new Vector2(0, wingHeight * relX * flapOffset); //flap also directly moves wings up/down
                     Vector2 offset = wingDir * (relX * wingWidth + wingOffset);
                     (sLeaser.sprites[0] as TriangleMesh).MoveVertice(x + y * 3, basePos + offset);
                     (sLeaser.sprites[1] as TriangleMesh).MoveVertice(x + y * 3, basePos - offset);
