@@ -292,9 +292,9 @@ public static class Glide
 
             Vector2 playerVel = Vector2.LerpUnclamped(lastVel, vel, timeStacker);
             float sqrVel = Vector2.Dot(chunkDir, playerVel.normalized) * playerVel.sqrMagnitude; //actually can be negative
-            float diveOffset = (0.2f - sqrVel / (Mathf.Abs(sqrVel) + 80f)) * sqrFlapMod;
+            float diveOffset = (0.5f - sqrVel / (Mathf.Abs(sqrVel) + 80f)) * sqrFlapMod;
 
-            float tempA = 1 - Mathf.Abs(chunkDir.y);
+            float tempA = 1 - Mathf.Clamp01(chunkDir.y); //using Clamp01 instead of Abs to make them still folded when diving
             float wingWidth = 10f + 20f * (1 - tempA * tempA); //from 15 to 30
             float wingHeight = 20f;
             float wingOffset = 4f; //how far out from center of slugcat
@@ -317,10 +317,16 @@ public static class Glide
             }
 
             float drawAlpha = Mathf.LerpUnclamped(lastAlpha, alpha, timeStacker);
-            (sLeaser.sprites[0] as TriangleMesh).alpha = drawAlpha;
-            (sLeaser.sprites[1] as TriangleMesh).alpha = drawAlpha;
+            (sLeaser.sprites[0] as TriangleMesh).color = ColWithAlpha((sLeaser.sprites[0] as TriangleMesh).color, drawAlpha);
+            (sLeaser.sprites[1] as TriangleMesh).color = ColWithAlpha((sLeaser.sprites[1] as TriangleMesh).color, drawAlpha);
+            //(sLeaser.sprites[0] as TriangleMesh).alpha = drawAlpha;
+            //(sLeaser.sprites[1] as TriangleMesh).alpha = drawAlpha;
+            float spriteAlpha = drawAlpha <= 0 ? 0 : 1;
+            (sLeaser.sprites[0] as TriangleMesh).alpha = spriteAlpha;
+            (sLeaser.sprites[1] as TriangleMesh).alpha = spriteAlpha;
 
         }
+        private static Color ColWithAlpha(Color c, float a) => new(c.r, c.g, c.b, a);
 
         public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
         {
