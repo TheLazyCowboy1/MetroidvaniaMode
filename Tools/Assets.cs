@@ -40,6 +40,7 @@ public static class Assets
 
             Texture2D wingTex = assets.LoadAsset<Texture2D>("Wing.png");
             if (wingTex == null) Plugin.Error("Wing.png is null!");
+            wingTex.filterMode = FilterMode.Point;
             Futile.atlasManager.LoadAtlasFromTexture(WingTexName, wingTex, false);
 
             _wingEffect = assets.LoadAsset<Shader>("Wing.shader");

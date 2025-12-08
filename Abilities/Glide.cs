@@ -217,6 +217,8 @@ public static class Glide
 
         private Vector2 lastVel, vel;
 
+        private static Color baseColor = new(0.2f, 0.4f, 1f); //blue
+
         public PlayerWings(Player player, PlayerInfo info)
         {
             this.player = player;
@@ -290,7 +292,7 @@ public static class Glide
 
             Vector2 playerVel = Vector2.LerpUnclamped(lastVel, vel, timeStacker);
             float sqrVel = Vector2.Dot(chunkDir, playerVel.normalized) * playerVel.sqrMagnitude; //actually can be negative
-            float diveOffset = -sqrVel / (Mathf.Abs(sqrVel) + 40f) * sqrFlapMod;
+            float diveOffset = (0.2f - sqrVel / (Mathf.Abs(sqrVel) + 80f)) * sqrFlapMod;
 
             float tempA = 1 - Mathf.Abs(chunkDir.y);
             float wingWidth = 10f + 20f * (1 - tempA * tempA); //from 15 to 30
@@ -331,9 +333,9 @@ public static class Glide
                 new(0, 1), new(0.7f, 1), new(1, 1)
             };
             sLeaser.sprites[0] = new TriangleMesh(Tools.Assets.WingTexName, tris, false)
-                { UVvertices = uvs, alpha = 0, shader = Tools.Assets.WingEffect };
+                { UVvertices = uvs, alpha = 0, color = baseColor, shader = Tools.Assets.WingEffect };
             sLeaser.sprites[1] = new TriangleMesh(Tools.Assets.WingTexName, tris, false)
-                { UVvertices = uvs, alpha = 0, shader = Tools.Assets.WingEffect };
+                { UVvertices = uvs, alpha = 0, color = baseColor, shader = Tools.Assets.WingEffect };
 
             AddToContainer(sLeaser, rCam, null);
         }
