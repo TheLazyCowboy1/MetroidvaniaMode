@@ -297,11 +297,12 @@ public static class Glide
             Vector2 velOffset = -playerVel.normalized * sqrVel / (sqrVel + 80f) * sqrFlapMod * 0.5f;
 
             //determine which wing is "in the front"
-            int frontWing = wingDir.y < 0 ? 0 : 1;
+            //int frontWing = wingDir.y < 0 ? 0 : 1;
+            //int backWing = 1 - frontWing;
 
-            float tempA = 1 - Mathf.Clamp01(chunkDir.y); //using Clamp01 instead of Abs to make them still folded when diving
-            tempA *= tempA;
-            float wingWidth = 10f + 20f * (1 - tempA); //from 15 to 30
+            float wingFold = 1 - Mathf.Clamp01(chunkDir.y); //using Clamp01 instead of Abs to make them still folded when diving
+            wingFold *= wingFold;
+            float wingWidth = 10f + 20f * (1 - wingFold); //from 15 to 30
             float wingHeight = 20f;
             float wingOffset = 5f; //how far out from center of slugcat
 
@@ -318,11 +319,9 @@ public static class Glide
                     Vector2 basePos = wingDrawPos + chunkDir * relY * wingHeight
                         + new Vector2(0, wingHeight * offsetMod * flapOffset) //flap also directly moves wings up/down
                         + velOffset * wingHeight * offsetMod; //velocity directly shifts it too
-                    Vector2 offset1 = wingDir * relX * wingWidth * (wingDir.y > 0 ? 1 : -1); //must be positive y
-                    Vector2 trueOffset = wingDir * wingOffset * (1 - tempA);
-                    float altOffsetMod = Mathf.Lerp(1, -1, tempA);
-                    (sLeaser.sprites[0] as TriangleMesh).MoveVertice(x + y * 3, basePos + trueOffset + offset1 * (frontWing == 0 ? 1 : altOffsetMod));
-                    (sLeaser.sprites[1] as TriangleMesh).MoveVertice(x + y * 3, basePos - trueOffset - offset1 * (frontWing == 1 ? 1 : altOffsetMod));
+                    Vector2 offset1 = wingDir * (relX * wingWidth + wingOffset * (1 - wingFold)) * (wingDir.y < 0 ? -1 : 1); //must be positive y
+                    (sLeaser.sprites[0] as TriangleMesh).MoveVertice(x + y * 3, basePos + offset1 * Mathf.Lerp(-1, 1, wingFold));
+                    (sLeaser.sprites[1] as TriangleMesh).MoveVertice(x + y * 3, basePos + offset1);
                 }
             }
 
@@ -333,8 +332,8 @@ public static class Glide
 
             //reset container if necessary
             bool anyFront = Mathf.Abs(wingDir.y) > 0.1f; //whether any wing should be put in the foreground
-            ChangeContainer((sLeaser.sprites[0] as TriangleMesh), rCam, frontWing == 0 && anyFront);
-            ChangeContainer((sLeaser.sprites[1] as TriangleMesh), rCam, frontWing == 1 && anyFront);
+            //ChangeContainer((sLeaser.sprites[0] as TriangleMesh), rCam, frontWing == 0 && anyFront); //wing 0 is always in background
+            ChangeContainer((sLeaser.sprites[1] as TriangleMesh), rCam, anyFront); //wing 1 is sometimes in foreground
 
         }
 
