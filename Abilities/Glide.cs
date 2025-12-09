@@ -300,9 +300,13 @@ public static class Glide
             //int frontWing = wingDir.y < 0 ? 0 : 1;
             //int backWing = 1 - frontWing;
 
-            float wingFold = 1 - Mathf.Clamp01(chunkDir.y); //using Clamp01 instead of Abs to make them still folded when diving
+            float wingFold = chunkDir.y > 0
+                ? 1 - chunkDir.y //unfold when pointing upwards
+                    : (chunkDir.y < -0.5f
+                    ? 2 * (1 + chunkDir.y) //unfold when below -0.5
+                    : 1);
             wingFold *= wingFold;
-            float wingWidth = 10f + 20f * (1 - wingFold); //from 15 to 30
+            float wingWidth = 10f + 20f * (chunkDir.y < 0 ? 0 : 1 - wingFold); //from 15 to 30
             float wingHeight = 20f;
             float wingOffset = 5f; //how far out from center of slugcat
 
@@ -333,11 +337,9 @@ public static class Glide
             //reset container if necessary
             bool anyFront = Mathf.Abs(wingDir.y) > 0.1f; //whether any wing should be put in the foreground
             //ChangeContainer((sLeaser.sprites[0] as TriangleMesh), rCam, frontWing == 0 && anyFront); //wing 0 is always in background
-            ChangeContainer((sLeaser.sprites[1] as TriangleMesh), rCam, anyFront); //wing 1 is sometimes in foreground
+            ChangeContainer((sLeaser.sprites[1] as TriangleMesh), rCam, anyFront ? "Midground" : "Background"); //wing 1 is sometimes in foreground
 
         }
-
-        private static void ChangeContainer(TriangleMesh mesh, RoomCamera rCam, bool front) => ChangeContainer(mesh, rCam, front ? "Foreground" : "Background");
         private static void ChangeContainer(TriangleMesh mesh, RoomCamera rCam, string containerName)
         {
             FContainer container = rCam.ReturnFContainer(containerName);
