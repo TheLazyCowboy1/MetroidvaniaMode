@@ -294,7 +294,7 @@ public static class Glide
             float sqrVel = playerVel.sqrMagnitude;
             float dirSqrVel = Vector2.Dot(chunkDir, playerVel.normalized) * sqrVel; //actually can be negative
             float diveOffset = (0.5f - dirSqrVel / (Mathf.Abs(dirSqrVel) + 40f)) * sqrFlapMod * 0.5f;
-            Vector2 velOffset = -playerVel.normalized * sqrVel * (sqrVel + 80f) * sqrFlapMod * 0.5f;
+            Vector2 velOffset = -playerVel.normalized * sqrVel / (sqrVel + 80f) * sqrFlapMod * 0.5f;
 
             float tempA = 1 - Mathf.Clamp01(chunkDir.y); //using Clamp01 instead of Abs to make them still folded when diving
             float wingWidth = 10f + 20f * (1 - tempA * tempA); //from 15 to 30
