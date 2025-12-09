@@ -296,6 +296,10 @@ public static class Glide
             float diveOffset = (0.5f - dirSqrVel / (Mathf.Abs(dirSqrVel) + 40f)) * sqrFlapMod * 0.5f;
             Vector2 velOffset = -playerVel.normalized * sqrVel / (sqrVel + 80f) * sqrFlapMod * 0.5f;
 
+            //determine which wing is "in the front"
+            int frontWing = wingDir.y < 0 ? 0 : 1;
+            int backWing = 1 - frontWing;
+
             float tempA = 1 - Mathf.Clamp01(chunkDir.y); //using Clamp01 instead of Abs to make them still folded when diving
             float wingWidth = 10f + 20f * (1 - tempA * tempA); //from 15 to 30
             float wingHeight = 20f;
@@ -316,15 +320,32 @@ public static class Glide
                         + velOffset * wingHeight * offsetMod; //velocity directly shifts it too
                     Vector2 offset1 = wingDir * relX * wingWidth;
                     Vector2 trueOffset = wingDir * wingOffset;
-                    (sLeaser.sprites[0] as TriangleMesh).MoveVertice(x + y * 3, basePos + trueOffset + offset1);
-                    (sLeaser.sprites[1] as TriangleMesh).MoveVertice(x + y * 3, basePos - trueOffset + offset1 * Mathf.Lerp(-1, 1, tempA * tempA));
+                    (sLeaser.sprites[backWing] as TriangleMesh).MoveVertice(x + y * 3, basePos + trueOffset + offset1);
+                    (sLeaser.sprites[frontWing] as TriangleMesh).MoveVertice(x + y * 3, basePos - trueOffset + offset1 * Mathf.Lerp(-1, 1, tempA * tempA));
                 }
             }
 
+            //set alpha
             float drawAlpha = Mathf.LerpUnclamped(lastAlpha, alpha, timeStacker);
             (sLeaser.sprites[0] as TriangleMesh).alpha = drawAlpha;
             (sLeaser.sprites[1] as TriangleMesh).alpha = drawAlpha;
 
+            //reset container if necessary
+            bool anyFront = Mathf.Abs(wingDir.y) > 0.25f; //whether any wing should be put in the foreground
+            ChangeContainer((sLeaser.sprites[0] as TriangleMesh), rCam, frontWing == 0 && anyFront);
+            ChangeContainer((sLeaser.sprites[1] as TriangleMesh), rCam, frontWing == 1 && anyFront);
+
+        }
+
+        private static void ChangeContainer(TriangleMesh mesh, RoomCamera rCam, bool front) => ChangeContainer(mesh, rCam, front ? "Foreground" : "Background");
+        private static void ChangeContainer(TriangleMesh mesh, RoomCamera rCam, string containerName)
+        {
+            FContainer container = rCam.ReturnFContainer(containerName);
+            if (mesh.container != container)
+            {
+                mesh.RemoveFromContainer();
+                container.AddChild(mesh);
+            }
         }
 
         public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
