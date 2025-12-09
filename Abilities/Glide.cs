@@ -314,9 +314,10 @@ public static class Glide
                     Vector2 basePos = wingDrawPos + chunkDir * relY * wingHeight
                         + new Vector2(0, wingHeight * offsetMod * flapOffset) //flap also directly moves wings up/down
                         + velOffset * wingHeight * offsetMod; //velocity directly shifts it too
-                    Vector2 offset = wingDir * (relX * wingWidth + wingOffset);
-                    (sLeaser.sprites[0] as TriangleMesh).MoveVertice(x + y * 3, basePos + offset);
-                    (sLeaser.sprites[1] as TriangleMesh).MoveVertice(x + y * 3, basePos - offset);
+                    Vector2 offset1 = wingDir * relX * wingWidth;
+                    Vector2 trueOffset = wingDir * wingOffset;
+                    (sLeaser.sprites[0] as TriangleMesh).MoveVertice(x + y * 3, basePos + trueOffset + offset1);
+                    (sLeaser.sprites[1] as TriangleMesh).MoveVertice(x + y * 3, basePos - trueOffset + offset1 * Mathf.Lerp(-1, 1, tempA * tempA));
                 }
             }
 
