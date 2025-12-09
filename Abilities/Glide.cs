@@ -303,7 +303,7 @@ public static class Glide
             float tempA = 1 - Mathf.Clamp01(chunkDir.y); //using Clamp01 instead of Abs to make them still folded when diving
             float wingWidth = 10f + 20f * (1 - tempA * tempA); //from 15 to 30
             float wingHeight = 20f;
-            float wingOffset = 4f; //how far out from center of slugcat
+            float wingOffset = 5f; //how far out from center of slugcat
 
             //set vertices
             for (int y = 0; y <= 1; y++)
@@ -318,7 +318,7 @@ public static class Glide
                     Vector2 basePos = wingDrawPos + chunkDir * relY * wingHeight
                         + new Vector2(0, wingHeight * offsetMod * flapOffset) //flap also directly moves wings up/down
                         + velOffset * wingHeight * offsetMod; //velocity directly shifts it too
-                    Vector2 offset1 = wingDir * relX * wingWidth;
+                    Vector2 offset1 = wingDir * relX * wingWidth * (wingDir.y > 0 ? 1 : -1); //must be positive y
                     Vector2 trueOffset = wingDir * wingOffset;
                     (sLeaser.sprites[backWing] as TriangleMesh).MoveVertice(x + y * 3, basePos + trueOffset + offset1);
                     (sLeaser.sprites[frontWing] as TriangleMesh).MoveVertice(x + y * 3, basePos - trueOffset + offset1 * Mathf.Lerp(-1, 1, tempA * tempA));
@@ -331,7 +331,7 @@ public static class Glide
             (sLeaser.sprites[1] as TriangleMesh).alpha = drawAlpha;
 
             //reset container if necessary
-            bool anyFront = Mathf.Abs(wingDir.y) > 0.25f; //whether any wing should be put in the foreground
+            bool anyFront = Mathf.Abs(wingDir.y) > 0.1f; //whether any wing should be put in the foreground
             ChangeContainer((sLeaser.sprites[0] as TriangleMesh), rCam, frontWing == 0 && anyFront);
             ChangeContainer((sLeaser.sprites[1] as TriangleMesh), rCam, frontWing == 1 && anyFront);
 
