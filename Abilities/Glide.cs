@@ -320,9 +320,9 @@ public static class Glide
                         + velOffset * wingHeight * offsetMod; //velocity directly shifts it too
                     Vector2 offset1 = wingDir * relX * wingWidth * (wingDir.y > 0 ? 1 : -1); //must be positive y
                     Vector2 trueOffset = wingDir * wingOffset * (1 - tempA);
-                    float altOffsetMod = Mathf.Lerp(-1, 1, tempA);
-                    (sLeaser.sprites[0] as TriangleMesh).MoveVertice(x + y * 3, basePos + (trueOffset + offset1) * (frontWing == 0 ? altOffsetMod : 1));
-                    (sLeaser.sprites[1] as TriangleMesh).MoveVertice(x + y * 3, basePos + (trueOffset + offset1) * (frontWing == 1 ? altOffsetMod : 1));
+                    float altOffsetMod = Mathf.Lerp(1, -1, tempA);
+                    (sLeaser.sprites[0] as TriangleMesh).MoveVertice(x + y * 3, basePos + trueOffset + offset1 * (frontWing == 0 ? 1 : altOffsetMod));
+                    (sLeaser.sprites[1] as TriangleMesh).MoveVertice(x + y * 3, basePos - trueOffset - offset1 * (frontWing == 1 ? 1 : altOffsetMod));
                 }
             }
 
