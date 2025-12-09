@@ -297,11 +297,12 @@ public static class Glide
             Vector2 velOffset = -playerVel.normalized * sqrVel / (sqrVel + 80f) * sqrFlapMod * 0.5f;
 
             //determine which wing is "in the front"
-            int frontWing = wingDir.y < 0 ? 0 : 1;
+            int frontWing = wingDir.y > 0 ? 0 : 1;
             int backWing = 1 - frontWing;
 
             float tempA = 1 - Mathf.Clamp01(chunkDir.y); //using Clamp01 instead of Abs to make them still folded when diving
-            float wingWidth = 10f + 20f * (1 - tempA * tempA); //from 15 to 30
+            tempA *= tempA;
+            float wingWidth = 10f + 20f * (1 - tempA); //from 15 to 30
             float wingHeight = 20f;
             float wingOffset = 5f; //how far out from center of slugcat
 
@@ -319,9 +320,10 @@ public static class Glide
                         + new Vector2(0, wingHeight * offsetMod * flapOffset) //flap also directly moves wings up/down
                         + velOffset * wingHeight * offsetMod; //velocity directly shifts it too
                     Vector2 offset1 = wingDir * relX * wingWidth * (wingDir.y > 0 ? 1 : -1); //must be positive y
-                    Vector2 trueOffset = wingDir * wingOffset;
-                    (sLeaser.sprites[backWing] as TriangleMesh).MoveVertice(x + y * 3, basePos + trueOffset + offset1);
-                    (sLeaser.sprites[frontWing] as TriangleMesh).MoveVertice(x + y * 3, basePos - trueOffset + offset1 * Mathf.Lerp(-1, 1, tempA * tempA));
+                    Vector2 trueOffset = wingDir * wingOffset * (1 - tempA);
+                    float altOffsetMod = Mathf.Lerp(-1, 1, tempA);
+                    (sLeaser.sprites[0] as TriangleMesh).MoveVertice(x + y * 3, basePos + (trueOffset + offset1) * (frontWing == 0 ? altOffsetMod : 1));
+                    (sLeaser.sprites[1] as TriangleMesh).MoveVertice(x + y * 3, basePos + (trueOffset + offset1) * (frontWing == 1 ? altOffsetMod : 1));
                 }
             }
 
