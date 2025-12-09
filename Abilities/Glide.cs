@@ -297,8 +297,7 @@ public static class Glide
             Vector2 velOffset = -playerVel.normalized * sqrVel / (sqrVel + 80f) * sqrFlapMod * 0.5f;
 
             //determine which wing is "in the front"
-            int frontWing = wingDir.y > 0 ? 0 : 1;
-            int backWing = 1 - frontWing;
+            int frontWing = wingDir.y < 0 ? 0 : 1;
 
             float tempA = 1 - Mathf.Clamp01(chunkDir.y); //using Clamp01 instead of Abs to make them still folded when diving
             tempA *= tempA;
