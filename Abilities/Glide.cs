@@ -291,8 +291,10 @@ public static class Glide
                 : 0;
 
             Vector2 playerVel = Vector2.LerpUnclamped(lastVel, vel, timeStacker);
-            float sqrVel = Vector2.Dot(chunkDir, playerVel.normalized) * playerVel.sqrMagnitude; //actually can be negative
-            float diveOffset = (0.5f - sqrVel / (Mathf.Abs(sqrVel) + 40f)) * sqrFlapMod;
+            float sqrVel = playerVel.sqrMagnitude;
+            float dirSqrVel = Vector2.Dot(chunkDir, playerVel.normalized) * sqrVel; //actually can be negative
+            float diveOffset = (0.5f - dirSqrVel / (Mathf.Abs(dirSqrVel) + 40f)) * sqrFlapMod * 0.5f;
+            Vector2 velOffset = -playerVel.normalized * sqrVel * (sqrVel + 80f) * sqrFlapMod * 0.5f;
 
             float tempA = 1 - Mathf.Clamp01(chunkDir.y); //using Clamp01 instead of Abs to make them still folded when diving
             float wingWidth = 10f + 20f * (1 - tempA * tempA); //from 15 to 30
@@ -306,10 +308,12 @@ public static class Glide
                 {
                     float relX = x * 0.5f;
                     relX = 1 - (1 - relX) * (1 - relX); //put it on a curve so that 0.5 increases to 0.75
-                    float relY = y - 1 + relX * (flapOffset + diveOffset); //add the -1 to position the wing below the slugcat's head
+                    float offsetMod = relX * relX;
+                    float relY = y - 1 + offsetMod * (flapOffset + diveOffset); //add the -1 to position the wing below the slugcat's head
 
                     Vector2 basePos = wingDrawPos + chunkDir * relY * wingHeight
-                        + new Vector2(0, wingHeight * relX * flapOffset); //flap also directly moves wings up/down
+                        + new Vector2(0, wingHeight * offsetMod * flapOffset) //flap also directly moves wings up/down
+                        + velOffset * wingHeight * offsetMod; //velocity directly shifts it too
                     Vector2 offset = wingDir * (relX * wingWidth + wingOffset);
                     (sLeaser.sprites[0] as TriangleMesh).MoveVertice(x + y * 3, basePos + offset);
                     (sLeaser.sprites[1] as TriangleMesh).MoveVertice(x + y * 3, basePos - offset);
