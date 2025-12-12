@@ -136,8 +136,9 @@ public static class Glide
                     //apply lift
                     //if (lift.sqrMagnitude > chunk.vel.sqrMagnitude * Options.GlideMaxLift * Options.GlideMaxLift)
                     //lift = Vector2.ClampMagnitude(lift, chunk.vel.magnitude * Options.GlideMaxLift); //don't let velocity go supersonic
-                    if (lift.sqrMagnitude > 0.0001f) //again; don't explode
-                        lift = SetSqrMagnitude(lift, chunk.vel.sqrMagnitude * Options.GlideMaxLift * Options.GlideMaxLift);
+                    //if (lift.sqrMagnitude > 0.0001f) //again; don't explode
+                    //lift = SetSqrMagnitude(lift, chunk.vel.sqrMagnitude * Options.GlideMaxLift * Options.GlideMaxLift);
+                    lift = Vector2.ClampMagnitude(lift, chunk.vel.magnitude * Options.GlideMaxLift);
                     chunk.vel += lift;
 
                 }
