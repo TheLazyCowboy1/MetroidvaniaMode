@@ -127,11 +127,11 @@ public static class Glide
                     chunk.vel += drag;
 
                     //calc lift
-                    //nVel = chunk.vel.normalized;
-                    dragDir = Perpendicular(dir); //use the proper calculation for lift
-                    float liftFac = -(dragDir.x * chunk.vel.x + dragDir.y * chunk.vel.y) * Options.GlideLiftCoef * Options.GlideLiftCoef;
-                    Vector2 lift = Perpendicular(chunk.vel) * liftFac; //liftFac scales based on chunk.vel, so this essentially squares chunk.vel
-                    //lift *= lift.sqrMagnitude;
+                    nVel = chunk.vel.normalized;
+                    //dragDir = Perpendicular(dir); //use the proper calculation for lift
+                    float liftFac = -(dragDir.x * nVel.x + dragDir.y * nVel.y) * Options.GlideLiftCoef ;
+                    Vector2 lift = Perpendicular(chunk.vel) * liftFac;
+                    lift *= lift.magnitude;
 
                     //apply lift
                     //if (lift.sqrMagnitude > chunk.vel.sqrMagnitude * Options.GlideMaxLift * Options.GlideMaxLift)
