@@ -49,6 +49,7 @@ sampler2D _MainTex;
 uniform float2 _MainTex_TexelSize;
 
 sampler2D _NoiseTex2;
+//float TheLazyCowboy1_AlphaMod;
 
 struct v2f {
     float4  pos : SV_POSITION;
@@ -71,29 +72,38 @@ v2f vert (appdata_full v)
 
 half4 frag (v2f i) : SV_Target
 {
-	half4 retCol = i.clr * tex2D(_MainTex, i.uv);
+	//i.clr.w = TheLazyCowboy1_AlphaMod; //for visualizations within Unity
+
+	half4 texCol = tex2D(_MainTex, i.uv);
+	half4 retCol = i.clr * texCol;
 	if (retCol.w <= 0) {
 		discard;
 	}
 
 	//vertical lines
-	half sinTime = sin(-53*_Time.y + 100*i.uv.x);
-	half opacity = -0.2 + 0.3 * (sinTime * 0.5 + 0.5);
+	half sinTime = sin(-53*_Time.y + 70*i.uv.x);
+	half opacity = -0.2 + 0.2 * (sinTime * 0.5 + 0.5);
 	
 	//noise flicker
-	half noiseStrength = 0.23;
+	half noiseStrength = 0.25;
 	half2 noiseSamplePos = i.uv*0.5 + 0.25*half2(1+_SinTime.w, 1-_SinTime.z);
 	half4 noise = tex2D(_NoiseTex2, noiseSamplePos);
 	half2 noiseDiff = noise.xy - i.uv;
 	noiseDiff.x = abs(noiseDiff.x) % 0.25;
 	noiseDiff.y = abs(noiseDiff.y) % 0.25;
-	opacity = opacity + 0.5 * saturate((noiseStrength - noiseDiff.x - noiseDiff.y - abs((1+sinTime)-noise.z*2)) * 1000);
+	opacity = opacity + saturate((noiseStrength - noiseDiff.x - noiseDiff.y - abs((1+sinTime)-noise.z*2)) * 1000);
 
 	//fade out horizontally
-	half wMod = (1 - i.clr.w) * (1 - i.clr.w);
-	opacity = opacity - 2 * i.uv.x * wMod;
+	//half wMod = (1 - i.clr.w) * (1 - i.clr.w);
+	//opacity = opacity - 2 * i.uv.x * wMod;
+	opacity = opacity - saturate(2*i.uv.x + 1 - 3*i.clr.w);
 
-	retCol.w = saturate(retCol.w + opacity * (1 - wMod));
+	//retCol.w = saturate(retCol.w + opacity * (1 - wMod));
+	half satOpac = saturate(texCol.w + opacity);
+	retCol.w = i.clr.w * satOpac;
+	half extraOpac = 1 + texCol.w + opacity - satOpac;
+	retCol.xyz = retCol.xyz * extraOpac;
+
 	return retCol;
 
 }
