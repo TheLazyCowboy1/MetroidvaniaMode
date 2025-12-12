@@ -121,9 +121,7 @@ public static class Glide
                     Vector2 drag = (dragFac < 0 ? -dragDir : dragDir) * (chunk.vel * dragFac).sqrMagnitude;
 
                     //apply drag
-                    if (drag.sqrMagnitude > chunk.vel.sqrMagnitude)
-                        //chunk.vel = new(0, 0); //don't let drag exceed velocity
-                        drag = SetSqrMagnitude(drag, chunk.vel.sqrMagnitude);
+                    drag = Vector2.ClampMagnitude(drag, chunk.vel.magnitude); //drag cannot exceed vel
                     chunk.vel += drag;
 
                     //calc lift
@@ -134,11 +132,7 @@ public static class Glide
                     Vector2 lift = liftDir * chunk.vel.sqrMagnitude * liftFac; //note: the dot product is not squared here
 
                     //apply lift
-                    //if (lift.sqrMagnitude > chunk.vel.sqrMagnitude * Options.GlideMaxLift * Options.GlideMaxLift)
-                    //lift = Vector2.ClampMagnitude(lift, chunk.vel.magnitude * Options.GlideMaxLift); //don't let velocity go supersonic
-                    //if (lift.sqrMagnitude > 0.0001f) //again; don't explode
-                    //lift = SetSqrMagnitude(lift, chunk.vel.sqrMagnitude * Options.GlideMaxLift * Options.GlideMaxLift);
-                    lift = Vector2.ClampMagnitude(lift, chunk.vel.magnitude * Options.GlideMaxLift);
+                    lift = Vector2.ClampMagnitude(lift, chunk.vel.magnitude * Options.GlideMaxLift); //lift cannot exceed MaxLift
                     chunk.vel += lift;
 
                 }
@@ -240,7 +234,9 @@ public static class Glide
             vel = Vector2.LerpUnclamped(vel, player.mainBodyChunk.vel, 0.1f); //constantly lerping towards player vel
 
             lastAlpha = alpha;
-            float targetAlpha = info.Gliding ? 1 : (1 - (1 - flap) * (1 - flap) * (1 - flap)); //if gliding = 1, else ~= flap (on a steeper curve)
+            float targetAlpha = (info.Gliding && !player.Stunned && !player.dead) //if gliding
+                ? 1 // = 1,
+                : (1 - (1 - flap) * (1 - flap) * (1 - flap)); // else ~= flap (on a steeper curve)
             if (targetAlpha > alpha)
                 alpha = Mathf.Min(Mathf.LerpUnclamped(alpha, targetAlpha, 0.2f) + 0.1f, targetAlpha); //lerp UP quickly
             else if (targetAlpha < alpha)
