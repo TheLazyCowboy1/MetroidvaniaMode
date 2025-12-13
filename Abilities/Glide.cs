@@ -84,9 +84,10 @@ public static class Glide
                     //physics-based approach v2
 
                     //apply drag in all directions to prevent supersonic explosions
-                    Vector2 nVel = chunk.vel.normalized;
+                    //Vector2 nVel = chunk.vel.normalized;
                     //Vector2 omniDrag = -nVel * (chunk.vel * Options.GlideOmniDragCoef).sqrMagnitude; //squared velocity is realistic
-                    Vector2 omniDrag = -chunk.vel * (chunk.vel * Options.GlideOmniDragCoef).sqrMagnitude * Options.GlideOmniDragCoef; //CUBED; NOT SQUARED!!
+                    Vector2 nVel;
+                    Vector2 omniDrag = -chunk.vel * ((chunk.vel * Options.GlideOmniDragCoef).sqrMagnitude * Options.GlideOmniDragCoef); //CUBED; NOT SQUARED!!
                     if (omniDrag.sqrMagnitude > chunk.vel.sqrMagnitude)
                         chunk.vel = new(0, 0); //don't let drag exceed velocity
                     else
@@ -130,8 +131,8 @@ public static class Glide
                     dragDir = Perpendicular(dir); //use the proper calculation for lift (makes EasierGlideMode kinda OP but whatever)
                     float liftFac = -(dragDir.x * nVel.x + dragDir.y * nVel.y) * Options.GlideLiftCoef;
                     Vector2 liftDir = Perpendicular(nVel);
-                    //Vector2 lift = liftDir * chunk.vel.sqrMagnitude * liftFac; //note: the dot product is not squared here
-                    Vector2 lift = (liftFac < 0 ? -liftDir : liftDir) * (chunk.vel * liftFac).sqrMagnitude; //dot product IS squared here
+                    Vector2 lift = liftDir * (chunk.vel.sqrMagnitude * liftFac * Options.GlideLiftCoef); //note: the dot product is not squared here
+                    //Vector2 lift = (liftFac < 0 ? -liftDir : liftDir) * (chunk.vel * liftFac).sqrMagnitude; //dot product IS squared here
 
                     //apply lift
                     lift = Vector2.ClampMagnitude(lift, Options.GlideMaxLift); //lift cannot exceed MaxLift
