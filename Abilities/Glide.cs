@@ -166,9 +166,7 @@ public static class Glide
                 }
 
                 //visual wings
-                if (info.Wings != null && info.Wings.NeedsDestroy)
-                    info.Wings.Destroy();
-
+                info.Wings?.DestroyIfNeeded();
                 if (info.Wings == null)
                 {
                     info.Wings = new(self, info);
@@ -223,11 +221,7 @@ public static class Glide
         {
             base.Update(eu);
 
-            if (NeedsDestroy)
-            {
-                this.Destroy();
-                return;
-            }
+            if (DestroyIfNeeded()) return;
 
             lastFlap = flap;
             if (flap > 0) flap -= deltaFlap;
@@ -248,6 +242,15 @@ public static class Glide
         }
 
         public bool NeedsDestroy => player == null || room == null || player.room != room || info == null || info.Wings != this;
+        public bool DestroyIfNeeded()
+        {
+            if (NeedsDestroy)
+            {
+                this.Destroy();
+                return true;
+            }
+            return false;
+        }
 
         public override void Destroy()
         {
@@ -270,6 +273,8 @@ public static class Glide
 
         public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
         {
+            if (DestroyIfNeeded()) return;
+
             //get player pos
             Vector2 chunk0Pos = Vector2.LerpUnclamped(player.bodyChunks[0].lastPos, player.bodyChunks[0].pos, timeStacker);
             Vector2 chunk1Pos = Vector2.LerpUnclamped(player.bodyChunks[1].lastPos, player.bodyChunks[1].pos, timeStacker);
@@ -349,6 +354,8 @@ public static class Glide
 
         public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
         {
+            if (DestroyIfNeeded()) return;
+
             sLeaser.sprites = new FSprite[2];
 
             TriangleMesh.Triangle[] tris = TriangleMesh.GridTriangles(1, 2);

@@ -45,9 +45,7 @@ public static class DoubleJump
                         info.Gliding = true; //start gliding immediately
 
                     //wings flap
-                    if (info.Wings != null && info.Wings.NeedsDestroy)
-                        info.Wings.Destroy();
-
+                    info.Wings?.DestroyIfNeeded();
                     if (info.Wings == null)
                     {
                         info.Wings = new(self, info);
