@@ -85,7 +85,8 @@ public static class Glide
 
                     //apply drag in all directions to prevent supersonic explosions
                     Vector2 nVel = chunk.vel.normalized;
-                    Vector2 omniDrag = -nVel * (chunk.vel * Options.GlideOmniDragCoef).sqrMagnitude;
+                    //Vector2 omniDrag = -nVel * (chunk.vel * Options.GlideOmniDragCoef).sqrMagnitude; //squared velocity is realistic
+                    Vector2 omniDrag = -chunk.vel * (chunk.vel * Options.GlideOmniDragCoef).sqrMagnitude * Options.GlideOmniDragCoef; //CUBED; NOT SQUARED!!
                     if (omniDrag.sqrMagnitude > chunk.vel.sqrMagnitude)
                         chunk.vel = new(0, 0); //don't let drag exceed velocity
                     else
