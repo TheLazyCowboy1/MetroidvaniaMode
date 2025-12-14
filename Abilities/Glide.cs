@@ -136,7 +136,7 @@ public static class Glide
 
                     //clamp lift
                     liftDir *= Mathf.Sign(liftFac); //make direction accurate for the next calculation
-                    if (liftDir.y < 0) lift *= 1 - (1 - liftDir.y) * (1 - liftDir.y) * (1 - liftDir.y); //severely decrease lift if negative
+                    if (liftDir.y < 0) lift *= 1 - (1 + liftDir.y) * (1 + liftDir.y) * (1 + liftDir.y); //severely decrease lift if negative
                     else lift = Vector2.ClampMagnitude(lift, Options.GlideMaxLift); //lift cannot exceed MaxLift
 
                     //apply lift
