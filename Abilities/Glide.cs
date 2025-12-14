@@ -129,8 +129,10 @@ public static class Glide
                     //calc lift
                     nVel = chunk.vel.normalized;
                     dragDir = Perpendicular(dir); //use the proper calculation for lift (makes EasierGlideMode kinda OP but whatever)
-                    float liftFac = -(dragDir.x * nVel.x + dragDir.y * nVel.y) * Options.GlideLiftCoef;
                     Vector2 liftDir = Perpendicular(nVel);
+                    float liftFac = -(dragDir.x * nVel.x + dragDir.y * nVel.y) //more lift when dragDir is more perpendicular
+                        * (dir.x * nVel.x + dir.y * nVel.y) //more lift when dir is more in line with velocity
+                        * Options.GlideLiftCoef;
                     Vector2 lift = liftDir * (chunk.vel.sqrMagnitude * liftFac * Options.GlideLiftCoef); //note: the dot product is not squared here
                     //Vector2 lift = (liftFac < 0 ? -liftDir : liftDir) * (chunk.vel * liftFac).sqrMagnitude; //dot product IS squared here
 
