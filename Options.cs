@@ -173,7 +173,7 @@ public class Options : AutoConfigOptions
     [Config(ADVANCED, "Glide Lift Coef", "How much lift the slugcat generated when flying. This allows the slugcat to pull up when going fast, and it makes the controls feel more responsive.\nHowever, setting this too high will allow the slugcat to literally fly upwards, which is cheating. As funny as it is, we don't want to make a literal slugcat airplane.", precision = 3), LimitRange(0, 1)]
     public static float GlideLiftCoef = 0.25f;
     [Config(ADVANCED, "Glide Max Lift", "Caps the amount of lift, preventing the slugcat from exploding when going too fast.", rightSide = true), LimitRange(0, 50)]
-    public static float GlideMaxLift = 2f;
+    public static float GlideMaxLift = 10f;
 
     [Config(ADVANCED, "Glide Base Y Angle", "(EasierGlideMode only) Adjusts the glide direction for drag slightly downwards, because this is what players probably expect."), LimitRange(-1, 1)]
     public static float GlideBaseDirY = -0.1f;
