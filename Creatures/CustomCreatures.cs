@@ -13,7 +13,7 @@ public static class CustomCreatures
 
     public static void RemoveHooks()
     {
-        On.StaticWorld.InitCustomTemplates += StaticWorld_InitCustomTemplates;
+        On.StaticWorld.InitCustomTemplates -= StaticWorld_InitCustomTemplates;
     }
 
     /// <summary>
@@ -30,6 +30,7 @@ public static class CustomCreatures
             temp.doPreBakedPathing = false;
             temp.preBakedPathingAncestor = StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.Fly);
             temp.canFly = true;
+            Plugin.Log("Made pink lizards think they can fly", 0);
         } catch (Exception ex) { Plugin.Error(ex); }
     }
 

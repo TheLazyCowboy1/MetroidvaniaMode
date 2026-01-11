@@ -9,8 +9,8 @@ namespace MetroidvaniaMode.Creatures;
 
 public class Dragon : Lizard
 {
-    [EasyExtEnum]
-    public static CreatureTemplate.Type PinkDragon;
+    //[EasyExtEnum]
+    //public static CreatureTemplate.Type PinkDragon;
 
     /// <summary>
     /// Basic constructor, never intended to be used directly

@@ -55,12 +55,19 @@ public partial class Plugin : BaseUnityPlugin
 
             //Bind keybinds
             Tools.Keybinds.Bind(); //Improved Input Config wants them bound here for some reason
+
+            Creatures.CustomCreatures.ApplyHooks();
+            Items.CustomItems.ApplyHooks();
         }
         catch (Exception ex) { Error(ex); }
     }
     private void OnDisable()
     {
         On.RainWorld.OnModsInit -= RainWorldOnOnModsInit;
+
+        Creatures.CustomCreatures.RemoveHooks();
+        Items.CustomItems.RemoveHooks();
+
         if (IsInit)
         {
             On.RainWorldGame.ctor -= RainWorldGame_ctor;
@@ -77,9 +84,6 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.StatAbilities.RemoveHooks();
 
             Items.Inventory.RemoveHooks();
-            Items.CustomItems.RemoveHooks();
-
-            Creatures.CustomCreatures.RemoveHooks();
 
             UI.Hooks.RemoveHooks();
 
@@ -130,9 +134,6 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.StatAbilities.ApplyHooks();
 
             Items.Inventory.ApplyHooks();
-            Items.CustomItems.ApplyHooks();
-
-            Creatures.CustomCreatures.ApplyHooks();
 
             UI.Hooks.ApplyHooks();
 
