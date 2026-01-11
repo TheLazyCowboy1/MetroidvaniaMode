@@ -26,11 +26,11 @@ public static class CustomCreatures
 
         try
         {
-            CreatureTemplate temp = StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.PinkLizard);
+            CreatureTemplate temp = StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.YellowLizard);
             temp.doPreBakedPathing = false;
             temp.preBakedPathingAncestor = StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.Fly);
             temp.canFly = true;
-            Plugin.Log("Made pink lizards think they can fly", 0);
+            Plugin.Log("Made yellow lizards think they can fly", 0);
         } catch (Exception ex) { Plugin.Error(ex); }
     }
 

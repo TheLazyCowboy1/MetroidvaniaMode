@@ -77,10 +77,10 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.Shield.RemoveHooks();
             Abilities.StatAbilities.RemoveHooks();
 
-            Items.Inventory.RemoveHooks();
             Items.CustomItems.RemoveHooks();
+            Items.Inventory.RemoveHooks();
 
-            //Creatures.CustomCreatures.RemoveHooks();
+            Creatures.CustomCreatures.RemoveHooks();
 
             UI.Hooks.RemoveHooks();
 
@@ -130,10 +130,10 @@ public partial class Plugin : BaseUnityPlugin
             Abilities.Shield.ApplyHooks();
             Abilities.StatAbilities.ApplyHooks();
 
-            Items.Inventory.ApplyHooks();
             Items.CustomItems.ApplyHooks();
+            Items.Inventory.ApplyHooks();
 
-            //Creatures.CustomCreatures.ApplyHooks();
+            Creatures.CustomCreatures.ApplyHooks();
 
             UI.Hooks.ApplyHooks();
 

@@ -121,7 +121,7 @@ public static class Inventory
                 if (handIdx >= 0)
                 {
                     graph.hands[handIdx].reachingForObject = true;
-                    graph.hands[handIdx].absoluteHuntPos = graph.head.pos + new Vector2(10f * (handIdx == 0 ? -1 : 1), 0); //reach to close of head
+                    graph.hands[handIdx].absoluteHuntPos = graph.head.pos + new Vector2(10f * (handIdx == 0 ? -1 : 1), 0); //reach to close side of head
                 }
             }
 
