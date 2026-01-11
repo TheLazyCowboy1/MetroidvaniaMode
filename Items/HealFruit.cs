@@ -6,6 +6,8 @@ namespace MetroidvaniaMode.Items;
 
 public class HealFruit : DangleFruit, IDrawable, IPlayerEdible
 {
+    public const int HEAL_AMOUNT = 2;
+
     public HealFruit(AbstractPhysicalObject abstractPhysicalObject) : base(abstractPhysicalObject)
     {
     }
@@ -71,9 +73,8 @@ public class HealFruit : DangleFruit, IDrawable, IPlayerEdible
         if (base.bites < 1)
         {
             //ADD HEALTH
-            if (Abilities.Health.CurrentHealth < Abilities.CurrentAbilities.MaxHealth)
-                Abilities.Health.CurrentHealth++;
-            Plugin.Log("Ate heal fruit!");
+            Abilities.Health.CurrentHealth = Math.Min(Abilities.Health.CurrentHealth + HEAL_AMOUNT, Abilities.CurrentAbilities.MaxHealth);
+            Plugin.Log("Ate heal fruit!", 2);
             base.room.PlaySound(SoundID.MENU_Karma_Ladder_Hit_Upper_Cap, base.firstChunk);
 
             (grasp.grabber as Player).ObjectEaten(this);

@@ -2,6 +2,7 @@
 using MetroidvaniaMode.UI;
 using System;
 using System.Linq;
+using UnityEngine;
 
 namespace MetroidvaniaMode.Items;
 
@@ -110,6 +111,17 @@ public static class Inventory
                     {
                         self.mushroomEffect = info.InventoryWheel.alpha * Options.InventorySlowTimeFac; //set "Adrenaline" (mushroomEffect)
                     }
+                }
+            }
+
+            //make the slugcat put its arms out
+            if (open && self.graphicsModule is PlayerGraphics graph)
+            {
+                int handIdx = self.FreeHand();
+                if (handIdx >= 0)
+                {
+                    graph.hands[handIdx].reachingForObject = true;
+                    graph.hands[handIdx].absoluteHuntPos = graph.head.pos + new Vector2(10f * (handIdx == 0 ? -1 : 1), 0); //reach to close of head
                 }
             }
 

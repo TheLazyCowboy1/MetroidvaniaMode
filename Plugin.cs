@@ -79,6 +79,8 @@ public partial class Plugin : BaseUnityPlugin
             Items.Inventory.RemoveHooks();
             Items.CustomItems.RemoveHooks();
 
+            Creatures.CustomCreatures.RemoveHooks();
+
             UI.Hooks.RemoveHooks();
 
             VFX.WarpNoiseBloom.RemoveHooks();
@@ -129,6 +131,8 @@ public partial class Plugin : BaseUnityPlugin
 
             Items.Inventory.ApplyHooks();
             Items.CustomItems.ApplyHooks();
+
+            Creatures.CustomCreatures.ApplyHooks();
 
             UI.Hooks.ApplyHooks();
 
