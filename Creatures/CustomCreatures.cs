@@ -16,6 +16,7 @@ public static class CustomCreatures
     public static void RemoveHooks()
     {
         On.StaticWorld.InitCustomTemplates -= StaticWorld_InitCustomTemplates;
+        On.Lizard.FollowConnection -= Lizard_FollowConnection;
     }
 
     /// <summary>
@@ -28,10 +29,13 @@ public static class CustomCreatures
 
         try
         {
-            CreatureTemplate temp = StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.YellowLizard);
-            temp.doPreBakedPathing = false;
-            temp.preBakedPathingAncestor = StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.Fly);
-            temp.canFly = true;
+            CreatureTemplate liz = StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.YellowLizard);
+            CreatureTemplate fly = StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.Fly);
+            liz.doPreBakedPathing = false;
+            liz.preBakedPathingAncestor = fly;
+            liz.canFly = true;
+            liz.pathingPreferencesTiles[(int)AItile.Accessibility.Air] = new(0.9f, PathCost.Legality.Allowed); //make air allowed...?
+            
             Plugin.Log("Made yellow lizards think they can fly", 0);
         } catch (Exception ex) { Plugin.Error(ex); }
     }
