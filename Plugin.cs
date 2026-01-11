@@ -21,7 +21,7 @@ public partial class Plugin : BaseUnityPlugin
 {
     public const string MOD_ID = "LazyCowboy.MetroidvaniaMode",
         MOD_NAME = "Metroidvania Mode",
-        MOD_VERSION = "0.0.9";
+        MOD_VERSION = "0.0.10";
 
 
     public static Plugin Instance;

@@ -83,8 +83,18 @@ public static class Glide
 
                     //physics-based approach v2
 
+                    //apply drag in all directions to prevent supersonic explosions
+                    //Vector2 nVel = chunk.vel.normalized;
+                    //Vector2 omniDrag = -nVel * (chunk.vel * Options.GlideOmniDragCoef).sqrMagnitude; //squared velocity is realistic
+                    Vector2 nVel;
+                    Vector2 omniDrag = -chunk.vel * ((chunk.vel * Options.GlideOmniDragCoef).sqrMagnitude * Options.GlideOmniDragCoef); //CUBED; NOT SQUARED!!
+                    if (omniDrag.sqrMagnitude > chunk.vel.sqrMagnitude)
+                        chunk.vel = new(0, 0); //don't let drag exceed velocity
+                    else
+                        chunk.vel += omniDrag;
+
                     //calc drag
-                    Vector2 nVel = chunk.vel.normalized;
+                    nVel = chunk.vel.normalized;
                     Vector2 dragDir;
                     if (Options.EasierGlideMode && self.EffectiveRoomGravity > 0) //don't apply in 0-g
                     {
@@ -92,7 +102,7 @@ public static class Glide
                         //shift dir down slightly (so that the slugcat normally moves forward)
                         Vector2 dir2 = dir + new Vector2(0, Options.GlideBaseDirY);
                         if (dir2.sqrMagnitude > 0.0001f) //don't let it explode by dividing by 0
-                            dir2 *= Mathf.Sqrt(dir.sqrMagnitude / dir2.sqrMagnitude); //set dir2's magnitude to dir1's
+                            dir2 = SetSqrMagnitude(dir2, dir.sqrMagnitude);
                         dragDir = Perpendicular(dir2);
                         //if dragDir.magnitude < 1, lerp it towards (0, 1)
                         if (nVel.y < 0) //don't stop upwards speed, though
@@ -113,30 +123,21 @@ public static class Glide
                     Vector2 drag = (dragFac < 0 ? -dragDir : dragDir) * (chunk.vel * dragFac).sqrMagnitude;
 
                     //apply drag
-                    if (drag.sqrMagnitude > chunk.vel.sqrMagnitude)
-                        chunk.vel = new(0, 0); //don't let drag exceed velocity
-                    else
-                        chunk.vel += drag;
+                    drag = Vector2.ClampMagnitude(drag, chunk.vel.magnitude); //drag cannot exceed vel
+                    chunk.vel += drag;
 
                     //calc lift
                     nVel = chunk.vel.normalized;
-                    dragDir = Perpendicular(dir); //use the proper calculation for lift
+                    dragDir = Perpendicular(dir); //use the proper calculation for lift (makes EasierGlideMode kinda OP but whatever)
+                    Vector2 liftDir = Perpendicular(nVel);
                     float liftFac = -(dragDir.x * nVel.x + dragDir.y * nVel.y) * Options.GlideLiftCoef;
-                    Vector2 lift = Perpendicular(chunk.vel) * liftFac;
-                    lift *= lift.sqrMagnitude;
+                    //Vector2 lift = liftDir * (chunk.vel.sqrMagnitude * liftFac * Options.GlideLiftCoef); //note: the dot product is not squared here
+                    Vector2 lift = (liftFac < 0 ? -liftDir : liftDir) * (chunk.vel * liftFac).sqrMagnitude; //dot product IS squared here
 
+                    //clamp lift
+                    lift = Vector2.ClampMagnitude(lift, Options.GlideMaxLift); //lift cannot exceed MaxLift
                     //apply lift
-                    if (lift.sqrMagnitude > chunk.vel.sqrMagnitude * Options.GlideMaxLift * Options.GlideMaxLift)
-                        lift = Vector2.ClampMagnitude(lift, chunk.vel.magnitude * Options.GlideMaxLift); //don't let velocity go supersonic
                     chunk.vel += lift;
-
-                    //apply drag in all directions to prevent supersonic explosions
-                    nVel = chunk.vel.normalized;
-                    Vector2 omniDrag = -nVel * (chunk.vel * Options.GlideOmniDragCoef).sqrMagnitude;
-                    if (omniDrag.sqrMagnitude > chunk.vel.sqrMagnitude)
-                        chunk.vel = new(0, 0); //don't let drag exceed velocity
-                    else
-                        chunk.vel += omniDrag;
 
                 }
 
@@ -158,27 +159,15 @@ public static class Glide
                 }
 
                 //appearance
-                if (self.EffectiveRoomGravity > 0)
+                if (self.EffectiveRoomGravity > 0) //if zero-G, don't mess with animations
                 {
-                    /*if (self.mainBodyChunk.vel.y <= Mathf.Abs(self.mainBodyChunk.vel.x))
-                    {
-                        self.standing = false;
-                        self.animation = Player.AnimationIndex.DownOnFours;
-                    }
-                    else //going upwards (going more up than left/right)
-                    {
-                        self.standing = true;
-                        self.animation = Player.AnimationIndex.None;
-                    }*/
                     self.animation = Player.AnimationIndex.None;
                     self.bodyMode = Player.BodyModeIndex.Default;
                     self.standing = false;
                 }
 
                 //visual wings
-                if (info.Wings != null && info.Wings.NeedsDestroy)
-                    info.Wings.Destroy();
-
+                info.Wings?.DestroyIfNeeded();
                 if (info.Wings == null)
                 {
                     info.Wings = new(self, info);
@@ -192,6 +181,8 @@ public static class Glide
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Vector2 Perpendicular(Vector2 v) => new Vector2(-v.y, v.x); //made as my own function so I know it's correct
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Vector2 SetSqrMagnitude(Vector2 v, float sqrMag) => v * Mathf.Sqrt(sqrMag / v.sqrMagnitude);
 
 
     //Anti-gravity
@@ -231,11 +222,7 @@ public static class Glide
         {
             base.Update(eu);
 
-            if (NeedsDestroy)
-            {
-                this.Destroy();
-                return;
-            }
+            if (DestroyIfNeeded()) return;
 
             lastFlap = flap;
             if (flap > 0) flap -= deltaFlap;
@@ -245,7 +232,9 @@ public static class Glide
             vel = Vector2.LerpUnclamped(vel, player.mainBodyChunk.vel, 0.1f); //constantly lerping towards player vel
 
             lastAlpha = alpha;
-            float targetAlpha = info.Gliding ? 1 : (1 - (1 - flap) * (1 - flap) * (1 - flap)); //if gliding = 1, else ~= flap (on a steeper curve)
+            float targetAlpha = (info.Gliding && !player.Stunned && !player.dead) //if gliding
+                ? 1 // = 1,
+                : (1 - (1 - flap) * (1 - flap) * (1 - flap)); // else ~= flap (on a steeper curve)
             if (targetAlpha > alpha)
                 alpha = Mathf.Min(Mathf.LerpUnclamped(alpha, targetAlpha, 0.2f) + 0.1f, targetAlpha); //lerp UP quickly
             else if (targetAlpha < alpha)
@@ -253,7 +242,16 @@ public static class Glide
 
         }
 
-        public bool NeedsDestroy => player == null || room == null || player.room != room || info == null;
+        public bool NeedsDestroy => player == null || room == null || player.room != room || info == null || info.Wings != this;
+        public bool DestroyIfNeeded()
+        {
+            if (NeedsDestroy)
+            {
+                this.Destroy();
+                return true;
+            }
+            return false;
+        }
 
         public override void Destroy()
         {
@@ -276,6 +274,8 @@ public static class Glide
 
         public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
         {
+            if (DestroyIfNeeded()) return;
+
             //get player pos
             Vector2 chunk0Pos = Vector2.LerpUnclamped(player.bodyChunks[0].lastPos, player.bodyChunks[0].pos, timeStacker);
             Vector2 chunk1Pos = Vector2.LerpUnclamped(player.bodyChunks[1].lastPos, player.bodyChunks[1].pos, timeStacker);
@@ -355,6 +355,8 @@ public static class Glide
 
         public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
         {
+            if (DestroyIfNeeded()) return;
+
             sLeaser.sprites = new FSprite[2];
 
             TriangleMesh.Triangle[] tris = TriangleMesh.GridTriangles(1, 2);
