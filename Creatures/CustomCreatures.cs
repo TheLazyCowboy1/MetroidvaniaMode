@@ -29,14 +29,24 @@ public static class CustomCreatures
 
         try
         {
-            CreatureTemplate liz = StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.YellowLizard);
+            /*CreatureTemplate liz = StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.YellowLizard);
             CreatureTemplate fly = StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.Fly);
             liz.doPreBakedPathing = false;
             liz.preBakedPathingAncestor = fly;
             liz.canFly = true;
             liz.pathingPreferencesTiles[(int)AItile.Accessibility.Air] = new(0.9f, PathCost.Legality.Allowed); //make air allowed...?
-            
-            Plugin.Log("Made yellow lizards think they can fly", 0);
+            */
+
+            foreach (CreatureTemplate temp in StaticWorld.creatureTemplates)
+            {
+                if (temp.IsLizard)
+                {
+                    temp.canFly = true; //I don't actually know what this does...
+                    temp.pathingPreferencesTiles[(int)AItile.Accessibility.Air] = new(1.1f, PathCost.Legality.Allowed);
+                }
+            }
+
+            Plugin.Log("Made lizards think they can fly", 0);
         } catch (Exception ex) { Plugin.Error(ex); }
     }
 
@@ -45,7 +55,7 @@ public static class CustomCreatures
     {
         try
         {
-            if (self.Template.type == CreatureTemplate.Type.YellowLizard)
+            /*if (self.Template.type == CreatureTemplate.Type.YellowLizard)
             {
                 switch (self.followingConnection.type)
                 {
@@ -63,7 +73,12 @@ public static class CustomCreatures
                         self.bodyChunks[1].vel += moveVec;
                         return; //don't run orig
                 }
-            }
+            }*/
+            Vector2 moveVec = RWCustom.Custom.DirVec(self.room.MiddleOfTile(self.followingConnection.DestTile), self.bodyChunks[0].pos)
+                * self.lizardParams.baseSpeed * self.BodyForce;
+            self.bodyChunks[0].vel += moveVec;
+            self.bodyChunks[1].vel += moveVec;
+            return; //don't run orig
         } catch (Exception ex) { Plugin.Error(ex); }
 
         orig(self, runSpeed);
