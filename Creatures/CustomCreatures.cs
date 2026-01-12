@@ -74,7 +74,7 @@ public static class CustomCreatures
                         return; //don't run orig
                 }
             }*/
-            Vector2 moveVec = RWCustom.Custom.DirVec(self.room.MiddleOfTile(self.followingConnection.DestTile), self.bodyChunks[0].pos)
+            Vector2 moveVec = RWCustom.Custom.DirVec(self.bodyChunks[0].pos, self.room.MiddleOfTile(self.followingConnection.DestTile))
                 * self.lizardParams.baseSpeed * self.BodyForce;
             self.bodyChunks[0].vel += moveVec;
             self.bodyChunks[1].vel += moveVec;

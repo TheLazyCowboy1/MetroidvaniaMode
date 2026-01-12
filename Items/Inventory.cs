@@ -72,6 +72,17 @@ public static class Inventory
                             Plugin.Log("Created InventoryWheel for player " + self.playerState.playerNumber);
                         }
                     }
+
+                    //make the slugcat put its arms out
+                    if (info.InventoryWheel != null && self.graphicsModule is PlayerGraphics graph)
+                    {
+                        int handIdx = HandIndex(self, info.InventoryWheel.selection);
+                        if (handIdx >= 0)
+                        {
+                            graph.hands[handIdx].reachingForObject = true;
+                            graph.hands[handIdx].absoluteHuntPos = graph.head.pos + new Vector2(10f * (handIdx == 0 ? -1 : 1), 0); //reach to close side of head
+                        }
+                    }
                 }
             }
             else
@@ -114,21 +125,55 @@ public static class Inventory
                 }
             }
 
-            //make the slugcat put its arms out
-            if (open && self.graphicsModule is PlayerGraphics graph)
-            {
-                int handIdx = self.FreeHand();
-                if (handIdx >= 0)
-                {
-                    graph.hands[handIdx].reachingForObject = true;
-                    graph.hands[handIdx].absoluteHuntPos = graph.head.pos + new Vector2(10f * (handIdx == 0 ? -1 : 1), 0); //reach to close side of head
-                }
-            }
-
         } catch (Exception ex) { Plugin.Error(ex); }
 
         
         orig(self, eu);
+    }
+
+    /// <summary>
+    /// Finds which hand should be moved.
+    /// </summary>
+    /// <returns>The index of the best hand, or -1 if neither are suitable choices.</returns>
+    private static int HandIndex(Player self, int wheelSelection)
+    {
+        //no selection = no hand movement
+        if (wheelSelection < 0) return -1;
+        //empty selection = no hand
+        AbstractPhysicalObject.AbstractObjectType selected = CurrentItems.WheelItems[wheelSelection];
+        if (selected == null) return -1;
+        //holding the selected item (and can store) = use that hand
+        for (int i = 0; i < self.grasps.Length; i++)
+        {
+            if (self.grasps[i] != null && selected == self.grasps[i].grabbed.abstractPhysicalObject.type
+                && CurrentItems.ItemInfos[selected].count < CurrentItems.ItemInfos[selected].max) return i;
+        }
+
+        //if we can pull the selected item out
+        if (CurrentItems.ItemInfos[selected].count > 0)
+        {
+            //try free hand
+            int free = self.FreeHand();
+            if (free >= 0) return free;
+
+            //first item that can be swapped
+            for (int i = 0; i < self.grasps.Length; i++)
+            {
+                if (self.grasps[i] != null)
+                {
+                    AbstractPhysicalObject.AbstractObjectType heldType = self.grasps[i].grabbed.abstractPhysicalObject.type;
+                    if (CurrentItems.WheelItems.Contains(heldType)) //if this item is in the wheel
+                    {
+                        if (CurrentItems.ItemInfos[heldType].count < CurrentItems.ItemInfos[heldType].max)
+                            return i;
+                    }
+                }
+            }
+
+            return 0; //just use the first hand, because it'll probably be dropped anyway
+        }
+
+        return -1; //cannot store nor pull out, so don't move hand
     }
 
     private static void TryPullOrStoreItem(Player self, AbstractPhysicalObject.AbstractObjectType item)
@@ -226,7 +271,8 @@ public static class Inventory
 
         //visual thingy; move item towards hand?
         if (self.graphicsModule != null)
-            abObj.realizedObject.firstChunk.MoveFromOutsideMyUpdate(self.abstractPhysicalObject.world.game.evenUpdate, (self.graphicsModule as PlayerGraphics).hands[grasp].pos);
+            abObj.realizedObject.firstChunk.HardSetPosition((self.graphicsModule as PlayerGraphics).hands[grasp].pos);
+            //abObj.realizedObject.firstChunk.MoveFromOutsideMyUpdate(self.abstractPhysicalObject.world.game.evenUpdate, (self.graphicsModule as PlayerGraphics).hands[grasp].pos);
 
         self.SlugcatGrab(abObj.realizedObject, grasp);
         
