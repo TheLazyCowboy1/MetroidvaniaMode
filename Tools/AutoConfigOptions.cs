@@ -105,6 +105,31 @@ public abstract class AutoConfigOptions : OptionInterface
 
         ConfigInfos = configs.ToArray();
         Plugin.Log("Found " + ConfigInfos.Length + " configs");
+
+        //Add hooks to automatically reload the configs whenever they are changed!
+        try
+        {
+            On.OptionInterface.ConfigHolder.Reload += (orig, self) =>
+            {
+                orig(self);
+                if (self == this.config)
+                {
+                    this.SetValues();
+                    Plugin.Log("Loading config values for " + this.mod?.id);
+                }
+            };
+            On.OptionInterface.ConfigHolder.Save += (orig, self) =>
+            {
+                orig(self);
+                if (self == this.config)
+                {
+                    this.SetValues();
+                    Plugin.Log("Setting config values for " + this.mod?.id);
+                }
+            };
+        }
+        catch (Exception ex) { Plugin.Error(ex); }
+
     }
     private static string FieldNameToLabel(string n)
     {

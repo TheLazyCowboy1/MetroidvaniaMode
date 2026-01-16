@@ -83,11 +83,11 @@ public static class CustomCreatures
             //decrease gravity for easier flying...?
             self.SetLocalGravity(Mathf.Min(self.GetLocalGravity(), 0.4f));
 
-            Vector2 moveVec = RWCustom.Custom.DirVec(self.bodyChunks[0].pos, self.room.MiddleOfTile(self.followingConnection.DestTile))
+            Vector2 moveVec = RWCustom.Custom.DirVec(self.bodyChunks[1].pos, self.room.MiddleOfTile(self.followingConnection.DestTile))
                 * self.lizardParams.baseSpeed * self.BodyForce;
-            self.bodyChunks[0].vel *= 0.8f; //heavy drag
+            //self.bodyChunks[0].vel *= 0.8f; //heavy drag
             self.bodyChunks[1].vel *= 0.8f;
-            self.bodyChunks[0].vel += moveVec;
+            //self.bodyChunks[0].vel += moveVec;
             self.bodyChunks[1].vel += moveVec;
             return; //don't run orig
         } catch (Exception ex) { Plugin.Error(ex); }
