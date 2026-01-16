@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,12 +13,16 @@ public static class CustomCreatures
     {
         On.StaticWorld.InitCustomTemplates += StaticWorld_InitCustomTemplates;
         On.Lizard.FollowConnection += Lizard_FollowConnection;
+
+        IL.Lizard.Act += Lizard_Act;
     }
 
     public static void RemoveHooks()
     {
         On.StaticWorld.InitCustomTemplates -= StaticWorld_InitCustomTemplates;
         On.Lizard.FollowConnection -= Lizard_FollowConnection;
+
+        IL.Lizard.Act -= Lizard_Act;
     }
 
     /// <summary>
@@ -74,14 +80,46 @@ public static class CustomCreatures
                         return; //don't run orig
                 }
             }*/
+            //decrease gravity for easier flying...?
+            self.SetLocalGravity(Mathf.Min(self.GetLocalGravity(), 0.4f));
+
             Vector2 moveVec = RWCustom.Custom.DirVec(self.bodyChunks[0].pos, self.room.MiddleOfTile(self.followingConnection.DestTile))
                 * self.lizardParams.baseSpeed * self.BodyForce;
+            self.bodyChunks[0].vel *= 0.8f; //heavy drag
+            self.bodyChunks[1].vel *= 0.8f;
             self.bodyChunks[0].vel += moveVec;
             self.bodyChunks[1].vel += moveVec;
             return; //don't run orig
         } catch (Exception ex) { Plugin.Error(ex); }
 
         orig(self, runSpeed);
+    }
+
+
+    private static void Lizard_Act(ILContext il)
+    {
+        try
+        {
+            ILCursor c = new(il);
+            if (c.TryGotoNext(MoveType.Before,
+                //x => x.MatchStfld<Lizard>(nameof(Lizard.narrowUpcoming)),
+                x => x.MatchLdarg(0),
+                x => x.MatchLdflda<Lizard>(nameof(Lizard.gripPoint)),
+                x => x.MatchCall(out _), //any call instruction
+                x => x.MatchBrfalse(out _) //any brfalse instruction
+                ))
+            {
+                Plugin.Log("Successfully found place in Lizard.Act to insert IL code!", 0);
+                c.Emit(OpCodes.Ldarg_0); //reference THIS (the lizard)
+                c.EmitDelegate((Lizard self) => {
+                    self.gripPoint = null; //just always remove the grip point!!!
+                    //we should probably only do this if it is a dragon AND it's flying
+                });
+            }
+            else
+                Plugin.Error("Could not find location for Lizard_Act IL hook!");
+        }
+        catch (Exception ex) { Plugin.Error(ex); }
     }
 
 }
