@@ -64,6 +64,7 @@ public abstract class AutoConfigOptions : OptionInterface
 
     private static void RemoveUnusuedOIs()
     {
+        return;
         for (int i = ActiveInstances.Count - 1; i >= 0; i--)
         {
             if (ActiveInstances[i].mod == null || MachineConnector.GetRegisteredOI(ActiveInstances[i].mod.id) != ActiveInstances[i])

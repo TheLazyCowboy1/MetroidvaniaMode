@@ -15,6 +15,7 @@ namespace MetroidvaniaMode;
 
 [BepInDependency("com.dual.improved-input-config", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("ddemile.fake_achievements", BepInDependency.DependencyFlags.SoftDependency)]
+//[BepInDependency("twofour2.rainReloader", BepInDependency.DependencyFlags.SoftDependency)]
 
 [BepInPlugin(MOD_ID, MOD_NAME, MOD_VERSION)]
 public partial class Plugin : BaseUnityPlugin
@@ -64,7 +65,7 @@ public partial class Plugin : BaseUnityPlugin
             //Bind keybinds
             Tools.Keybinds.Bind(); //Improved Input Config wants them bound here for some reason
 
-            Init(); //try to load assets here, because Rain Reloader doesn't let us hook PostModsInit
+            //Init(); //try to load assets here, because Rain Reloader doesn't let us hook PostModsInit
         }
         catch (Exception ex) { Error(ex); }
     }
@@ -105,8 +106,8 @@ public partial class Plugin : BaseUnityPlugin
 
 
         //Set up config menu
-        //MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
-        ConfigOptions.SetValues(); //for good measure; why not...
+        MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
+        //ConfigOptions.SetValues(); //for good measure; why not...
 
         //Load assets
         Tools.Assets.Load();

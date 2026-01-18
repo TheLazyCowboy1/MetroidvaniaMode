@@ -88,7 +88,7 @@ public static class CustomCreatures
             self.bodyChunks[0].vel *= 0.8f; //heavy drag
             self.bodyChunks[1].vel *= 0.8f;
             self.bodyChunks[0].vel += moveVec;
-            self.bodyChunks[1].vel += moveVec + new Vector2(0, 0.2f); //pull upward slightly
+            self.bodyChunks[1].vel += moveVec + new Vector2(0, 0.5f); //pull upward slightly
             return; //don't run orig
         } catch (Exception ex) { Plugin.Error(ex); }
 
