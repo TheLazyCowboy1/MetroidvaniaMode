@@ -100,14 +100,14 @@ public static class CustomCreatures
             //self.SetLocalGravity(Mathf.Min(self.GetLocalGravity(), 0.4f));
 
             Vector2 moveVec = RWCustom.Custom.DirVec(self.bodyChunks[0].pos, self.room.MiddleOfTile(self.followingConnection.DestTile))
-                * self.lizardParams.baseSpeed * self.BodyForce * 0.5f;
+                * self.lizardParams.baseSpeed * self.BodyForce * 0.4f;
 
             if (moveVec.y < 0) moveVec.y *= 0.25f; //don't go down as much
 
             self.bodyChunks[0].vel *= 0.8f; //heavy drag
             self.bodyChunks[1].vel *= 0.8f;
             self.bodyChunks[0].vel += moveVec;
-            self.bodyChunks[1].vel += moveVec + new Vector2(0, 1f); //pull upward more
+            self.bodyChunks[1].vel += moveVec;
             for (int i = 2; i < self.bodyChunks.Length; i++)
             {
                 self.bodyChunks[i].vel = 0.9f * self.bodyChunks[i].vel + moveVec * 0.5f; //tail gets moved much less than body
@@ -121,6 +121,8 @@ public static class CustomCreatures
                 float sign2 = Mathf.Sign(self.bodyChunks[0].pos.x - self.bodyChunks[i].pos.x); //actual direction (e.g: chunk0 is left)
                 if (sign1 != sign2)
                     self.bodyChunks[i].vel.x -= 0.6f * sign2; //move opposite direction to make lizard more horizontal
+                else if (i == 1) //don't do it when flipping direction, because it would cause lizard to flip upside-down
+                    self.bodyChunks[i].vel.y += 0.4f; //pull upward more (wings attach to this body chunk)
             }
 
             //dangle limbs
