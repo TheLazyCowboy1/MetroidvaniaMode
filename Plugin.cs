@@ -39,6 +39,7 @@ public partial class Plugin : BaseUnityPlugin
         {
             Instance = this;
             ConfigOptions = new Options();
+            MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
         }
         catch (Exception ex)
         {
@@ -48,7 +49,7 @@ public partial class Plugin : BaseUnityPlugin
 
         try
         {
-            On.RainWorld.OnModsInit += RainWorld_OnModsInit;
+            On.RainWorld.PostModsInit += RainWorld_PostModsInit;
 
             ApplyHooks();
         }
@@ -62,41 +63,27 @@ public partial class Plugin : BaseUnityPlugin
 
             //Bind keybinds
             Tools.Keybinds.Bind(); //Improved Input Config wants them bound here for some reason
+
+            Init(); //try to load assets here, because Rain Reloader doesn't let us hook PostModsInit
         }
         catch (Exception ex) { Error(ex); }
     }
     private void OnDisable()
     {
-        On.RainWorld.OnModsInit -= RainWorld_OnModsInit;
+        On.RainWorld.PostModsInit -= RainWorld_PostModsInit;
 
         RemoveHooks();
 
         IsInit = false;
     }
 
-    private bool IsInit;
-    private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
+    private bool IsInit = false;
+    private void RainWorld_PostModsInit(On.RainWorld.orig_PostModsInit orig, RainWorld self)
     {
         orig(self);
         try
         {
-            if (IsInit) return;
-            IsInit = true; //set IsInit first, in case there is an error
-
-            //find the plugin path
-            PluginPath = ModManager.ActiveMods.Find(m => m.id == MOD_ID).path;
-
-            ImprovedInputEnabled = ModManager.ActiveMods.Any(m => m.id == "improved-input-config");
-            FakeAchievementsEnabled = ModManager.ActiveMods.Any(m => m.id == "ddemile.fake_achievements");
-
-
-            //Set up config menu
-            MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
-            //ConfigOptions.SetValues();
-
-            Tools.Assets.Load();
-
-            Log($"Initialized MetroidvaniaMode config and assets. Mods enabled: ImprovedInput {ImprovedInputEnabled}, FakeAchievements {FakeAchievementsEnabled}", 0);
+            Init();
         }
         catch (Exception ex)
         {
@@ -104,6 +91,29 @@ public partial class Plugin : BaseUnityPlugin
             throw;
         }
     }
+    private void Init()
+    {
+        if (IsInit) return;
+        if (ModManager.ActiveMods == null || !ModManager.ActiveMods.Any(m => m.id == MOD_ID)) return; //this mod MUST be loaded
+        IsInit = true; //set IsInit first, in case there is an error
+
+        //find the plugin path
+        PluginPath = ModManager.ActiveMods.Find(m => m.id == MOD_ID).path;
+
+        ImprovedInputEnabled = ModManager.ActiveMods.Any(m => m.id == "improved-input-config");
+        FakeAchievementsEnabled = ModManager.ActiveMods.Any(m => m.id == "ddemile.fake_achievements");
+
+
+        //Set up config menu
+        //MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
+        ConfigOptions.SetValues(); //for good measure; why not...
+
+        //Load assets
+        Tools.Assets.Load();
+
+        Log($"Initialized MetroidvaniaMode config and assets. Mods enabled: ImprovedInput {ImprovedInputEnabled}, FakeAchievements {FakeAchievementsEnabled}", 0);
+    }
+
 
     #endregion
 
