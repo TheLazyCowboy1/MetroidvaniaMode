@@ -120,7 +120,7 @@ public static class CustomCreatures
                 float sign1 = Mathf.Sign(moveVec.x); //desired direction (e.g: want chunk0 to be right)
                 float sign2 = Mathf.Sign(self.bodyChunks[0].pos.x - self.bodyChunks[i].pos.x); //actual direction (e.g: chunk0 is left)
                 if (sign1 != sign2)
-                    self.bodyChunks[i].vel.x += 1f * sign2; //move opposite direction to make lizard more horizontal
+                    self.bodyChunks[i].vel.x -= 0.6f * sign2; //move opposite direction to make lizard more horizontal
             }
 
             //dangle limbs
