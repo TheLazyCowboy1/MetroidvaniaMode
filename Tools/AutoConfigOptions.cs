@@ -9,6 +9,72 @@ namespace MetroidvaniaMode.Tools;
 
 public abstract class AutoConfigOptions : OptionInterface
 {
+    #region hooks
+    private static List<AutoConfigOptions> ActiveInstances = new();
+    private static bool HooksApplied = false;
+    public static void ApplyHooks()
+    {
+        if (!HooksApplied)
+        {
+            On.OptionInterface.ConfigHolder.Reload += ConfigHolder_Reload;
+            On.OptionInterface.ConfigHolder.Save += ConfigHolder_Save;
+        }
+        HooksApplied = true;
+    }
+
+    public static void RemoveHooks()
+    {
+        if (HooksApplied)
+        {
+            On.OptionInterface.ConfigHolder.Reload -= ConfigHolder_Reload;
+            On.OptionInterface.ConfigHolder.Save -= ConfigHolder_Save;
+        }
+        HooksApplied = false;
+    }
+
+    private static void ConfigHolder_Reload(On.OptionInterface.ConfigHolder.orig_Reload orig, ConfigHolder self)
+    {
+        orig(self);
+
+        RemoveUnusuedOIs();
+        foreach(AutoConfigOptions op in ActiveInstances)
+        {
+            if (op.config == self)
+            {
+                op.SetValues();
+                Plugin.Log("Loading config values for " + op.mod?.id);
+            }
+        }
+    }
+
+    private static void ConfigHolder_Save(On.OptionInterface.ConfigHolder.orig_Save orig, ConfigHolder self)
+    {
+        orig(self);
+
+        RemoveUnusuedOIs();
+        foreach (AutoConfigOptions op in ActiveInstances)
+        {
+            if (op.config == self)
+            {
+                op.SetValues();
+                Plugin.Log("Setting config values for " + op.mod?.id);
+            }
+        }
+    }
+
+    private static void RemoveUnusuedOIs()
+    {
+        for (int i = ActiveInstances.Count - 1; i >= 0; i--)
+        {
+            if (ActiveInstances[i].mod == null || MachineConnector.GetRegisteredOI(ActiveInstances[i].mod.id) != ActiveInstances[i])
+            {
+                Plugin.Log("WARNING: Removed old OptionInterface; mod = " + ActiveInstances[i].mod?.id, 0);
+                ActiveInstances.RemoveAt(i); //it's no longer in use
+            }
+        }
+    }
+    #endregion
+
     public class Config : Attribute
     {
         public string Tab, Label = "", Desc = "";
@@ -66,7 +132,7 @@ public abstract class AutoConfigOptions : OptionInterface
         }
     }
 
-    public AutoConfigOptions(TabInfo[] tabs)
+    public AutoConfigOptions(TabInfo[] tabs, bool autoApplyReloadHooks)
     {
         TabInfos = tabs;
 
@@ -106,31 +172,11 @@ public abstract class AutoConfigOptions : OptionInterface
         ConfigInfos = configs.ToArray();
         Plugin.Log("Found " + ConfigInfos.Length + " configs");
 
-        //Add hooks to automatically reload the configs whenever they are changed!
-        try
-        {
-            On.OptionInterface.ConfigHolder.Reload += (orig, self) =>
-            {
-                orig(self);
-                if (self == this.config)
-                {
-                    this.SetValues();
-                    Plugin.Log("Loading config values for " + this.mod?.id);
-                }
-            };
-            On.OptionInterface.ConfigHolder.Save += (orig, self) =>
-            {
-                orig(self);
-                if (self == this.config)
-                {
-                    this.SetValues();
-                    Plugin.Log("Setting config values for " + this.mod?.id);
-                }
-            };
-        }
-        catch (Exception ex) { Plugin.Error(ex); }
-
+        //set up for auto loading
+        ActiveInstances.Add(this);
+        if (autoApplyReloadHooks) ApplyHooks();
     }
+
     private static string FieldNameToLabel(string n)
     {
         for (int i = n.Length-1; i >= 1; i--)

@@ -20,7 +20,8 @@ public class Options : AutoConfigOptions
         new(GENERAL),
         new(ACCESSIBILITY),
         new(ADVANCED) { spacing = 30f },
-    })
+    },
+        false)
     {
         //LogLevel = 3; //temporarily enable all logs
     }
