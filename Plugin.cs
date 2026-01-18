@@ -40,7 +40,7 @@ public partial class Plugin : BaseUnityPlugin
         {
             Instance = this;
             ConfigOptions = new Options();
-            MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
+            //MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
         }
         catch (Exception ex)
         {
@@ -50,7 +50,7 @@ public partial class Plugin : BaseUnityPlugin
 
         try
         {
-            On.RainWorld.PostModsInit += RainWorld_PostModsInit;
+            On.RainWorld.OnModsInit += RainWorld_OnModsInit;
 
             ApplyHooks();
         }
@@ -65,13 +65,13 @@ public partial class Plugin : BaseUnityPlugin
             //Bind keybinds
             Tools.Keybinds.Bind(); //Improved Input Config wants them bound here for some reason
 
-            //Init(); //try to load assets here, because Rain Reloader doesn't let us hook PostModsInit
+            //Init(); //try to load assets here, because Rain Reloader doesn't let us hook OnModsInit or PostModsInit
         }
         catch (Exception ex) { Error(ex); }
     }
     private void OnDisable()
     {
-        On.RainWorld.PostModsInit -= RainWorld_PostModsInit;
+        On.RainWorld.OnModsInit -= RainWorld_OnModsInit;
 
         RemoveHooks();
 
@@ -79,7 +79,7 @@ public partial class Plugin : BaseUnityPlugin
     }
 
     private bool IsInit = false;
-    private void RainWorld_PostModsInit(On.RainWorld.orig_PostModsInit orig, RainWorld self)
+    private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
     {
         orig(self);
         try
