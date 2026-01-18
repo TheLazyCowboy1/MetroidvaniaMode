@@ -1,5 +1,6 @@
 ﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using RWCustom;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,7 +34,11 @@ public static class CustomCreatures
     {
         orig(self);
 
-        self.depthRotation = self.lastDepthRotation = self.headDepthRotation = self.lastHeadDepthRotation = 0;
+        //self.depthRotation = self.lastDepthRotation = self.headDepthRotation = self.lastHeadDepthRotation = 0;
+        if (self.lizard.Consious)
+        { //rotate lizard like it's swimming
+            self.depthRotation = Custom.LerpAndTick(self.depthRotation, (self.drawPositions[0, 0].x > self.drawPositions[1, 0].x) ? (-1f) : 1f, 0.1f, 0.1f);
+        }
     }
 
     /// <summary>
@@ -112,10 +117,10 @@ public static class CustomCreatures
             for (int i = 1; i < self.bodyChunks.Length; i++)
             {
                 float pullStrength = 0.5f + 0.5f * i; //chunk1 = 1, chunk2 = 1.5
-                float sign1 = Mathf.Sign(self.bodyChunks[0].vel.x); //desired direction (e.g: want chunk0 to be right)
+                float sign1 = Mathf.Sign(moveVec.x); //desired direction (e.g: want chunk0 to be right)
                 float sign2 = Mathf.Sign(self.bodyChunks[0].pos.x - self.bodyChunks[i].pos.x); //actual direction (e.g: chunk0 is left)
                 if (sign1 != sign2)
-                    self.bodyChunks[i].vel.x -= 1f * sign1; //move opposite direction to make lizard more horizontal
+                    self.bodyChunks[i].vel.x += 1f * sign2; //move opposite direction to make lizard more horizontal
             }
 
             //dangle limbs
