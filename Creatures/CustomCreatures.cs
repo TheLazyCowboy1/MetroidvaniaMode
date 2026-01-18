@@ -15,6 +15,8 @@ public static class CustomCreatures
         On.Lizard.FollowConnection += Lizard_FollowConnection;
 
         IL.Lizard.Act += Lizard_Act;
+
+        On.LizardGraphics.Update += LizardGraphics_Update;
     }
 
     public static void RemoveHooks()
@@ -23,6 +25,15 @@ public static class CustomCreatures
         On.Lizard.FollowConnection -= Lizard_FollowConnection;
 
         IL.Lizard.Act -= Lizard_Act;
+
+        On.LizardGraphics.Update -= LizardGraphics_Update;
+    }
+
+    private static void LizardGraphics_Update(On.LizardGraphics.orig_Update orig, LizardGraphics self)
+    {
+        orig(self);
+
+        self.depthRotation = self.lastDepthRotation = self.headDepthRotation = self.lastHeadDepthRotation = 0;
     }
 
     /// <summary>
@@ -84,11 +95,28 @@ public static class CustomCreatures
             //self.SetLocalGravity(Mathf.Min(self.GetLocalGravity(), 0.4f));
 
             Vector2 moveVec = RWCustom.Custom.DirVec(self.bodyChunks[0].pos, self.room.MiddleOfTile(self.followingConnection.DestTile))
-                * self.lizardParams.baseSpeed * self.BodyForce;
+                * self.lizardParams.baseSpeed * self.BodyForce * 0.5f;
+
+            if (moveVec.y < 0) moveVec.y *= 0.25f; //don't go down as much
+
             self.bodyChunks[0].vel *= 0.8f; //heavy drag
             self.bodyChunks[1].vel *= 0.8f;
             self.bodyChunks[0].vel += moveVec;
-            self.bodyChunks[1].vel += moveVec + new Vector2(0, 1f); //pull upward slightly
+            self.bodyChunks[1].vel += moveVec + new Vector2(0, 1f); //pull upward more
+            for (int i = 2; i < self.bodyChunks.Length; i++)
+            {
+                self.bodyChunks[i].vel = 0.9f * self.bodyChunks[i].vel + moveVec * 0.5f; //tail gets moved much less than body
+            }
+
+            //align bodychunks horizontally
+            for (int i = 1; i < self.bodyChunks.Length; i++)
+            {
+                float pullStrength = 0.5f + 0.5f * i; //chunk1 = 1, chunk2 = 1.5
+                float sign1 = Mathf.Sign(self.bodyChunks[0].vel.x); //desired direction (e.g: want chunk0 to be right)
+                float sign2 = Mathf.Sign(self.bodyChunks[0].pos.x - self.bodyChunks[i].pos.x); //actual direction (e.g: chunk0 is left)
+                if (sign1 != sign2)
+                    self.bodyChunks[i].vel.x -= 1f * sign1; //move opposite direction to make lizard more horizontal
+            }
 
             //dangle limbs
             if (self.graphicsModule is LizardGraphics graph)
