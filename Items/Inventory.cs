@@ -120,7 +120,12 @@ public static class Inventory
                 {
                     if (info.InventoryWheel.alpha > 0 || info.InventoryWheel.lastAlpha > 0) //inventory wheel is open or actively closing
                     {
-                        self.mushroomEffect = info.InventoryWheel.alpha * Options.InventorySlowTimeFac; //set "Adrenaline" (mushroomEffect)
+                        //self.mushroomEffect = info.InventoryWheel.alpha * Options.InventorySlowTimeFac; //set "Adrenaline" (mushroomEffect)
+                        self.mushroomEffect = Mathf.Clamp(
+                            RWCustom.Custom.LerpAndTick(self.mushroomEffect,
+                                info.InventoryWheel.selection >= 0 ? (info.InventoryWheel.alpha * Options.InventorySlowTimeFac) : 0, //don't slow when no selection
+                                0.1f, 0.01f),
+                            0, info.InventoryWheel.alpha); //clamp it at alpha so that we don't stay slowed when closing the wheel
                     }
                 }
             }

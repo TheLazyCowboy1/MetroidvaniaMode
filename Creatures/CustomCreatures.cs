@@ -1,4 +1,5 @@
-﻿using Mono.Cecil.Cil;
+﻿using MetroidvaniaMode.Tools;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RWCustom;
 using System;
@@ -9,6 +10,8 @@ namespace MetroidvaniaMode.Creatures;
 
 public static class CustomCreatures
 {
+    [EasyExtEnum]
+    public static CreatureTemplate.Type WorldAITemplate;
 
     public static void ApplyHooks()
     {
@@ -51,6 +54,9 @@ public static class CustomCreatures
 
         try
         {
+            //WorldAITemplate
+            StaticWorld.creatureTemplates[WorldAITemplate.Index] = new(WorldAITemplate, null, new(), new(), new(CreatureTemplate.Relationship.Type.Ignores, 0f));
+
             /*CreatureTemplate liz = StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.YellowLizard);
             CreatureTemplate fly = StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.Fly);
             liz.doPreBakedPathing = false;

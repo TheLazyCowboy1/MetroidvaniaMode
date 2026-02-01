@@ -148,6 +148,8 @@ public partial class Plugin : BaseUnityPlugin
 
             Creatures.CustomCreatures.ApplyHooks();
 
+            AI.AIHooks.ApplyHooks();
+
             UI.Hooks.ApplyHooks();
 
             VFX.WarpNoiseBloom.ApplyHooks();
@@ -184,6 +186,8 @@ public partial class Plugin : BaseUnityPlugin
 
             Creatures.CustomCreatures.RemoveHooks();
 
+            AI.AIHooks.RemoveHooks();
+
             UI.Hooks.RemoveHooks();
 
             VFX.WarpNoiseBloom.RemoveHooks();
@@ -202,6 +206,8 @@ public partial class Plugin : BaseUnityPlugin
         ConfigOptions.SetValues(); //should no longer be necessary, but is here just in case
         WorldChanges.FilePrefixModifier.SetEnabled(manager);
         Tools.Keybinds.GameStarted(); //ensure the keybinds aren't totally unbound or something
+
+        AI.WorldAI.ClearStaticData();
 
         orig(self, manager);
 
