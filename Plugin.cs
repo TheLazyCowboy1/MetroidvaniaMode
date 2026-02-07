@@ -187,10 +187,11 @@ public partial class Plugin : BaseUnityPlugin
 
         try
         {
+            Shader.SetGlobalFloat("TheLazyCowboy1_DestructionStrength", 15);
             RenderTexture tempTex = new(self.levelTexture.width, self.levelTexture.height, 0, DefaultFormat.LDR) { filterMode = 0 };
             Graphics.Blit(self.levelTexture, tempTex, Tools.Assets.DestructionMat);
             //Shader.SetGlobalTexture("_LevelTex", tempTex);
-            Graphics.CopyTexture(tempTex, self.levelTexture);
+            Graphics.CopyTexture(tempTex, self.levelTexture); //apparently this works just as well
             tempTex.Release();
         }
         catch (Exception ex) { Error(ex); }
