@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 
 #pragma warning disable CS0618
 
@@ -167,21 +168,32 @@ public partial class Plugin : BaseUnityPlugin
 
     private void RoomCamera_ApplyPositionChange(On.RoomCamera.orig_ApplyPositionChange orig, RoomCamera self)
     {
-        try
+        /*try
         {
             //very inefficient loading method
             self.levelTexture.LoadImage(self.preLoadedTexture, false);
 
             //apply shader
-            RenderTexture tempTex = RenderTexture.GetTemporary(self.levelTexture.width, self.levelTexture.height);
+            RenderTexture tempTex = new(self.levelTexture.width, self.levelTexture.height, 0, DefaultFormat.LDR) { filterMode = 0 };
             Graphics.Blit(self.levelTexture, tempTex, Tools.Assets.DestructionMat);
             Graphics.CopyTexture(tempTex, self.levelTexture);
+            self.levelTexture.Apply();
             tempTex.Release();
             self.preLoadedTexture = self.levelTexture.EncodeToPNG(); //so ridiculously inefficient lol
         }
-        catch (Exception ex) { Error(ex); }
+        catch (Exception ex) { Error(ex); }*/
 
         orig(self);
+
+        try
+        {
+            RenderTexture tempTex = new(self.levelTexture.width, self.levelTexture.height, 0, DefaultFormat.LDR) { filterMode = 0 };
+            Graphics.Blit(self.levelTexture, tempTex, Tools.Assets.DestructionMat);
+            //Shader.SetGlobalTexture("_LevelTex", tempTex);
+            Graphics.CopyTexture(tempTex, self.levelTexture);
+            tempTex.Release();
+        }
+        catch (Exception ex) { Error(ex); }
     }
 
     public void RemoveHooks()
