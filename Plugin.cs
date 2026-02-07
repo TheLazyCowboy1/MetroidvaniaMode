@@ -5,6 +5,7 @@ using BepInEx;
 using System.Runtime.CompilerServices;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 
 #pragma warning disable CS0618
 
@@ -157,9 +158,30 @@ public partial class Plugin : BaseUnityPlugin
             SaveData.Hooks.ApplyHooks();
             Collectibles.Hooks.ApplyHooks();
 
+            On.RoomCamera.ApplyPositionChange += RoomCamera_ApplyPositionChange;
+
             Log("Applied hooks", 0);
         }
         HooksApplied = true;
+    }
+
+    private void RoomCamera_ApplyPositionChange(On.RoomCamera.orig_ApplyPositionChange orig, RoomCamera self)
+    {
+        try
+        {
+            //very inefficient loading method
+            self.levelTexture.LoadImage(self.preLoadedTexture, false);
+
+            //apply shader
+            RenderTexture tempTex = RenderTexture.GetTemporary(self.levelTexture.width, self.levelTexture.height);
+            Graphics.Blit(self.levelTexture, tempTex, Tools.Assets.DestructionMat);
+            Graphics.CopyTexture(tempTex, self.levelTexture);
+            tempTex.Release();
+            self.preLoadedTexture = self.levelTexture.EncodeToPNG(); //so ridiculously inefficient lol
+        }
+        catch (Exception ex) { Error(ex); }
+
+        orig(self);
     }
 
     public void RemoveHooks()

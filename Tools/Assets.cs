@@ -20,10 +20,17 @@ public static class Assets
     private static Shader _wingEffect;
     public static FShader WingEffect;
 
+    public static Shader DestructionEffect;
+    public static Material DestructionMat;
+
+    private static bool assetsLoaded = false;
+
     public static void Load()
     {
         try
         {
+            if (assetsLoaded) return;
+
             AssetBundle assets = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath(Path.Combine("AssetBundles", "MVM.assets")));
 
             _shieldEffect = assets.LoadAsset<Shader>("ShieldEffect.shader");
@@ -47,7 +54,13 @@ public static class Assets
             if (_wingEffect == null) Plugin.Error("Wing.shader is null!");
             WingEffect = FShader.CreateShader("MVM_WingEffect", _wingEffect);
 
+            DestructionEffect = assets.LoadAsset<Shader>("DestructionShader.shader");
+            if (DestructionEffect == null) Plugin.Error("DestructionShader.shader is null!");
+            DestructionMat = new(DestructionEffect);
+
             Plugin.Log("Loaded assets", 0);
+
+            assetsLoaded = true;
 
             //TEMP
             //string wingFile = AssetManager.ResolveFilePath(Path.Combine("AssetBundles", "Wing.png"));
@@ -57,6 +70,12 @@ public static class Assets
 
         }
         catch (Exception ex) { Plugin.Error(ex); }
+    }
+
+    public static void ForceReload()
+    {
+        assetsLoaded = false;
+        Load();
     }
 
 }
