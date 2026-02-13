@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering;
 
 #pragma warning disable CS0618
 
@@ -187,12 +188,23 @@ public partial class Plugin : BaseUnityPlugin
 
         try
         {
-            Shader.SetGlobalFloat("TheLazyCowboy1_DestructionStrength", 15);
-            RenderTexture tempTex = new(self.levelTexture.width, self.levelTexture.height, 0, DefaultFormat.LDR) { filterMode = 0 };
+            if (Input.GetKey(KeyCode.X)) return; //don't do this if holding x
+            Shader.SetGlobalFloat("TheLazyCowboy1_DestructionStrength", 30);
+            /*RenderTexture tempTex = new(self.levelTexture.width, self.levelTexture.height, 0, DefaultFormat.LDR) { filterMode = 0 };
+            RenderTexture tempTex2 = new(self.levelTexture.width, self.levelTexture.height, 0, DefaultFormat.LDR) { filterMode = 0 };
             Graphics.Blit(self.levelTexture, tempTex, Tools.Assets.DestructionMat);
+            Graphics.Blit(tempTex, tempTex2, Tools.Assets.DestructionPilerMat); //two render textures are required for the two steps
             //Shader.SetGlobalTexture("_LevelTex", tempTex);
-            Graphics.CopyTexture(tempTex, self.levelTexture); //apparently this works just as well
+            Graphics.CopyTexture(tempTex2, self.levelTexture); //apparently this works just as well
             tempTex.Release();
+            tempTex2.Release();*/
+            CommandBuffer buff = new();
+            RenderTexture tempTex = new(self.levelTexture.width, self.levelTexture.height, 0, DefaultFormat.LDR) { filterMode = 0 };
+            RenderTexture tempTex2 = new(self.levelTexture.width, self.levelTexture.height, 0, DefaultFormat.LDR) { filterMode = 0 };
+            buff.Blit(self.levelTexture, tempTex, Tools.Assets.DestructionMat);
+            buff.Blit(tempTex, tempTex2, Tools.Assets.DestructionPilerMat);
+            buff.CopyTexture(tempTex2, self.levelTexture);
+            Graphics.ExecuteCommandBufferAsync(buff, ComputeQueueType.Default); //make this process async!
         }
         catch (Exception ex) { Error(ex); }
     }

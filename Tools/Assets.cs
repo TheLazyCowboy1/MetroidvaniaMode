@@ -20,8 +20,11 @@ public static class Assets
     private static Shader _wingEffect;
     public static FShader WingEffect;
 
-    public static Shader DestructionEffect;
+    private static Shader DestructionEffect;
     public static Material DestructionMat;
+
+    private static Shader DestructionPiler;
+    public static Material DestructionPilerMat;
 
     private static bool assetsLoaded = false;
 
@@ -57,6 +60,10 @@ public static class Assets
             DestructionEffect = assets.LoadAsset<Shader>("DestructionShader.shader");
             if (DestructionEffect == null) Plugin.Error("DestructionShader.shader is null!");
             DestructionMat = new(DestructionEffect);
+
+            DestructionPiler = assets.LoadAsset<Shader>("DestructionPiler.shader");
+            if (DestructionPiler == null) Plugin.Error("DestructionPiler.shader is null!");
+            DestructionPilerMat = new(DestructionPiler);
 
             Plugin.Log("Loaded assets", 0);
 
