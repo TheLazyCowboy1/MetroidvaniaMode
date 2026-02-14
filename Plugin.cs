@@ -167,6 +167,8 @@ public partial class Plugin : BaseUnityPlugin
         HooksApplied = true;
     }
 
+    private int DestructionLevel = 60;
+
     private void RoomCamera_ApplyPositionChange(On.RoomCamera.orig_ApplyPositionChange orig, RoomCamera self)
     {
         /*try
@@ -189,7 +191,10 @@ public partial class Plugin : BaseUnityPlugin
         try
         {
             if (Input.GetKey(KeyCode.X)) return; //don't do this if holding x
-            Shader.SetGlobalFloat("TheLazyCowboy1_DestructionStrength", 30);
+            if (Input.GetKey(KeyCode.C)) DestructionLevel -= 10;
+            if (Input.GetKey(KeyCode.V)) DestructionLevel += 10; //for changing destruction level
+            if (Input.GetKey(KeyCode.LeftShift)) DestructionLevel = 60; //reset to default
+            Shader.SetGlobalFloat("TheLazyCowboy1_DestructionStrength", DestructionLevel);
             /*RenderTexture tempTex = new(self.levelTexture.width, self.levelTexture.height, 0, DefaultFormat.LDR) { filterMode = 0 };
             RenderTexture tempTex2 = new(self.levelTexture.width, self.levelTexture.height, 0, DefaultFormat.LDR) { filterMode = 0 };
             Graphics.Blit(self.levelTexture, tempTex, Tools.Assets.DestructionMat);
