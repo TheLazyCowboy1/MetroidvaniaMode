@@ -217,7 +217,7 @@ public partial class Plugin : BaseUnityPlugin
                 PoleMap.Apply();
                 Shader.SetGlobalTexture("TheLazyCowboy1_PoleMap", PoleMap);
 
-                File.WriteAllBytes(AssetManager.ResolveFilePath("testPoleMap.png"), PoleMap.EncodeToPNG()); //as a temporary debug measure
+                //File.WriteAllBytes(AssetManager.ResolveFilePath("testPoleMap.png"), PoleMap.EncodeToPNG()); //as a temporary debug measure
             }
 
             //describe transform from levelTex to poleMap
