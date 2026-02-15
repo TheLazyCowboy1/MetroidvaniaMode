@@ -207,27 +207,10 @@ public partial class Plugin : BaseUnityPlugin
                         {
                             for (int a = 0; a < 5; a++)
                             {
+                                //white if inside a beam; otherwise black
                                 colors[(i*5 + a) + pixelWidth*(j*5 + b)].r = (tile.horizontalBeam && b == 2 || tile.verticalBeam && a == 2) ? 1 : 0;
                             }
                         }
-                        /*
-                        if (tile.horizontalBeam)
-                        {
-                            int b = 2; //middle y level
-                            for (int a = 0; a < 5; a++)
-                            {
-                                colors[(i*5 + a) + pixelWidth*(j*5 + b)].r = 1;
-                            }
-                        }
-                        if (tile.verticalBeam)
-                        {
-                            int a = 2; //middle x level
-                            for (int b = 0; b < 5; b++)
-                            {
-                                colors[(i*5 + a) + pixelWidth*(j*5 + b)].r = 1;
-                            }
-                        }
-                        */
                     }
                 }
                 PoleMap.SetPixels(colors);
@@ -237,66 +220,21 @@ public partial class Plugin : BaseUnityPlugin
                 File.WriteAllBytes(AssetManager.ResolveFilePath("testPoleMap.png"), PoleMap.EncodeToPNG()); //as a temporary debug measure
             }
 
+            //describe transform from levelTex to poleMap
+
             //poleMap.xy = i.uv * map.zw + map.xy
             Vector2 camPos = self.CamPos(self.currentCameraPosition);
-            //int w = self.levelTexture.width, h = self.levelTexture.height;
             float w = tileWidth * 20, h = tileHeight * 20;
             Vector4 poleMapPos = new(camPos.x / w, camPos.y / h, self.levelTexture.width / w, self.levelTexture.height / h);
             Shader.SetGlobalVector("TheLazyCowboy1_PoleMapPos", poleMapPos);
 
-            /*
-            int imgWidth = self.levelTexture.width, imgHeight = self.levelTexture.height;
-            Texture2D poleMap = new(imgWidth, imgHeight, TextureFormat.R8, false) { filterMode = 0 }; //ONLY encodes red
-            Color[] imgData = poleMap.GetPixels();
-            for (int i = 0; i < imgData.Length; i++) imgData[i] = new(0, 0, 0);
-            poleMap.SetPixels(imgData); //turn the texture black. this is probably horribly inefficient or something
-
-            Vector2 camPos = self.CamPos(self.currentCameraPosition);
-            int xOff = -Mathf.FloorToInt(camPos.x), yOff = -Mathf.FloorToInt(camPos.y);
-            camPos *= 0.05f; //convert to tiles
-
-            int minX = Mathf.Max(0, Mathf.FloorToInt(camPos.x)), minY = Mathf.Max(0, Mathf.FloorToInt(camPos.y));
-            int maxX = Mathf.Min(self.room.Tiles.GetLength(0)-1, Mathf.CeilToInt(camPos.x + imgWidth*0.05f)),
-                maxY = Mathf.Min(self.room.Tiles.GetLength(1)-1, Mathf.CeilToInt(camPos.y + imgHeight*0.05f)); //1400x800 / 20 = 70x40
-            //int xOff = -Mathf.FloorToInt(20 * (camPos.x - minX)), yOff = -Mathf.FloorToInt(20 * (camPos.y - minY)); //this is too confusing to explain
-            for (int i = minX; i <= maxX; i++)
-            {
-                for (int j = minY; j <= maxY; j++)
-                {
-                    Room.Tile tile = self.room.Tiles[i, j];
-                    if (tile.horizontalBeam)
-                    {
-                        int posX = i * 20 + xOff, posY = j * 20 + yOff;
-                        int fromX = Mathf.Max(0, posX + 0), fromY = Mathf.Max(0, posY + 8);
-                        const int width = 20, height = 4; //poles are 4 pixels thick, right...?
-                        Color[] colors = new Color[width * height];
-                        for (int k = 0; k < colors.Length; k++) colors[k] = new(1, 0, 0); //red
-                        poleMap.SetPixels(fromX, fromY, width, height, colors);
-                    }
-                    if (tile.verticalBeam)
-                    {
-                        int posX = i * 20 + xOff, posY = j * 20 + yOff;
-                        int fromX = Mathf.Max(0, posX + 8), fromY = Mathf.Max(0, posY + 0);
-                        const int width = 4, height = 20; //poles are 4 pixels thick, right...?
-                        Color[] colors = new Color[width * height];
-                        for (int k = 0; k < colors.Length; k++) colors[k] = new(1, 0, 0); //red
-                        poleMap.SetPixels(fromX, fromY, width, height, colors);
-                    }
-                }
-            }
-            poleMap.Apply();
-            Shader.SetGlobalTexture("TheLazyCowboy1_PoleMap", poleMap);
-
-            File.WriteAllBytes(AssetManager.ResolveFilePath("testPoleMap.png"), poleMap.EncodeToPNG()); //as a temporary debug measure
-            */
+            //generate destroyed level texture
 
             CommandBuffer buff = new();
             RenderTexture tempTex = new(self.levelTexture.width, self.levelTexture.height, 0, DefaultFormat.LDR) { filterMode = 0 };
-            //RenderTexture tempTex2 = new(self.levelTexture.width, self.levelTexture.height, 0, DefaultFormat.LDR) { filterMode = 0 };
             buff.Blit(self.levelTexture, tempTex, Tools.Assets.DestructionMat); //no longer transparent
-            buff.CopyTexture(tempTex, self.levelTexture);
             //buff.Blit(tempTex, tempTex2, Tools.Assets.DestructionPilerMat);
-            //buff.CopyTexture(tempTex2, self.levelTexture);
+            buff.CopyTexture(tempTex, self.levelTexture);
             Graphics.ExecuteCommandBufferAsync(buff, ComputeQueueType.Default); //make this process async!
         }
         catch (Exception ex) { Error(ex); }
