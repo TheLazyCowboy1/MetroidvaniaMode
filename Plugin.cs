@@ -199,7 +199,7 @@ public partial class Plugin : BaseUnityPlugin
 
                 for (int i = 0; i < tileWidth; i++)
                 {
-                    for (int j = 0; j < tileWidth; j++)
+                    for (int j = 0; j < tileHeight; j++)
                     {
                         Room.Tile tile = tiles[i, j];
                         //fill this tile with black
@@ -240,7 +240,7 @@ public partial class Plugin : BaseUnityPlugin
             //poleMap.xy = i.uv * map.zw + map.xy
             Vector2 camPos = self.CamPos(self.currentCameraPosition);
             //int w = self.levelTexture.width, h = self.levelTexture.height;
-            int w = tileWidth * 20, h = tileHeight * 20;
+            float w = tileWidth * 20, h = tileHeight * 20;
             Vector4 poleMapPos = new(camPos.x / w, camPos.y / h, self.levelTexture.width / w, self.levelTexture.height / h);
             Shader.SetGlobalVector("TheLazyCowboy1_PoleMapPos", poleMapPos);
 
