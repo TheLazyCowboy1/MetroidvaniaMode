@@ -61,9 +61,9 @@ public static class Assets
             if (DestructionEffect == null) Plugin.Error("DestructionShader.shader is null!");
             DestructionMat = new(DestructionEffect);
 
-            DestructionPiler = assets.LoadAsset<Shader>("DestructionPiler.shader");
-            if (DestructionPiler == null) Plugin.Error("DestructionPiler.shader is null!");
-            DestructionPilerMat = new(DestructionPiler);
+            //DestructionPiler = assets.LoadAsset<Shader>("DestructionPiler.shader");
+            //if (DestructionPiler == null) Plugin.Error("DestructionPiler.shader is null!");
+            //DestructionPilerMat = new(DestructionPiler);
 
             Plugin.Log("Loaded assets", 0);
 
