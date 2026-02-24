@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 namespace EasyModSetup;
 
 [BepInDependency("henpemaz.rainmeadow", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("twofour2.rainReloader", BepInDependency.DependencyFlags.SoftDependency)]
 public abstract class SimplerPlugin : BaseUnityPlugin
 {
     #region VirtualMethods
@@ -30,6 +31,7 @@ public abstract class SimplerPlugin : BaseUnityPlugin
     public static string MOD_ID = "error";
     public static string MOD_NAME = "error";
     public static string MOD_VERSION = "error";
+    public static string PluginPath = "error";
 
     public static SimplerPlugin Instance;
 
@@ -56,7 +58,8 @@ public abstract class SimplerPlugin : BaseUnityPlugin
 
     public void Awake()
     {
-        EasyExtEnum.Register();
+        //EasyExtEnum.Register();
+        //AutoStaticVarSync.RegisterSyncedVars();
 
         Initialize();
     }
@@ -64,6 +67,9 @@ public abstract class SimplerPlugin : BaseUnityPlugin
     private bool hooksApplied = false; //a hopefully pointless fail-safe
     public void OnEnable()
     {
+        EasyExtEnum.Register(); //to reflect hot-reload changes?
+        AutoStaticVarSync.RegisterSyncedVars();
+
         if (hooksApplied) return;
 
         On.RainWorld.OnModsInit += RainWorld_OnModsInit;
@@ -100,8 +106,14 @@ public abstract class SimplerPlugin : BaseUnityPlugin
     {
         orig(self);
 
-        if (Options != null)
-            MachineConnector.SetRegisteredOI(MOD_ID, Options); //register config menu
+        try
+        {
+            if (Options != null)
+                MachineConnector.SetRegisteredOI(MOD_ID, Options); //register config menu
+
+            PluginPath = ModManager.ActiveMods.Find(m => m.id == MOD_ID).path;
+        }
+        catch (Exception ex) { Error(ex); }
 
         ModsApplied();
     }

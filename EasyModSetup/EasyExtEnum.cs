@@ -6,7 +6,7 @@ namespace EasyModSetup;
 [AttributeUsage(AttributeTargets.Field)]
 public class EasyExtEnum : Attribute
 {
-    private const string PREFIX = "MVM_";
+    //private const string PREFIX = "MVM_";
 
     public string ID = null; //used to specify the ID
 
@@ -26,8 +26,8 @@ public class EasyExtEnum : Attribute
                         if (att != null)
                         {
                             string name = att.ID ?? info.Name;
-                            info.SetValue(null, Activator.CreateInstance(info.FieldType, PREFIX + name, true));
-                            debug += type.Name + ":" + PREFIX + name + ", ";
+                            info.SetValue(null, Activator.CreateInstance(info.FieldType, name, true));
+                            debug += type.Name + ":" + name + ", ";
                         }
                         else if (info.FieldType.IsSubclassOf(typeof(ExtEnumBase))) //look for ALL static ExtEnums
                         {

@@ -1,12 +1,12 @@
-﻿using MetroidvaniaMode.Tools;
+﻿using EasyModSetup;
 using System;
 
 namespace MetroidvaniaMode.Items;
 
 public static class CustomItems
 {
-    [EasyExtEnum]
-    public static AbstractPhysicalObject.AbstractObjectType HealFruit;
+    //[EasyExtEnum]
+    public static AbstractPhysicalObject.AbstractObjectType HealFruit = new("MVM_HealFruit", true);
 
     public static void ApplyHooks()
     {

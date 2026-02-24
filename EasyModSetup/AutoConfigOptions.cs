@@ -42,7 +42,7 @@ public abstract class AutoConfigOptions : OptionInterface
             if (op.config == self)
             {
                 op.SetValues();
-                Plugin.Log("Loading config values for " + op.mod?.id);
+                SimplerPlugin.Log("Loading config values for " + op.mod?.id);
             }
         }
     }
@@ -57,7 +57,7 @@ public abstract class AutoConfigOptions : OptionInterface
             if (op.config == self)
             {
                 op.SetValues();
-                Plugin.Log("Setting config values for " + op.mod?.id);
+                SimplerPlugin.Log("Setting config values for " + op.mod?.id);
             }
         }
     }
@@ -69,7 +69,7 @@ public abstract class AutoConfigOptions : OptionInterface
         {
             if (ActiveInstances[i].mod == null || MachineConnector.GetRegisteredOI(ActiveInstances[i].mod.id) != ActiveInstances[i])
             {
-                Plugin.Log("WARNING: Removed old OptionInterface; mod = " + ActiveInstances[i].mod?.id, 0);
+                SimplerPlugin.Log("WARNING: Removed old OptionInterface; mod = " + ActiveInstances[i].mod?.id, 0);
                 ActiveInstances.RemoveAt(i); //it's no longer in use
             }
         }
@@ -167,11 +167,11 @@ public abstract class AutoConfigOptions : OptionInterface
                         precision = att.precision, dropdownOptions = att.dropdownOptions
                     });
                 }
-            } catch (Exception ex) { Plugin.Error(ex); }
+            } catch (Exception ex) { SimplerPlugin.Error(ex); }
         }
 
         ConfigInfos = configs.ToArray();
-        Plugin.Log("Found " + ConfigInfos.Length + " configs");
+        SimplerPlugin.Log("Found " + ConfigInfos.Length + " configs");
 
         //set up for auto loading
         ActiveInstances.Add(this);
@@ -238,7 +238,7 @@ public abstract class AutoConfigOptions : OptionInterface
                         }
                         else
                         {
-                            Plugin.Error("This config type is not yet supported: " + cInfo.config.GetType().FullName);
+                            SimplerPlugin.Error("This config type is not yet supported: " + cInfo.config.GetType().FullName);
                             continue;
                         }
                         el.description = cInfo.desc;
@@ -247,7 +247,7 @@ public abstract class AutoConfigOptions : OptionInterface
                         y -= tInfo.spacing + cInfo.spaceAfter;
                     }
                 }
-                catch (Exception ex) { Plugin.Error("Error with " + cInfo.label); Plugin.Error(ex); }
+                catch (Exception ex) { SimplerPlugin.Error("Error with " + cInfo.label); SimplerPlugin.Error(ex); }
             }
 
             //Tabs[i].items = Tabs[i].items.Reverse().ToHashSet(); //attempt to make dropdowns not be behind the configs
@@ -289,9 +289,9 @@ public abstract class AutoConfigOptions : OptionInterface
             try
             {
                 type.GetField(info.config.key).SetValue(this, info.config.BoxedValue);
-            } catch (Exception ex) { Plugin.Error(ex); }
+            } catch (Exception ex) { SimplerPlugin.Error(ex); }
         }
-        Plugin.Log("Set config values");
+        SimplerPlugin.Log("Set config values");
     }
 
 }

@@ -1,4 +1,4 @@
-﻿using MetroidvaniaMode.Tools;
+﻿using EasyModSetup;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RWCustom;
@@ -10,8 +10,8 @@ namespace MetroidvaniaMode.Creatures;
 
 public static class CustomCreatures
 {
-    [EasyExtEnum]
-    public static CreatureTemplate.Type WorldAITemplate;
+    //[EasyExtEnum]
+    public static CreatureTemplate.Type WorldAITemplate = new("MVM_WorldAITemplate", true);
 
     public static void ApplyHooks()
     {

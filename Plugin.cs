@@ -5,7 +5,7 @@ using BepInEx;
 using System.Runtime.CompilerServices;
 using System.IO;
 using System.Linq;
-using MetroidvaniaMode.EasyModSetup;
+using EasyModSetup;
 
 #pragma warning disable CS0618
 
@@ -18,97 +18,33 @@ namespace MetroidvaniaMode;
 [BepInDependency("ddemile.fake_achievements", BepInDependency.DependencyFlags.SoftDependency)]
 //[BepInDependency("twofour2.rainReloader", BepInDependency.DependencyFlags.SoftDependency)]
 
-[BepInPlugin(MOD_ID, MOD_NAME, MOD_VERSION)]
-public partial class Plugin : BaseUnityPlugin
+[BepInPlugin("LazyCowboy.MetroidvaniaMode", "Metroidvania Mode", "0.0.10")]
+public partial class Plugin : SimplerPlugin
 {
-    public const string MOD_ID = "LazyCowboy.MetroidvaniaMode",
-        MOD_NAME = "Metroidvania Mode",
-        MOD_VERSION = "0.0.10";
-
-
-    public static Plugin Instance;
-    private static Options ConfigOptions;
-
-    public static string PluginPath = "";
 
     #region Setup
-    public Plugin()
+    public Plugin() : base(new Options())
     {
     }
-    private void OnEnable()
+    public override void Initialize()
     {
-        try
-        {
-            Instance = this;
-            ConfigOptions = new Options();
-            //MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex);
-            throw;
-        }
-
-        try
-        {
-            On.RainWorld.OnModsInit += RainWorld_OnModsInit;
-
-            ApplyHooks();
-        }
-        catch (Exception ex) { Error(ex); }
-
         try
         {
             //Register ExtEnums
             Collectibles.CollectibleTokens.Register();
-            EasyExtEnum.Register();
-
-            //Bind keybinds
-            Tools.Keybinds.Bind(); //Improved Input Config wants them bound here for some reason
-
-            //Init(); //try to load assets here, because Rain Reloader doesn't let us hook OnModsInit or PostModsInit
         }
         catch (Exception ex) { Error(ex); }
     }
-    private void OnDisable()
-    {
-        On.RainWorld.OnModsInit -= RainWorld_OnModsInit;
-
-        RemoveHooks();
-
-        IsInit = false;
-    }
 
     private bool IsInit = false;
-    private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
-    {
-        orig(self);
-        try
-        {
-            Init();
-        }
-        catch (Exception ex)
-        {
-            Error(ex);
-            throw;
-        }
-    }
-    private void Init()
+    public override void ModsApplied()
     {
         if (IsInit) return;
         if (ModManager.ActiveMods == null || !ModManager.ActiveMods.Any(m => m.id == MOD_ID)) return; //this mod MUST be loaded
         IsInit = true; //set IsInit first, in case there is an error
 
-        //find the plugin path
-        PluginPath = ModManager.ActiveMods.Find(m => m.id == MOD_ID).path;
-
         ImprovedInputEnabled = ModManager.ActiveMods.Any(m => m.id == "improved-input-config");
         FakeAchievementsEnabled = ModManager.ActiveMods.Any(m => m.id == "ddemile.fake_achievements");
-
-
-        //Set up config menu
-        MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
-        //ConfigOptions.SetValues(); //for good measure; why not...
 
         //Load assets
         Tools.Assets.Load();
@@ -121,90 +57,74 @@ public partial class Plugin : BaseUnityPlugin
 
     #region Hooks
 
-    private bool HooksApplied = false;
-    public void ApplyHooks()
+    public override void ApplyHooks()
     {
-        if (!HooksApplied)
-        {
-            //APPLY HOOKS
+        On.RainWorldGame.ctor += RainWorldGame_ctor;
 
-            //Keep config menu options up to date
-            On.RainWorldGame.ctor += RainWorldGame_ctor;
+        WorldChanges.FilePrefixModifier.ApplyHooks();
+        WorldChanges.ArenaRoomFix.ApplyHooks();
 
-            AutoConfigOptions.ApplyHooks();
+        Abilities.MovementLimiter.ApplyHooks();
+        Abilities.Dash.ApplyHooks();
+        Abilities.DoubleJump.ApplyHooks();
+        Abilities.Health.ApplyHooks();
+        Abilities.Glide.ApplyHooks();
+        Abilities.Shield.ApplyHooks();
+        Abilities.StatAbilities.ApplyHooks();
 
-            WorldChanges.FilePrefixModifier.ApplyHooks();
-            WorldChanges.ArenaRoomFix.ApplyHooks();
+        Items.CustomItems.ApplyHooks();
+        Items.Inventory.ApplyHooks();
 
-            Abilities.MovementLimiter.ApplyHooks();
-            Abilities.Dash.ApplyHooks();
-            Abilities.DoubleJump.ApplyHooks();
-            Abilities.Health.ApplyHooks();
-            Abilities.Glide.ApplyHooks();
-            Abilities.Shield.ApplyHooks();
-            Abilities.StatAbilities.ApplyHooks();
+        Creatures.CustomCreatures.ApplyHooks();
 
-            Items.CustomItems.ApplyHooks();
-            Items.Inventory.ApplyHooks();
+        AI.AIHooks.ApplyHooks();
 
-            Creatures.CustomCreatures.ApplyHooks();
+        UI.Hooks.ApplyHooks();
 
-            AI.AIHooks.ApplyHooks();
+        VFX.WarpNoiseBloom.ApplyHooks();
 
-            UI.Hooks.ApplyHooks();
+        SaveData.Hooks.ApplyHooks();
+        Collectibles.Hooks.ApplyHooks();
 
-            VFX.WarpNoiseBloom.ApplyHooks();
-
-            SaveData.Hooks.ApplyHooks();
-            Collectibles.Hooks.ApplyHooks();
-
-            Log("Applied hooks", 0);
-        }
-        HooksApplied = true;
+        Log("Applied hooks", 0);
     }
 
-    public void RemoveHooks()
+    public override void RemoveHooks()
     {
-        if (HooksApplied)
-        {
-            On.RainWorldGame.ctor -= RainWorldGame_ctor;
+        On.RainWorldGame.ctor -= RainWorldGame_ctor;
 
-            AutoConfigOptions.RemoveHooks();
+        WorldChanges.FilePrefixModifier.RemoveHooks();
+        WorldChanges.ArenaRoomFix.RemoveHooks();
 
-            WorldChanges.FilePrefixModifier.RemoveHooks();
-            WorldChanges.ArenaRoomFix.RemoveHooks();
+        Abilities.MovementLimiter.RemoveHooks();
+        Abilities.Dash.RemoveHooks();
+        Abilities.DoubleJump.RemoveHooks();
+        Abilities.Health.RemoveHooks();
+        Abilities.Glide.RemoveHooks();
+        Abilities.Shield.RemoveHooks();
+        Abilities.StatAbilities.RemoveHooks();
 
-            Abilities.MovementLimiter.RemoveHooks();
-            Abilities.Dash.RemoveHooks();
-            Abilities.DoubleJump.RemoveHooks();
-            Abilities.Health.RemoveHooks();
-            Abilities.Glide.RemoveHooks();
-            Abilities.Shield.RemoveHooks();
-            Abilities.StatAbilities.RemoveHooks();
+        Items.CustomItems.RemoveHooks();
+        Items.Inventory.RemoveHooks();
 
-            Items.CustomItems.RemoveHooks();
-            Items.Inventory.RemoveHooks();
+        Creatures.CustomCreatures.RemoveHooks();
 
-            Creatures.CustomCreatures.RemoveHooks();
+        AI.AIHooks.RemoveHooks();
 
-            AI.AIHooks.RemoveHooks();
+        UI.Hooks.RemoveHooks();
 
-            UI.Hooks.RemoveHooks();
+        VFX.WarpNoiseBloom.RemoveHooks();
 
-            VFX.WarpNoiseBloom.RemoveHooks();
+        SaveData.Hooks.RemoveHooks();
+        Collectibles.Hooks.RemoveHooks();
 
-            SaveData.Hooks.RemoveHooks();
-            Collectibles.Hooks.RemoveHooks();
-
-            Log("Removed hooks", 0);
-        }
-        HooksApplied = false;
+        Log("Removed hooks", 0);
     }
 
     //Ensures everything is up to date for when the game starts
     private void RainWorldGame_ctor(On.RainWorldGame.orig_ctor orig, RainWorldGame self, ProcessManager manager)
     {
-        ConfigOptions.SetValues(); //should no longer be necessary, but is here just in case
+        //ConfigOptions.SetValues(); //should no longer be necessary, but is here just in case
         WorldChanges.FilePrefixModifier.SetEnabled(manager);
         Tools.Keybinds.GameStarted(); //ensure the keybinds aren't totally unbound or something
 
@@ -224,35 +144,6 @@ public partial class Plugin : BaseUnityPlugin
     #region ModCompat
     public static bool ImprovedInputEnabled = false;
     public static bool FakeAchievementsEnabled = false;
-    #endregion
-
-
-    #region Tools
-
-    public static void Log(object o, int logLevel = 1, [CallerFilePath] string file = "", [CallerMemberName] string name = "", [CallerLineNumber] int line = -1)
-    {
-        if (logLevel <= Options.LogLevel)
-            Instance.Logger.LogDebug(logText(o, file, name, line));
-    }
-
-    public static void Error(object o, [CallerFilePath] string file = "", [CallerMemberName] string name = "", [CallerLineNumber] int line = -1)
-        => Instance.Logger.LogError(logText(o, file, name, line));
-
-    private static DateTime PluginStartTime = DateTime.Now;
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string logText(object o, string file, string name, int line)
-    {
-        try
-        {
-            return $"[{DateTime.Now.Subtract(PluginStartTime)},{Path.GetFileName(file)}.{name}:{line}]: {o}";
-        }
-        catch (Exception ex)
-        {
-            Instance.Logger.LogError(ex);
-        }
-        return o.ToString();
-    }
-
     #endregion
 
 }

@@ -1,12 +1,13 @@
-﻿using MetroidvaniaMode.Tools;
+﻿using EasyModSetup;
+using MetroidvaniaMode.Tools;
 using System;
 
 namespace MetroidvaniaMode.VFX;
 
 public static class WarpNoiseBloom
 {
-    [EasyExtEnum]
-    public static RoomSettings.RoomEffect.Type WarpNoiseEffectType;
+    //[EasyExtEnum]
+    public static RoomSettings.RoomEffect.Type WarpNoiseEffectType = new("MVM_WarpNoise", true);
 
     public static void ApplyHooks()
     {
