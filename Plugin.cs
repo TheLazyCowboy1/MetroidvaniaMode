@@ -5,6 +5,7 @@ using BepInEx;
 using System.Runtime.CompilerServices;
 using System.IO;
 using System.Linq;
+using MetroidvaniaMode.EasyModSetup;
 
 #pragma warning disable CS0618
 
@@ -60,7 +61,7 @@ public partial class Plugin : BaseUnityPlugin
         {
             //Register ExtEnums
             Collectibles.CollectibleTokens.Register();
-            Tools.EasyExtEnum.Register();
+            EasyExtEnum.Register();
 
             //Bind keybinds
             Tools.Keybinds.Bind(); //Improved Input Config wants them bound here for some reason
@@ -130,7 +131,7 @@ public partial class Plugin : BaseUnityPlugin
             //Keep config menu options up to date
             On.RainWorldGame.ctor += RainWorldGame_ctor;
 
-            Tools.AutoConfigOptions.ApplyHooks();
+            AutoConfigOptions.ApplyHooks();
 
             WorldChanges.FilePrefixModifier.ApplyHooks();
             WorldChanges.ArenaRoomFix.ApplyHooks();
@@ -168,7 +169,7 @@ public partial class Plugin : BaseUnityPlugin
         {
             On.RainWorldGame.ctor -= RainWorldGame_ctor;
 
-            Tools.AutoConfigOptions.RemoveHooks();
+            AutoConfigOptions.RemoveHooks();
 
             WorldChanges.FilePrefixModifier.RemoveHooks();
             WorldChanges.ArenaRoomFix.RemoveHooks();

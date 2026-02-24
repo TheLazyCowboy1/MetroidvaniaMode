@@ -1,5 +1,5 @@
 ﻿using Menu.Remix.MixedUI;
-using MetroidvaniaMode.Tools;
+using EasyModSetup;
 using System;
 using System.Collections.Generic;
 using System.Linq;

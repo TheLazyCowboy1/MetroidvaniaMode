@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace MetroidvaniaMode.Tools;
+namespace EasyModSetup;
 
 public abstract class AutoConfigOptions : OptionInterface
 {
