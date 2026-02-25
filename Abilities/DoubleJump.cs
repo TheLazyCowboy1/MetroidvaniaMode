@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MetroidvaniaMode.Tools;
+using System;
 
 namespace MetroidvaniaMode.Abilities;
 

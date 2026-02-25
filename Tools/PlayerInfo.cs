@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace MetroidvaniaMode;
+namespace MetroidvaniaMode.Tools;
 
 public class PlayerInfo
 {

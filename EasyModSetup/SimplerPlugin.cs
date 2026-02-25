@@ -35,14 +35,14 @@ public abstract class SimplerPlugin : BaseUnityPlugin
 
     public static SimplerPlugin Instance;
 
-    public static OptionInterface Options;
+    public static OptionInterface ConfigOptions;
 
     public SimplerPlugin(OptionInterface options) : base()
     {
         try
         {
             Instance = this;
-            Options = options;
+            ConfigOptions = options;
 
             var data = this.Info.Metadata;
             MOD_ID = data.GUID;
@@ -68,19 +68,25 @@ public abstract class SimplerPlugin : BaseUnityPlugin
     public void OnEnable()
     {
         EasyExtEnum.Register(); //to reflect hot-reload changes?
-        AutoStaticVarSync.RegisterSyncedVars();
+        AutoSync.RegisterSyncedVars();
 
         if (hooksApplied) return;
 
         On.RainWorld.OnModsInit += RainWorld_OnModsInit;
-        if (Options is AutoConfigOptions)
+        if (ConfigOptions is AutoConfigOptions)
             AutoConfigOptions.ApplyHooks();
 
-        //for using Rain Reloader (hot mod reloads), since it loads mods AFTER OnModsInit
-        if (Options != null && ModManager.ActiveMods.Any(m => m.id == MOD_ID))
+        try
         {
-            MachineConnector.SetRegisteredOI(MOD_ID, Options);
-            MachineConnector.ReloadConfig(Options);
+            MeadowCompat.EasyResourceState.ApplyHooks();
+            MeadowCompat.EasyEntityState.ApplyHooks();
+        } catch (Exception ex) { Log("Rain Meadow is apparently inactive: " + ex); }
+
+        //for using Rain Reloader (hot mod reloads), since it loads mods AFTER OnModsInit
+        if (ConfigOptions != null && ModManager.ActiveMods.Any(m => m.id == MOD_ID))
+        {
+            MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
+            MachineConnector.ReloadConfig(ConfigOptions);
             ModsApplied();
         }
 
@@ -96,6 +102,13 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         On.RainWorld.OnModsInit -= RainWorld_OnModsInit;
         AutoConfigOptions.RemoveHooks();
 
+        try
+        {
+            MeadowCompat.EasyResourceState.RemoveHooks();
+            MeadowCompat.EasyEntityState.RemoveHooks();
+        }
+        catch { }
+
         RemoveHooks();
 
         hooksApplied = false;
@@ -108,8 +121,8 @@ public abstract class SimplerPlugin : BaseUnityPlugin
 
         try
         {
-            if (Options != null)
-                MachineConnector.SetRegisteredOI(MOD_ID, Options); //register config menu
+            if (ConfigOptions != null)
+                MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions); //register config menu
 
             PluginPath = ModManager.ActiveMods.Find(m => m.id == MOD_ID).path;
         }
@@ -131,14 +144,17 @@ public abstract class SimplerPlugin : BaseUnityPlugin
     public static void Error(object o, [CallerFilePath] string file = "", [CallerMemberName] string name = "", [CallerLineNumber] int line = -1)
         => Instance.Logger.LogError(LogText(o, file, name, line));
 
-    private static DateTime PluginStartTime = DateTime.Now;
+    //private static DateTime PluginStartTime = DateTime.Now;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string LogText(object o, string file, string name, int line)
     {
         try
         {
-            return $"[{DateTime.Now.Subtract(PluginStartTime)},{Path.GetFileName(file)}.{name}:{line}]: {o}";
+            return $"[{DateTime.Now.ToString("HH:mm:ss.ffffff")},{Path.GetFileName(file)}.{name}:{line}]: {o}";
+            //var time = DateTime.Now;
+            //return $"[{DateTime.Now.Hour.ToString("00")}:{DateTime.Now.Minute.ToString("00")}:{DateTime.Now.Second.ToString("00")}.{DateTime.Now.Millisecond.ToString("000")},{Path.GetFileName(file)}.{name}:{line}]: {o}";
+            //return $"[{DateTime.Now.Subtract(PluginStartTime)},{Path.GetFileName(file)}.{name}:{line}]: {o}";
         }
         catch (Exception ex)
         {

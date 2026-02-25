@@ -1,7 +1,6 @@
 ﻿using Menu.Remix.MixedUI;
 using EasyModSetup;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -29,71 +28,71 @@ public class Options : AutoConfigOptions
 
     //ABILITIES
 
-    [Config(ABILITIES, "Jump Boost", "Multiplies the jump boost, which heavily affects jump height. Slugpup = 0.875"), LimitRange(0, 10f)]
+    [AutoSync, Config(ABILITIES, "Jump Boost", "Multiplies the jump boost, which heavily affects jump height. Slugpup = 0.875"), LimitRange(0, 10f)]
     public static float JumpBoost = 1;
-    [Config(ABILITIES, "Pole Jump Boost", "Further multiplies the jump boost when jumping off of a pole. Intended to make jumping from horizontal poles mostly useless.", rightSide = true), LimitRange(0, 10f)]
+    [AutoSync, Config(ABILITIES, "Pole Jump Boost", "Further multiplies the jump boost when jumping off of a pole. Intended to make jumping from horizontal poles mostly useless.", rightSide = true), LimitRange(0, 10f)]
     public static float PoleJumpBoost = 1;
 
-    [Config(ABILITIES, "Jump Boost Decrement", "How quickly Player.JumpBoost decrements while holding jump. Set below 1 to make jumps feel floatier."), LimitRange(0, 10f)]
+    [AutoSync, Config(ABILITIES, "Jump Boost Decrement", "How quickly Player.JumpBoost decrements while holding jump. Set below 1 to make jumps feel floatier."), LimitRange(0, 10f)]
     public static float JumpBoostDecrement = 1;
 
-    [Config(ABILITIES, "Can Wall Jump", "Allows the slugcat to wall jump")]
+    [AutoSync, Config(ABILITIES, "Can Wall Jump", "Allows the slugcat to wall jump")]
     public static bool CanWallJump = true;
-    [Config(ABILITIES, "Wall Dash Reset", "Lets the slugcat reset dashes and extra jumps by clinging to a wall", rightSide = true)]
+    [AutoSync, Config(ABILITIES, "Wall Dash Reset", "Lets the slugcat reset dashes and extra jumps by clinging to a wall", rightSide = true)]
     public static bool WallDashReset = false;
 
-    [Config(ABILITIES, "Can Grab Poles", "Allows the slugcat to grab poles, both horizontal and vertical")]
+    [AutoSync, Config(ABILITIES, "Can Grab Poles", "Allows the slugcat to grab poles, both horizontal and vertical")]
     public static bool CanGrabPoles = true;
-    [Config(ABILITIES, "Climb Vertical Poles", "Allows the slugcat to grab vertical poles", rightSide = true)]
+    [AutoSync, Config(ABILITIES, "Climb Vertical Poles", "Allows the slugcat to grab vertical poles", rightSide = true)]
     public static bool ClimbVerticalPoles = true;
 
-    [Config(ABILITIES, "Climb Vertical Pipes", "Allows the slugcat to crawl upward through vertical pipes/corridors")]
+    [AutoSync, Config(ABILITIES, "Climb Vertical Pipes", "Allows the slugcat to crawl upward through vertical pipes/corridors")]
     public static bool ClimbVerticalCorridors = true;
-    [Config(ABILITIES, "Can Use Shortcuts", "Allows the player to use shortcuts within a room. Does not apply to room exits.", rightSide = true)]
+    [AutoSync, Config(ABILITIES, "Can Use Shortcuts", "Allows the player to use shortcuts within a room. Does not apply to room exits.", rightSide = true)]
     public static bool CanUseShortcuts = true;
 
-    [Config(ABILITIES, "Can Swim", "Allows the player to float to move around in water")]
+    [AutoSync, Config(ABILITIES, "Can Swim", "Allows the player to float to move around in water")]
     public static bool CanSwim = true;
-    [Config(ABILITIES, "Can Dive", "Allows the player to swim downwards in water")]
+    [AutoSync, Config(ABILITIES, "Can Dive", "Allows the player to swim downwards in water")]
     public static bool CanDive = true;
 
-    [Config(ABILITIES, "Can Throw Objects", "Allows the player to throw objects, such as rocks and flashbangs. If false, all objects are tossed like blue fruits.")]
+    [AutoSync, Config(ABILITIES, "Can Throw Objects", "Allows the player to throw objects, such as rocks and flashbangs. If false, all objects are tossed like blue fruits.")]
     public static bool CanThrowObjects = true;
-    [Config(ABILITIES, "Can Throw Spears", "Allows the player to throw spears. If false, spears are tossed like Saint.", rightSide = true)]
+    [AutoSync, Config(ABILITIES, "Can Throw Spears", "Allows the player to throw spears. If false, spears are tossed like Saint.", rightSide = true)]
     public static bool CanThrowSpears = true;
 
-    [Config(ABILITIES, "Dash Count", "The number of dashes that the player can do before touching the ground again"), LimitRange(0, 100)]
+    [AutoSync, Config(ABILITIES, "Dash Count", "The number of dashes that the player can do before touching the ground again"), LimitRange(0, 100)]
     public static int DashCount = 0;
-    [Config(ABILITIES, "Water Dash", "Allows the player to dash in water. Also refreshes the player's dash underwater.", rightSide = true)]
+    [AutoSync, Config(ABILITIES, "Water Dash", "Allows the player to dash in water. Also refreshes the player's dash underwater.", rightSide = true)]
     public static bool WaterDash = false;
 
-    [Config(ABILITIES, "Dash Speed", "The player's set speed upon dashing")]
+    [AutoSync, Config(ABILITIES, "Dash Speed", "The player's set speed upon dashing")]
     public static float DashSpeed = 12f;
-    [Config(ABILITIES, "Dash Strength", "How much of the player's speed is converted to the dash speed.\n1 = dash completely overrides player speed. 0 = dash does nothing.")]
+    [AutoSync, Config(ABILITIES, "Dash Strength", "How much of the player's speed is converted to the dash speed.\n1 = dash completely overrides player speed. 0 = dash does nothing.")]
     public static float DashStrength = 0.95f;
 
-    [Config(ABILITIES, "Extra Jumps", "Allows the player to double jump"), LimitRange(0, 100)]
+    [AutoSync, Config(ABILITIES, "Extra Jumps", "Allows the player to double jump"), LimitRange(0, 100)]
     public static int ExtraJumps = 0;
 
-    [Config(ABILITIES, "Can Glide", "Allows the player to glide in the air to slow descents")]
+    [AutoSync, Config(ABILITIES, "Can Glide", "Allows the player to glide in the air to slow descents")]
     public static bool CanGlide = false;
 
-    [Config(ABILITIES, "Has Health", "Enables the health bar system")]
+    [AutoSync, Config(ABILITIES, "Has Health", "Enables the health bar system")]
     public static bool HasHealth = false;
-    [Config(ABILITIES, "Max Health", "The maximum amount of health, and the default health", rightSide = true), LimitRange(0, 30)]
+    [AutoSync, Config(ABILITIES, "Max Health", "The maximum amount of health, and the default health", rightSide = true), LimitRange(0, 30)]
     public static int MaxHealth = 3;
 
-    [Config(ABILITIES, "Has Shield", "Enables the shield ability")]
+    [AutoSync, Config(ABILITIES, "Has Shield", "Enables the shield ability")]
     public static bool HasShield = false;
 
-    [Config(ABILITIES, "Has Inventory", "Enables the inventory wheel")]
+    [AutoSync, Config(ABILITIES, "Has Inventory", "Enables the inventory wheel")]
     public static bool HasInventory = false;
-    [Config(ABILITIES, "Unlock All Inventory Items", "Makes all inventory items available", rightSide = true)]
+    [AutoSync, Config(ABILITIES, "Unlock All Inventory Items", "Makes all inventory items available", rightSide = true)]
     public static bool UnlockAllInventoryItems = false;
 
-    [Config(ABILITIES, "Acid Immunity", "Makes the player immune to acid")]
+    [AutoSync, Config(ABILITIES, "Acid Immunity", "Makes the player immune to acid")]
     public static bool AcidImmunity = false;
-    [Config(ABILITIES, "Extra Run Speed", "Increases or decreases the player's run speed. For reference, Survivor's speed is normally 1.", rightSide = true), LimitRange(-1, 5)]
+    [AutoSync, Config(ABILITIES, "Extra Run Speed", "Increases or decreases the player's run speed. For reference, Survivor's speed is normally 1.", rightSide = true), LimitRange(-1, 5)]
     public static float ExtraRunSpeed = 0;
 
 
@@ -146,55 +145,55 @@ public class Options : AutoConfigOptions
 
     //ADVANCED
 
-    [Config(ADVANCED, "/40 Invincibility Frames", "How long the player is invincible after taking damage, expressed in ticks (40 ticks == 1 second).\nDoes not include time spent stunned."), LimitRange(0, 120)]
+    [AutoSync, Config(ADVANCED, "/40 Invincibility Frames", "How long the player is invincible after taking damage, expressed in ticks (40 ticks == 1 second).\nDoes not include time spent stunned."), LimitRange(0, 120)]
     public static int InvincibilityFrames = 40;
-    [Config(ADVANCED, "/40 Max I-Frames", "The maximum time the player can be invincible after taking damage, expressed in ticks (40 ticks == 1 second).\nDOES include time spent stunned.", rightSide = true), LimitRange(0, 240)]
+    [AutoSync, Config(ADVANCED, "/40 Max I-Frames", "The maximum time the player can be invincible after taking damage, expressed in ticks (40 ticks == 1 second).\nDOES include time spent stunned.", rightSide = true), LimitRange(0, 240)]
     public static int MaxInvincibilityFrames = 80;
 
-    [Config(ADVANCED, "/40 Dash Cooldown", "The minimum time between dashes, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 200)]
+    [AutoSync, Config(ADVANCED, "/40 Dash Cooldown", "The minimum time between dashes, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 200)]
     public static int DashCooldown = 0;
-    [Config(ADVANCED, "/40 Water Dash Cooldown", "The minimum time between dashes, expressed in ticks (40 ticks == 1 second).\nUsed instead of Dash Cooldown when in water."), LimitRange(0, 200)]
+    [AutoSync, Config(ADVANCED, "/40 Water Dash Cooldown", "The minimum time between dashes, expressed in ticks (40 ticks == 1 second).\nUsed instead of Dash Cooldown when in water."), LimitRange(0, 200)]
     public static int WaterDashCooldown = 20;
 
-    [Config(ADVANCED, "Dash Base Y Angle", "Increases the y component of the dash direction in order to somewhat counteract gravity."), LimitRange(-1, 1)]
+    [AutoSync, Config(ADVANCED, "Dash Base Y Angle", "Increases the y component of the dash direction in order to somewhat counteract gravity."), LimitRange(-1, 1)]
     public static float DashBaseDirY = 0.2f;
-    [Config(ADVANCED, "Dash Max Y", "The maximum dash y component. Setting this below 1 makes dash less effective for upward movement, but keeps it useful for horizontal/diagonal movement.", rightSide = true), LimitRange(0, 2)]
+    [AutoSync, Config(ADVANCED, "Dash Max Y", "The maximum dash y component. Setting this below 1 makes dash less effective for upward movement, but keeps it useful for horizontal/diagonal movement.", rightSide = true), LimitRange(0, 2)]
     public static float DashMaxDirY = 0.75f;
 
-    [Config(ADVANCED, "Glide Anti-Gravity", "How much to subtract from gravity"), LimitRange(0, 2)]
+    [AutoSync, Config(ADVANCED, "Glide Anti-Gravity", "How much to subtract from gravity"), LimitRange(0, 2)]
     public static float GlideAntiGrav = 0.25f;
-    [Config(ADVANCED, "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 1)]
+    [AutoSync, Config(ADVANCED, "Glide Thrust", "Gives the player thrust forward while gliding, in case you wanted the slugcat literally become an airplane", rightSide = true, precision = 3), LimitRange(0, 1)]
     public static float GlideThrust = 0;
 
-    [Config(ADVANCED, "Glide Drag Coef", "How much air resistance the slugcat has in the perpendicular direction. Setting this low makes gliding less effective; setting it high makes the motion rigid.", precision = 3), LimitRange(0, 1)]
+    [AutoSync, Config(ADVANCED, "Glide Drag Coef", "How much air resistance the slugcat has in the perpendicular direction. Setting this low makes gliding less effective; setting it high makes the motion rigid.", precision = 3), LimitRange(0, 1)]
     public static float GlideDragCoef = 0.2f;
-    [Config(ADVANCED, "Glide Omni Drag Coef", "How much air resistance the slugcat has in ALL directions. Increasing this will decrease the slugcat's max speed.", precision = 3, rightSide = true), LimitRange(0, 1)]
+    [AutoSync, Config(ADVANCED, "Glide Omni Drag Coef", "How much air resistance the slugcat has in ALL directions. Increasing this will decrease the slugcat's max speed.", precision = 3, rightSide = true), LimitRange(0, 1)]
     public static float GlideOmniDragCoef = 0.02f;
 
-    [Config(ADVANCED, "Glide Lift Coef", "How much lift the slugcat generated when flying. This allows the slugcat to pull up when going fast, and it makes the controls feel more responsive.\nHowever, setting this too high will allow the slugcat to literally fly upwards, which is cheating. As funny as it is, we don't want to make a literal slugcat airplane.", precision = 3), LimitRange(0, 1)]
+    [AutoSync, Config(ADVANCED, "Glide Lift Coef", "How much lift the slugcat generated when flying. This allows the slugcat to pull up when going fast, and it makes the controls feel more responsive.\nHowever, setting this too high will allow the slugcat to literally fly upwards, which is cheating. As funny as it is, we don't want to make a literal slugcat airplane.", precision = 3), LimitRange(0, 1)]
     public static float GlideLiftCoef = 0.25f;
-    [Config(ADVANCED, "Glide Max Lift", "Caps the amount of lift, preventing the slugcat from exploding when going too fast.", rightSide = true), LimitRange(0, 50)]
+    [AutoSync, Config(ADVANCED, "Glide Max Lift", "Caps the amount of lift, preventing the slugcat from exploding when going too fast.", rightSide = true), LimitRange(0, 50)]
     public static float GlideMaxLift = 10f;
 
-    [Config(ADVANCED, "Glide Base Y Angle", "(EasierGlideMode only) Adjusts the glide direction for drag slightly downwards, because this is what players probably expect."), LimitRange(-1, 1)]
+    [AutoSync, Config(ADVANCED, "Glide Base Y Angle", "(EasierGlideMode only) Adjusts the glide direction for drag slightly downwards, because this is what players probably expect."), LimitRange(-1, 1)]
     public static float GlideBaseDirY = -0.1f;
-    [Config(ADVANCED, "Glide Keyboard Y Mult", "Multiplies the y for the keyboard, so that instead of trying to move perfectly diagonally (1,1), the slugcat moves more smoothly (e.g: (1,0.5)).\nMakes flying much easier on a keyboard.", rightSide = true), LimitRange(0, 1)]
+    [AutoSync, Config(ADVANCED, "Glide Keyboard Y Mult", "Multiplies the y for the keyboard, so that instead of trying to move perfectly diagonally (1,1), the slugcat moves more smoothly (e.g: (1,0.5)).\nMakes flying much easier on a keyboard.", rightSide = true), LimitRange(0, 1)]
     public static float GlideKeyboardYFac = 0.5f;
 
-    [Config(ADVANCED, "Glide Angle Enforcement", "How strongly the slugcat is forced to be facing the right way when gliding")]
+    [AutoSync, Config(ADVANCED, "Glide Angle Enforcement", "How strongly the slugcat is forced to be facing the right way when gliding")]
     public static float GlideAngleEnforcement = 0.35f;
 
-    [Config(ADVANCED, "/40 Shield Full Time", "How long the shield can be at full strength, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 4000)]
+    [AutoSync, Config(ADVANCED, "/40 Shield Full Time", "How long the shield can be at full strength, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 4000)]
     public static int ShieldFullTime = 80;
-    [Config(ADVANCED, "/40 Shield Max Time", "How long the shield can be up at all, expressed in ticks (40 ticks == 1 second).\nPlease ensure this is greater than ShieldFullTime.", rightSide = true), LimitRange(0, 4000)]
+    [AutoSync, Config(ADVANCED, "/40 Shield Max Time", "How long the shield can be up at all, expressed in ticks (40 ticks == 1 second).\nPlease ensure this is greater than ShieldFullTime.", rightSide = true), LimitRange(0, 4000)]
     public static int ShieldMaxTime = 120;
 
-    [Config(ADVANCED, "Shield Recovery Speed", "How quickly the shield cooldown decreases so it can be used again.\n2.0 == half as long as ShieldMaxTime"), LimitRange(0, 100)]
+    [AutoSync, Config(ADVANCED, "Shield Recovery Speed", "How quickly the shield cooldown decreases so it can be used again.\n2.0 == half as long as ShieldMaxTime"), LimitRange(0, 100)]
     public static float ShieldRecoverySpeed = 3f;
-    [Config(ADVANCED, "Shield Damage Fac", "How much damage the shield can block", rightSide = true), LimitRange(0, 100)]
+    [AutoSync, Config(ADVANCED, "Shield Damage Fac", "How much damage the shield can block", rightSide = true), LimitRange(0, 100)]
     public static float ShieldDamageFac = 3f;
 
-    [Config(ADVANCED, "/40 Shield Break Stun", "The maximum time that the player can be stunned when the shield breaks, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 800)]
+    [AutoSync, Config(ADVANCED, "/40 Shield Break Stun", "The maximum time that the player can be stunned when the shield breaks, expressed in ticks (40 ticks == 1 second)"), LimitRange(0, 800)]
     public static int ShieldStunTime = 80;
 
     [Config(ADVANCED, "Inventory Slows Time", "How much having the inventory wheel open slows down time. 0 == not at all, 1 == same as mushrooms")]

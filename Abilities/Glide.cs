@@ -1,4 +1,5 @@
-﻿using MonoMod.RuntimeDetour;
+﻿using MetroidvaniaMode.Tools;
+using MonoMod.RuntimeDetour;
 using RWCustom;
 using System;
 using System.Collections.Generic;

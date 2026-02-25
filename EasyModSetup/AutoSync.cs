@@ -4,12 +4,12 @@ using System.Reflection;
 
 namespace EasyModSetup;
 
-public class AutoStaticVarSync
+//public class AutoStaticVarSync
+//{
+public class AutoSync : Attribute
 {
-    public class AutoSynced : Attribute
-    {
-        //...there's nothing that really needs to go here
-    }
+    //...there's nothing that really needs to go here
+    //}
 
     public static FieldInfo[] SyncedFields;
     public static PropertyInfo[] SyncedProperties;
@@ -22,7 +22,7 @@ public class AutoStaticVarSync
         var types = Assembly.GetExecutingAssembly().GetTypes();
         var tempFields = types.SelectMany(
             t => t.GetFields(BindingFlags.Static)
-                .Where(f => f.GetCustomAttribute<AutoSynced>() != null)
+                .Where(f => f.GetCustomAttribute<AutoSync>() != null)
             );
         //isolate Configurables
         SyncedConfigs = tempFields.Where(f => f.FieldType.IsSubclassOf(typeof(ConfigurableBase))).ToArray();
@@ -39,7 +39,7 @@ public class AutoStaticVarSync
             t => t.GetProperties(BindingFlags.Static)
                 .Where(p =>
                 {
-                    if (p.GetCustomAttribute<AutoSynced>() == null) return false; //
+                    if (p.GetCustomAttribute<AutoSync>() == null) return false; //
                     if (IsSupportedType(p.PropertyType)) return true; //it's supported; it's fine
                     SimplerPlugin.Error($"Unsupported auto-sync type: {p.PropertyType.Name} at {p.DeclaringType.FullName}");
                     return false;
@@ -47,13 +47,13 @@ public class AutoStaticVarSync
                 )
             ).ToArray();
 
-        if (SyncedConfigs.Length > 0 || SyncedFields.Length > 0 || SyncedProperties.Length > 0) //only add it if it's actually storing something
+        /*if (SyncedConfigs.Length > 0 || SyncedFields.Length > 0 || SyncedProperties.Length > 0) //only add it if it's actually storing something
         {
             try
             {
                 StaticVarSyncData.HookToLobby();
             } catch { SimplerPlugin.Log("Rain Meadow is not enabled", 0); }
-        }
+        }*/
     }
 
 }

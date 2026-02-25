@@ -2,8 +2,6 @@
 using System.Security;
 using System.Security.Permissions;
 using BepInEx;
-using System.Runtime.CompilerServices;
-using System.IO;
 using System.Linq;
 using EasyModSetup;
 
@@ -23,6 +21,8 @@ public partial class Plugin : SimplerPlugin
 {
 
     #region Setup
+    public override int LogLevel => Options.LogLevel;
+
     public Plugin() : base(new Options())
     {
     }
