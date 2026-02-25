@@ -39,17 +39,17 @@ public abstract class SimplerPlugin : BaseUnityPlugin
 
     public SimplerPlugin(OptionInterface options) : base()
     {
-        try
-        {
-            Instance = this;
-            ConfigOptions = options;
+        //try
+        //{
+        Instance = this;
+        ConfigOptions = options;
 
-            var data = this.Info.Metadata;
-            MOD_ID = data.GUID;
-            MOD_NAME = data.Name;
-            MOD_VERSION = data.Version.ToString();
-        }
-        catch { Logger?.LogError("CANNOT FIND MOD ID. Did you forget to include the BepInPlugin attribute? Near the top of your plugin file, add an attribute like \"[BepInPlugin(\"MyName.MyMod\", \"My Mod\", \"0.0.1\")]\""); }
+        var data = this.Info.Metadata;
+        MOD_ID = data.GUID;
+        MOD_NAME = data.Name;
+        MOD_VERSION = data.Version.ToString();
+        //}
+        //catch { Logger?.LogError("CANNOT FIND MOD ID. Did you forget to include the BepInPlugin attribute? Near the top of your plugin file, add an attribute like \"[BepInPlugin(\"MyName.MyMod\", \"My Mod\", \"0.0.1\")]\""); }
     }
 
     #endregion
