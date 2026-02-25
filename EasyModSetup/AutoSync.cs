@@ -21,7 +21,7 @@ public class AutoSync : Attribute
     {
         try
         {
-            var types = Assembly.GetExecutingAssembly().GetTypes();
+            var types = Assembly.GetExecutingAssembly().GetTypesSafely();
             var tempFields = types.SelectMany(
                 t => t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                     .Where(f => f.GetCustomAttribute<AutoSync>() != null)

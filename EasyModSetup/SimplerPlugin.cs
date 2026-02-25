@@ -59,8 +59,8 @@ public abstract class SimplerPlugin : BaseUnityPlugin
 
     public void Awake()
     {
-        //EasyExtEnum.Register();
-        //AutoStaticVarSync.RegisterSyncedVars();
+        EasyExtEnum.Register();
+        AutoSync.RegisterSyncedVars();
 
         Initialize();
         Log("Plugin awoken");
@@ -69,8 +69,8 @@ public abstract class SimplerPlugin : BaseUnityPlugin
     private bool hooksApplied = false; //a hopefully pointless fail-safe
     public void OnEnable()
     {
-        EasyExtEnum.Register(); //to reflect hot-reload changes?
-        AutoSync.RegisterSyncedVars();
+        //EasyExtEnum.Register(); //to reflect hot-reload changes?
+        //AutoSync.RegisterSyncedVars();
 
         if (hooksApplied) return;
 

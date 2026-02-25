@@ -15,7 +15,7 @@ public abstract class EasyEntityState : OnlineEntity.EntityData.EntityDataState
     {
         if (HooksApplied) return;
 
-        RegisteredTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(EasyEntityState))).ToArray();
+        RegisteredTypes = Assembly.GetExecutingAssembly().GetTypesSafely().Where(t => t.IsSubclassOf(typeof(EasyEntityState))).ToArray();
         if (RegisteredTypes.Length > 0) //only add if there's a use for it
             EntityHook = new(typeof(OnlineGameMode).GetMethod(nameof(OnlineGameMode.NewEntity)), OnlineEntity_OnAvailable);
 

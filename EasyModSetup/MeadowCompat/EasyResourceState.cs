@@ -13,7 +13,7 @@ public abstract class EasyResourceState : OnlineResource.ResourceData.ResourceDa
     {
         if (HooksApplied) return;
 
-        RegisteredTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(EasyResourceState))).ToArray();
+        RegisteredTypes = Assembly.GetExecutingAssembly().GetTypesSafely().Where(t => t.IsSubclassOf(typeof(EasyResourceState))).ToArray();
         if (RegisteredTypes.Length > 0) //only add if there's a use for it
             OnlineResource.OnAvailable += OnlineResource_OnAvailable;
 

@@ -15,7 +15,7 @@ public class EasyExtEnum : Attribute
         try
         {
             string debug = "Registered ExtEnums: ";
-            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+            foreach (Type type in Assembly.GetExecutingAssembly().GetTypesSafely())
             {
                 FieldInfo[] infos = type.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
                 foreach (FieldInfo info in infos)
@@ -46,7 +46,7 @@ public class EasyExtEnum : Attribute
     }
     public static void Unregister()
     {
-        foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+        foreach (Type type in Assembly.GetExecutingAssembly().GetTypesSafely())
         {
             FieldInfo[] infos = type.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             foreach (FieldInfo info in infos)
