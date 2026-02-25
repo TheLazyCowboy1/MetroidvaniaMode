@@ -28,7 +28,7 @@ public static class AutoConfigLobbyHooks
 
     private static void Lobby_OnNewOwner(OnlineResource resource, OnlinePlayer player)
     {
-        if (player.isMe)
+        if (player.isMe && resource is Lobby)
             (SimplerPlugin.ConfigOptions as AutoConfigOptions).SetValues(); //reload configs
     }
 }
