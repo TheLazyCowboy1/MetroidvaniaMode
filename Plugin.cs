@@ -17,7 +17,7 @@ namespace MetroidvaniaMode;
 //[BepInDependency("twofour2.rainReloader", BepInDependency.DependencyFlags.SoftDependency)]
 
 [BepInPlugin("LazyCowboy.MetroidvaniaMode", "Metroidvania Mode", "0.0.10")]
-public partial class Plugin : SimplerPlugin
+public class Plugin : SimplerPlugin
 {
 
     #region Setup

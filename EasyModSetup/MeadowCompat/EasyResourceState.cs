@@ -53,6 +53,7 @@ public abstract class EasyResourceState : OnlineResource.ResourceData.ResourceDa
 
     private class EasyResourceData<T> : OnlineResource.ResourceData where T : EasyResourceState, new()
     {
+        public EasyResourceData() : base() { }
         public EasyResourceData(OnlineResource resource) : base() { } //required functionality
 
         public override ResourceDataState MakeState(OnlineResource resource)

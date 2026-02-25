@@ -48,6 +48,7 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         MOD_ID = data.GUID;
         MOD_NAME = data.Name;
         MOD_VERSION = data.Version.ToString();
+        Log("Plugin created");
         //}
         //catch { Logger?.LogError("CANNOT FIND MOD ID. Did you forget to include the BepInPlugin attribute? Near the top of your plugin file, add an attribute like \"[BepInPlugin(\"MyName.MyMod\", \"My Mod\", \"0.0.1\")]\""); }
     }
@@ -62,6 +63,7 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         //AutoStaticVarSync.RegisterSyncedVars();
 
         Initialize();
+        Log("Plugin awoken");
     }
 
     private bool hooksApplied = false; //a hopefully pointless fail-safe
@@ -91,6 +93,7 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         }
 
         ApplyHooks();
+        Log("Applied hooks");
 
         hooksApplied = true;
     }
@@ -110,6 +113,7 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         catch { }
 
         RemoveHooks();
+        Log("Removed hooks");
 
         hooksApplied = false;
     }

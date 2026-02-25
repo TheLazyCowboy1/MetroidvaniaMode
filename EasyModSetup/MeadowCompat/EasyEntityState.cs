@@ -29,8 +29,9 @@ public abstract class EasyEntityState : OnlineEntity.EntityData.EntityDataState
 
         HooksApplied = false;
     }
-    private static void OnlineEntity_OnAvailable(OnlineGameMode self, OnlineEntity e, OnlineResource r)
+    private static void OnlineEntity_OnAvailable(Action<OnlineGameMode, OnlineEntity, OnlineResource> orig, OnlineGameMode self, OnlineEntity e, OnlineResource r)
     {
+        orig(self, e, r);
         foreach (Type t in RegisteredTypes)
         {
             try
@@ -54,6 +55,7 @@ public abstract class EasyEntityState : OnlineEntity.EntityData.EntityDataState
 
     private class EasyEntityData<T> : OnlineEntity.EntityData where T : EasyEntityState, new()
     {
+        public EasyEntityData() : base() { }
         public EasyEntityData(OnlineEntity entity) : base() { } //required functionality
 
         public override EntityDataState MakeState(OnlineEntity entity, OnlineResource inResource)
