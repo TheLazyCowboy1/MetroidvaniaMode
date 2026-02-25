@@ -86,7 +86,7 @@ public class Plugin : SimplerPlugin
         SaveData.Hooks.ApplyHooks();
         Collectibles.Hooks.ApplyHooks();
 
-        Log("Applied hooks", 0);
+        //Log("Applied hooks", 0);
     }
 
     public override void RemoveHooks()
@@ -118,7 +118,7 @@ public class Plugin : SimplerPlugin
         SaveData.Hooks.RemoveHooks();
         Collectibles.Hooks.RemoveHooks();
 
-        Log("Removed hooks", 0);
+        //Log("Removed hooks", 0);
     }
 
     //Ensures everything is up to date for when the game starts

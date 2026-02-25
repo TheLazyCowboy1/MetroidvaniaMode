@@ -45,7 +45,7 @@ public abstract class AutoConfigOptions : OptionInterface
     {
         orig(self);
 
-        RemoveUnusuedOIs();
+        //RemoveUnusuedOIs();
         foreach(AutoConfigOptions op in ActiveInstances)
         {
             if (op.config == self)
@@ -60,7 +60,7 @@ public abstract class AutoConfigOptions : OptionInterface
     {
         orig(self);
 
-        RemoveUnusuedOIs();
+        //RemoveUnusuedOIs();
         foreach (AutoConfigOptions op in ActiveInstances)
         {
             if (op.config == self)
@@ -71,9 +71,9 @@ public abstract class AutoConfigOptions : OptionInterface
         }
     }
 
+    //this probably causes more problems than it solves
     private static void RemoveUnusuedOIs()
     {
-        return;
         for (int i = ActiveInstances.Count - 1; i >= 0; i--)
         {
             if (ActiveInstances[i].mod == null || MachineConnector.GetRegisteredOI(ActiveInstances[i].mod.id) != ActiveInstances[i])

@@ -74,9 +74,12 @@ public abstract class SimplerPlugin : BaseUnityPlugin
 
         if (hooksApplied) return;
 
-        On.RainWorld.OnModsInit += RainWorld_OnModsInit;
-        if (ConfigOptions is AutoConfigOptions)
-            AutoConfigOptions.ApplyHooks();
+        try
+        {
+            On.RainWorld.OnModsInit += RainWorld_OnModsInit;
+            if (ConfigOptions is AutoConfigOptions)
+                AutoConfigOptions.ApplyHooks();
+        } catch (Exception ex) { Error(ex); }
 
         try
         {
@@ -85,15 +88,22 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         } catch (Exception ex) { Log("Rain Meadow is apparently inactive: " + ex); MeadowExt.MeadowEnabled = false; }
 
         //for using Rain Reloader (hot mod reloads), since it loads mods AFTER OnModsInit
-        if (ConfigOptions != null && ModManager.ActiveMods.Any(m => m.id == MOD_ID))
+        try
         {
-            MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
-            MachineConnector.ReloadConfig(ConfigOptions);
-            ModsApplied();
+            if (ConfigOptions != null && ModManager.ActiveMods.Any(m => m.id == MOD_ID))
+            {
+                MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
+                MachineConnector.ReloadConfig(ConfigOptions);
+                ModsApplied();
+            }
         }
+        catch (Exception ex) { Error(ex); }
 
-        ApplyHooks();
-        Log("Applied hooks");
+        try
+        {
+            ApplyHooks();
+            Log("Applied hooks");
+        } catch (Exception ex) { Error(ex); }
 
         hooksApplied = true;
     }
@@ -156,9 +166,6 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         try
         {
             return $"[{DateTime.Now.ToString("HH:mm:ss.ffffff")},{Path.GetFileName(file)}.{name}:{line}]: {o}";
-            //var time = DateTime.Now;
-            //return $"[{DateTime.Now.Hour.ToString("00")}:{DateTime.Now.Minute.ToString("00")}:{DateTime.Now.Second.ToString("00")}.{DateTime.Now.Millisecond.ToString("000")},{Path.GetFileName(file)}.{name}:{line}]: {o}";
-            //return $"[{DateTime.Now.Subtract(PluginStartTime)},{Path.GetFileName(file)}.{name}:{line}]: {o}";
         }
         catch (Exception ex)
         {

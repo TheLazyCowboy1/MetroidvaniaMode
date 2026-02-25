@@ -99,7 +99,7 @@ public class Options : AutoConfigOptions
     //GENERAL
 
     [Config(GENERAL, "Log Level", "When this number is higher, less important logs are displayed."), LimitRange(0, 3)]
-    public static int LogLevel = 0;
+    public static int LogLevel = 1;
 
     [Config(GENERAL, "Test String", "This is a test", width = 150f)]
     public static string TestString = "Hi!";
