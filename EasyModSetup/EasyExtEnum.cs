@@ -33,7 +33,7 @@ public class EasyExtEnum : Attribute
                         {
                             //reading the value will hopefully ensure they get initialized in a consistent order
                             if (info.GetValue(null) is ExtEnumBase val)
-                                debug += "read " + type.Name + ":" + val.value + ", ";
+                                debug += $"read {type.Name}.{info.Name}:{val.value}, ";
                         }
                     }
                     catch (Exception ex) { SimplerPlugin.Error($"Error with field {type.FullName}.{info.Name}: {ex}"); }

@@ -1,4 +1,5 @@
-﻿using MetroidvaniaMode.Tools;
+﻿using EasyModSetup;
+using MetroidvaniaMode.Tools;
 using RWCustom;
 using System;
 using UnityEngine;
@@ -43,10 +44,13 @@ public static class Shield
 
             float prevStrength = info.ShieldStrength;
 
-            info.ShieldStrength = 0;
-            if (CurrentAbilities.HasShield && !self.Stunned && !self.dead)
+            if (self.IsLocal()) //adding true Rain Meadow support would be too much work, but just for funsies...
             {
-                info.ShieldStrength = Tools.Keybinds.GetAxis(Tools.Keybinds.SHIELD_ID, self.playerState.playerNumber);
+                info.ShieldStrength = 0;
+                if (CurrentAbilities.HasShield && !self.Stunned && !self.dead)
+                {
+                    info.ShieldStrength = Keybinds.GetAxis(Keybinds.SHIELD_ID, self.playerState.playerNumber);
+                }
             }
 
             if (info.Shield != null)

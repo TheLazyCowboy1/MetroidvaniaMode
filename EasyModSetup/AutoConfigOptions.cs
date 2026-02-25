@@ -1,3 +1,4 @@
+using EasyModSetup.MeadowCompat;
 using Menu.Remix.MixedUI;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,10 @@ public abstract class AutoConfigOptions : OptionInterface
         {
             On.OptionInterface.ConfigHolder.Reload += ConfigHolder_Reload;
             On.OptionInterface.ConfigHolder.Save += ConfigHolder_Save;
+            try
+            {
+                AutoConfigLobbyHooks.ApplyHooks();
+            } catch { }
         }
         HooksApplied = true;
     }
@@ -28,6 +33,10 @@ public abstract class AutoConfigOptions : OptionInterface
         {
             On.OptionInterface.ConfigHolder.Reload -= ConfigHolder_Reload;
             On.OptionInterface.ConfigHolder.Save -= ConfigHolder_Save;
+            try
+            {
+                AutoConfigLobbyHooks.RemoveHooks();
+            } catch { }
         }
         HooksApplied = false;
     }

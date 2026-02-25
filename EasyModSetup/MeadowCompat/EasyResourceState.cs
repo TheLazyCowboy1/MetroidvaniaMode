@@ -62,6 +62,8 @@ public abstract class EasyResourceState : OnlineResource.ResourceData.ResourceDa
             t.WriteTo(this, resource);
             return t;
         }
+
+        public override string ToString() => $"EasyResourceData<{typeof(T).FullName}>";
     }
 
 }

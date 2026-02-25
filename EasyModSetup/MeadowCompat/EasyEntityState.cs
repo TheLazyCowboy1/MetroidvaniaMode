@@ -64,6 +64,8 @@ public abstract class EasyEntityState : OnlineEntity.EntityData.EntityDataState
             t.WriteTo(this, entity);
             return t;
         }
+
+        public override string ToString() => $"EasyEntityData<{typeof(T).FullName}>";
     }
 
 }
