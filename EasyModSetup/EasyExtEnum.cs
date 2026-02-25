@@ -15,9 +15,10 @@ public class EasyExtEnum : Attribute
         try
         {
             string debug = "Registered ExtEnums: ";
+            string fieldErrors = "Field Errors: ";
             foreach (Type type in Assembly.GetExecutingAssembly().GetTypesSafely())
             {
-                FieldInfo[] infos = type.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                FieldInfo[] infos = type.GetStaticFieldsSafely();
                 foreach (FieldInfo info in infos)
                 {
                     try
@@ -36,19 +37,21 @@ public class EasyExtEnum : Attribute
                                 debug += $"read {type.Name}.{info.Name}:{val.value}, ";
                         }
                     }
-                    catch (Exception ex) { SimplerPlugin.Error($"Error with field {type.FullName}.{info.Name}: {ex}"); }
+                    catch { fieldErrors += $"{type.FullName}.{info.Name}"; }
                 }
             }
 
             SimplerPlugin.Log(debug, 0);
+            SimplerPlugin.Log(fieldErrors, 0);
         }
         catch (Exception ex) { SimplerPlugin.Error(ex); }
     }
     public static void Unregister()
     {
+        string fieldErrors = "Field Errors: ";
         foreach (Type type in Assembly.GetExecutingAssembly().GetTypesSafely())
         {
-            FieldInfo[] infos = type.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            FieldInfo[] infos = type.GetStaticFieldsSafely();
             foreach (FieldInfo info in infos)
             {
                 try
@@ -60,8 +63,9 @@ public class EasyExtEnum : Attribute
                         info.FieldType.GetMethod("Unregister").Invoke(info.GetValue(null), new object[] { });
                     }
                 }
-                catch (Exception ex) { SimplerPlugin.Error($"Error with field {type.FullName}.{info.Name}: {ex}"); }
+                catch { fieldErrors += $"{type.FullName}.{info.Name}"; }
             }
+            SimplerPlugin.Log(fieldErrors, 0);
         }
     }
 

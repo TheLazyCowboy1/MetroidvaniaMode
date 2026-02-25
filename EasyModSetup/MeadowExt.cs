@@ -40,4 +40,14 @@ public static class MeadowExt
             return e.Types.Where(x => x != null).ToArray();
         }
     }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static FieldInfo[] GetStaticFieldsSafely(this Type type) //the key is BindingFlags.DeclaredOnly
+        => type.GetFields(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PropertyInfo[] GetStaticPropertiesSafely(this Type type)
+        => type.GetProperties(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic);
+
 }

@@ -6,14 +6,15 @@ namespace EasyModSetup;
 
 //public class AutoStaticVarSync
 //{
+[AttributeUsage(AttributeTargets.Field)]
 public class AutoSync : Attribute
 {
     //...there's nothing that really needs to go here
     //}
 
     public static FieldInfo[] SyncedFields;
-    public static PropertyInfo[] SyncedProperties;
     public static FieldInfo[] SyncedConfigs;
+    //public static PropertyInfo[] SyncedProperties;
 
     private static bool IsSupportedType(Type t) => t == typeof(bool) || t == typeof(int) || t == typeof(float) || t == typeof(string);
 
@@ -23,7 +24,7 @@ public class AutoSync : Attribute
         {
             var types = Assembly.GetExecutingAssembly().GetTypesSafely();
             var tempFields = types.SelectMany(
-                t => t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                t => t.GetStaticFieldsSafely()
                     .Where(f => f.GetCustomAttribute<AutoSync>() != null)
                 );
             //isolate Configurables
@@ -37,8 +38,8 @@ public class AutoSync : Attribute
                 }
                 ).ToArray(); //everything but configs
 
-            SyncedProperties = types.SelectMany(
-                t => t.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+            /*SyncedProperties = types.SelectMany(
+                t => t.GetStaticPropertiesSafely()
                     .Where(p =>
                     {
                         if (p.GetCustomAttribute<AutoSync>() == null) return false; //
@@ -47,11 +48,11 @@ public class AutoSync : Attribute
                         return false;
                     }
                     )
-                ).ToArray();
+                ).ToArray();*/
         }
         catch (Exception ex) { SimplerPlugin.Error(ex); }
 
-        SimplerPlugin.Log($"AutoSync found the following: {SyncedFields.Length} fields, {SyncedConfigs.Length} configs, {SyncedProperties.Length} properties.");
+        SimplerPlugin.Log($"AutoSync found the following: {SyncedFields.Length} fields, {SyncedConfigs.Length} configs");//, {SyncedProperties.Length} properties.");
 
         /*if (SyncedConfigs.Length > 0 || SyncedFields.Length > 0 || SyncedProperties.Length > 0) //only add it if it's actually storing something
         {
