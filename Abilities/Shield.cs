@@ -44,7 +44,7 @@ public static class Shield
 
             float prevStrength = info.ShieldStrength;
 
-            if (self.IsLocal()) //adding true Rain Meadow support would be too much work, but just for funsies...
+            if (!self.IsOnline()) //adding true Rain Meadow support would be too much work, but just for funsies...
             {
                 info.ShieldStrength = 0;
                 if (CurrentAbilities.HasShield && !self.Stunned && !self.dead)

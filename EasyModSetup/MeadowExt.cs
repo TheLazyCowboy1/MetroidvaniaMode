@@ -8,20 +8,20 @@ public static class MeadowExt
     public static bool MeadowEnabled = true;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsLocal(this AbstractPhysicalObject apo)
+    public static bool IsOnline(this AbstractPhysicalObject apo)
     {
-        if (!MeadowEnabled) return true; //don't even try if it won't work
+        if (!MeadowEnabled) return false; //don't even try if it won't work
         try
         {
-            return MeadowCompat.MeadowExtCompat.IsLocal(apo);
+            return MeadowCompat.MeadowExtCompat.IsOnline(apo);
         } catch (Exception ex)
         {
             SimplerPlugin.Error(ex);
             MeadowEnabled = false;
         }
-        return true;
+        return false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsLocal(this PhysicalObject obj) => IsLocal(obj.abstractPhysicalObject);
+    public static bool IsOnline(this PhysicalObject obj) => IsOnline(obj.abstractPhysicalObject);
 }
