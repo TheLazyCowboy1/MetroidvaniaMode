@@ -19,33 +19,37 @@ public class AutoSync : Attribute
 
     public static void RegisterSyncedVars()
     {
-        var types = Assembly.GetExecutingAssembly().GetTypes();
-        var tempFields = types.SelectMany(
-            t => t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(f => f.GetCustomAttribute<AutoSync>() != null)
-            );
-        //isolate Configurables
-        SyncedConfigs = tempFields.Where(f => f.FieldType.IsSubclassOf(typeof(ConfigurableBase))).ToArray();
-        SyncedFields = tempFields.Except(SyncedConfigs) //don't include configs
-            .Where(f =>
-            {
-                if (IsSupportedType(f.FieldType)) return true; //it's supported; it's fine
-                SimplerPlugin.Error($"Unsupported auto-sync type: {f.FieldType.Name} at {f.DeclaringType.FullName}");
-                return false;
-            }
-            ).ToArray(); //everything but configs
-
-        SyncedProperties = types.SelectMany(
-            t => t.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(p =>
+        try
+        {
+            var types = Assembly.GetExecutingAssembly().GetTypes();
+            var tempFields = types.SelectMany(
+                t => t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                    .Where(f => f.GetCustomAttribute<AutoSync>() != null)
+                );
+            //isolate Configurables
+            SyncedConfigs = tempFields.Where(f => f.FieldType.IsSubclassOf(typeof(ConfigurableBase))).ToArray();
+            SyncedFields = tempFields.Except(SyncedConfigs) //don't include configs
+                .Where(f =>
                 {
-                    if (p.GetCustomAttribute<AutoSync>() == null) return false; //
-                    if (IsSupportedType(p.PropertyType)) return true; //it's supported; it's fine
-                    SimplerPlugin.Error($"Unsupported auto-sync type: {p.PropertyType.Name} at {p.DeclaringType.FullName}");
+                    if (IsSupportedType(f.FieldType)) return true; //it's supported; it's fine
+                    SimplerPlugin.Error($"Unsupported auto-sync type: {f.FieldType.Name} at {f.DeclaringType.FullName}");
                     return false;
                 }
-                )
-            ).ToArray();
+                ).ToArray(); //everything but configs
+
+            SyncedProperties = types.SelectMany(
+                t => t.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                    .Where(p =>
+                    {
+                        if (p.GetCustomAttribute<AutoSync>() == null) return false; //
+                        if (IsSupportedType(p.PropertyType)) return true; //it's supported; it's fine
+                        SimplerPlugin.Error($"Unsupported auto-sync type: {p.PropertyType.Name} at {p.DeclaringType.FullName}");
+                        return false;
+                    }
+                    )
+                ).ToArray();
+        }
+        catch (Exception ex) { SimplerPlugin.Error(ex); }
 
         SimplerPlugin.Log($"AutoSync found the following: {SyncedFields.Length} fields, {SyncedConfigs.Length} configs, {SyncedProperties.Length} properties.");
 

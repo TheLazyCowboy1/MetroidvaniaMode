@@ -82,7 +82,7 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         {
             MeadowCompat.EasyResourceState.ApplyHooks();
             MeadowCompat.EasyEntityState.ApplyHooks();
-        } catch (Exception ex) { Log("Rain Meadow is apparently inactive: " + ex); }
+        } catch (Exception ex) { Log("Rain Meadow is apparently inactive: " + ex); MeadowExt.MeadowEnabled = false; }
 
         //for using Rain Reloader (hot mod reloads), since it loads mods AFTER OnModsInit
         if (ConfigOptions != null && ModManager.ActiveMods.Any(m => m.id == MOD_ID))
