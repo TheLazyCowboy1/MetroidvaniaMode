@@ -141,12 +141,12 @@ public abstract class SimplerPlugin : BaseUnityPlugin
 
     public static void Log(object o, int logLevel = 1, [CallerFilePath] string file = "", [CallerMemberName] string name = "", [CallerLineNumber] int line = -1)
     {
-        if (logLevel <= Instance.LogLevel)
+        if (Instance != null && logLevel <= Instance.LogLevel)
             Instance.Logger.LogDebug(LogText(o, file, name, line));
     }
 
     public static void Error(object o, [CallerFilePath] string file = "", [CallerMemberName] string name = "", [CallerLineNumber] int line = -1)
-        => Instance.Logger.LogError(LogText(o, file, name, line));
+        => Instance?.Logger.LogError(LogText(o, file, name, line));
 
     //private static DateTime PluginStartTime = DateTime.Now;
 
@@ -162,7 +162,7 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         }
         catch (Exception ex)
         {
-            Instance.Logger.LogError(ex);
+            Instance?.Logger.LogError(ex);
         }
         return o.ToString();
     }

@@ -21,7 +21,7 @@ public class AutoSync : Attribute
     {
         var types = Assembly.GetExecutingAssembly().GetTypes();
         var tempFields = types.SelectMany(
-            t => t.GetFields(BindingFlags.Static)
+            t => t.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                 .Where(f => f.GetCustomAttribute<AutoSync>() != null)
             );
         //isolate Configurables
@@ -36,7 +36,7 @@ public class AutoSync : Attribute
             ).ToArray(); //everything but configs
 
         SyncedProperties = types.SelectMany(
-            t => t.GetProperties(BindingFlags.Static)
+            t => t.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                 .Where(p =>
                 {
                     if (p.GetCustomAttribute<AutoSync>() == null) return false; //
@@ -46,6 +46,8 @@ public class AutoSync : Attribute
                 }
                 )
             ).ToArray();
+
+        SimplerPlugin.Log($"AutoSync found the following: {SyncedFields.Length} fields, {SyncedConfigs.Length} configs, {SyncedProperties.Length} properties.");
 
         /*if (SyncedConfigs.Length > 0 || SyncedFields.Length > 0 || SyncedProperties.Length > 0) //only add it if it's actually storing something
         {
