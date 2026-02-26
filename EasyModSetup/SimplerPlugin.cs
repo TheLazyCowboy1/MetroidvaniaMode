@@ -32,6 +32,7 @@ public abstract class SimplerPlugin : BaseUnityPlugin
     public static string MOD_NAME = "error";
     public static string MOD_VERSION = "error";
     public static string PluginPath = "error";
+    public static bool RainMeadowEnabled = false;
 
     public static SimplerPlugin Instance;
 
@@ -39,8 +40,6 @@ public abstract class SimplerPlugin : BaseUnityPlugin
 
     public SimplerPlugin(OptionInterface options) : base()
     {
-        //try
-        //{
         Instance = this;
         ConfigOptions = options;
 
@@ -49,8 +48,6 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         MOD_NAME = data.Name;
         MOD_VERSION = data.Version.ToString();
         Log("Plugin created");
-        //}
-        //catch { Logger?.LogError("CANNOT FIND MOD ID. Did you forget to include the BepInPlugin attribute? Near the top of your plugin file, add an attribute like \"[BepInPlugin(\"MyName.MyMod\", \"My Mod\", \"0.0.1\")]\""); }
     }
 
     #endregion
@@ -72,40 +69,24 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         //EasyExtEnum.Register(); //to reflect hot-reload changes?
         //AutoSync.RegisterSyncedVars();
 
-        if (hooksApplied) return;
-
-        try
-        {
-            On.RainWorld.OnModsInit += RainWorld_OnModsInit;
-            if (ConfigOptions is AutoConfigOptions)
-                AutoConfigOptions.ApplyHooks();
-        } catch (Exception ex) { Error(ex); }
-
-        try
-        {
-            MeadowCompat.EasyResourceState.ApplyHooks();
-            MeadowCompat.EasyEntityState.ApplyHooks();
-        } catch (Exception ex) { Log("Rain Meadow is apparently inactive: " + ex); MeadowExt.MeadowEnabled = false; }
+        On.RainWorld.OnModsInit += RainWorld_OnModsInit;
 
         //for using Rain Reloader (hot mod reloads), since it loads mods AFTER OnModsInit
         try
         {
-            if (ConfigOptions != null && ModManager.ActiveMods.Any(m => m.id == MOD_ID))
+            if (ModManager.ActiveMods.Any(m => m.id == MOD_ID))
             {
-                MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
-                MachineConnector.ReloadConfig(ConfigOptions);
+                if (ConfigOptions != null)
+                {
+                    MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
+                    MachineConnector.ReloadConfig(ConfigOptions);
+                }
+                SetMeadowEnabled();
                 ModsApplied();
+                _ApplyHooks();
             }
         }
         catch (Exception ex) { Error(ex); }
-
-        try
-        {
-            ApplyHooks();
-            Log("Applied hooks");
-        } catch (Exception ex) { Error(ex); }
-
-        hooksApplied = true;
     }
 
     public void OnDisable()
@@ -117,15 +98,47 @@ public abstract class SimplerPlugin : BaseUnityPlugin
 
         try
         {
-            MeadowCompat.EasyResourceState.RemoveHooks();
-            MeadowCompat.EasyEntityState.RemoveHooks();
-        }
-        catch { }
+            if (RainMeadowEnabled)
+            {
+                MeadowCompat.EasyResourceState.RemoveHooks();
+                MeadowCompat.EasyEntityState.RemoveHooks();
+            }
+        } catch { }
 
         RemoveHooks();
         Log("Removed hooks");
 
         hooksApplied = false;
+    }
+
+    private void _ApplyHooks()
+    {
+        if (hooksApplied) return;
+
+        try
+        {
+            if (RainMeadowEnabled)
+            {
+                MeadowCompat.EasyResourceState.ApplyHooks();
+                MeadowCompat.EasyEntityState.ApplyHooks();
+            }
+        }
+        catch (Exception ex) { Error("Rain Meadow is apparently inactive: " + ex); RainMeadowEnabled = false; }
+
+        try
+        {
+            if (ConfigOptions is AutoConfigOptions)
+                AutoConfigOptions.ApplyHooks();
+        } catch (Exception ex) { Error(ex); }
+
+        ApplyHooks();
+        hooksApplied = true;
+        Log("Applied hooks");
+    }
+    private void SetMeadowEnabled()
+    {
+        RainMeadowEnabled = ModManager.ActiveMods.Any(m => m.id == "henpemaz_rainmeadow");
+        Log("Rain Meadow enabled: " + RainMeadowEnabled);
     }
 
 
@@ -142,7 +155,9 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         }
         catch (Exception ex) { Error(ex); }
 
+        SetMeadowEnabled();
         ModsApplied();
+        _ApplyHooks();
     }
 
     #endregion

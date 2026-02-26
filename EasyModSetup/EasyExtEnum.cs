@@ -37,7 +37,7 @@ public class EasyExtEnum : Attribute
                                 debug += $"read {type.Name}.{info.Name}:{val.value}, ";
                         }
                     }
-                    catch { fieldErrors += $"{type.FullName}.{info.Name}"; }
+                    catch { fieldErrors += $"{type.FullName}.{info.Name}, "; }
                 }
             }
 
