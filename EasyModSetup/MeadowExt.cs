@@ -30,8 +30,11 @@ public static class MeadowExt
         {
             if (SimplerPlugin.RainMeadowEnabled)
             {
-                MeadowCompat.EasyResourceState.ApplyHooks();
-                MeadowCompat.EasyEntityState.ApplyHooks();
+                if (AutoSync.ShouldSync)
+                {
+                    MeadowCompat.EasyResourceState.ApplyHooks();
+                    MeadowCompat.EasyEntityState.ApplyHooks();
+                }
                 if (SimplerPlugin.ConfigOptions is AutoConfigOptions)
                     MeadowCompat.AutoConfigLobbyHooks.ApplyHooks();
             }
@@ -44,8 +47,11 @@ public static class MeadowExt
         {
             if (SimplerPlugin.RainMeadowEnabled)
             {
-                MeadowCompat.EasyResourceState.RemoveHooks();
-                MeadowCompat.EasyEntityState.RemoveHooks();
+                if (AutoSync.ShouldSync)
+                {
+                    MeadowCompat.EasyResourceState.RemoveHooks();
+                    MeadowCompat.EasyEntityState.RemoveHooks();
+                }
                 if (SimplerPlugin.ConfigOptions is AutoConfigOptions)
                     MeadowCompat.AutoConfigLobbyHooks.RemoveHooks();
             }

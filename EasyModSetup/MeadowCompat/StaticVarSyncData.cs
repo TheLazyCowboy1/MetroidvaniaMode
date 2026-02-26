@@ -35,7 +35,7 @@ public class StaticVarSyncData : EasyResourceState
 
     public override void WriteTo(OnlineResource.ResourceData data, OnlineResource resource)
     {
-        bools = AutoSync.SyncedFields.Where(f => f.FieldType == typeof(bool)).Select(f => (bool)f.GetValue(null))
+        /*bools = AutoSync.SyncedFields.Where(f => f.FieldType == typeof(bool)).Select(f => (bool)f.GetValue(null))
             //.Concat(AutoSync.SyncedProperties.Where(p => p.PropertyType == typeof(bool)).Select(p => (bool)p.GetValue(null)))
             .ToArray();
         ints = AutoSync.SyncedFields.Where(f => f.FieldType == typeof(int)).Select(f => (int)f.GetValue(null))
@@ -47,11 +47,18 @@ public class StaticVarSyncData : EasyResourceState
         strings = AutoSync.SyncedFields.Where(f => f.FieldType == typeof(string)).Select(f => (string)f.GetValue(null)) //pack fields first
             //.Concat(AutoSync.SyncedProperties.Where(p => p.PropertyType == typeof(string)).Select(p => (string)p.GetValue(null))) //then properties
             .Concat(AutoSync.SyncedConfigs.Select(c => (c.GetValue(null) as ConfigurableBase).BoxedValue.ToString())) //then configs
-            .ToArray();
+            .ToArray();*/
+        bools = AutoSync.GetSyncedVars<bool>();
+        ints = AutoSync.GetSyncedVars<int>();
+        floats = AutoSync.GetSyncedVars<float>();
+        strings = AutoSync.GetSyncedVars<string>();
     }
 
     public override void ReadTo(OnlineResource.ResourceData data, OnlineResource resource)
     {
+        AutoSync.SetSyncedVars(bools, ints, floats, strings);
+
+        /*
         int bi = 0, ii = 0, fi = 0, si = 0;
         foreach (FieldInfo f in AutoSync.SyncedFields) //go through all fields
         {
@@ -66,6 +73,12 @@ public class StaticVarSyncData : EasyResourceState
                 f.SetValue(null, strings[si++]);
         }
 
+        foreach (FieldInfo f in AutoSync.SyncedConfigs) //set all configs with remaining data
+        {
+            (f.GetValue(null) as ConfigurableBase).BoxedValue = strings[si++];
+        }
+        */
+
         /*foreach (PropertyInfo p in AutoSync.SyncedProperties) //go through all properties WITHOUT resetting the counters
         {
             Type pType = p.PropertyType;
@@ -78,10 +91,5 @@ public class StaticVarSyncData : EasyResourceState
             else if (pType == typeof(string))
                 p.SetValue(null, strings[si++]);
         }*/
-
-        foreach (FieldInfo f in AutoSync.SyncedConfigs) //set all configs with remaining data
-        {
-            (f.GetValue(null) as ConfigurableBase).BoxedValue = strings[si++];
-        }
     }
 }
