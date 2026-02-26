@@ -48,7 +48,7 @@ public class AutoSync : Attribute
             {
                 ParameterExpression[] parameters = SupportedTypes.Select(t => Expression.Parameter(t.MakeArrayType(), t.Name+"Array")).ToArray();
                 ParameterExpression[] indexCounters = SupportedTypes.Select(t => Expression.Variable(typeof(int), t.Name+"Counter")).ToArray();
-                Expression expression = Expression.Block(
+                Expression expression = Expression.Block(parameters.Concat(indexCounters),
                     indexCounters.Select(v => Expression.Assign(v, Expression.Constant(0))) //set counters to 0
                     .Concat(tempFields.SelectMany(
                         f =>
@@ -135,7 +135,10 @@ public class AutoSync : Attribute
                     syncedVarGetters.Add(t, Expression.Lambda<Func<Array>>(expression, new ParameterExpression[0]).Compile());
                 }
 
-                SimplerPlugin.Log("Synced floats: " + GetSyncedVars<float>());
+                string fString = "Synced floats: ";
+                foreach (float f in GetSyncedVars<float>())
+                    fString += f + ", ";
+                SimplerPlugin.Log(fString);
             }
             catch (Exception ex) { SimplerPlugin.Error(ex); }
 
