@@ -12,6 +12,10 @@ namespace EasyModSetup;
 [AttributeUsage(AttributeTargets.Field)]
 public class AutoSync : Attribute
 {
+    [AutoSync]
+    public static Configurable<float> TestConfig = new(123.45f);
+    [AutoSync]
+    public static Configurable<KeyCode> TestConfig2 = new(KeyCode.KeypadEnter);
 
     //public static FieldInfo[] SyncedFields;
     //public static FieldInfo[] SyncedConfigs;
@@ -36,6 +40,8 @@ public class AutoSync : Attribute
                     .Where(f => f.GetCustomAttribute<AutoSync>() != null)
                 );
 
+            SimplerPlugin.Log($"Found {tempFields.Count()} auto-sync fields.");
+
             if (tempFields.Count() < 1)
             {
                 ShouldSync = false;
@@ -57,7 +63,7 @@ public class AutoSync : Attribute
                             try
                             {
                                 Type fType = f.FieldType;
-                                if (fType.IsSubclassOf(typeof(Configurable<>))) //configs
+                                if (fType.IsSubclassOf(typeof(ConfigurableBase))) //configs
                                 {
                                     Type cType = fType.GetGenericArguments()[0];
                                     string propertyName = nameof(ConfigurableBase.BoxedValue);
@@ -100,23 +106,24 @@ public class AutoSync : Attribute
                 syncedVarGetters ??= new(SupportedTypes.Length);
                 foreach (Type t in SupportedTypes)
                 {
-                    Expression expression = Expression.NewArrayInit(t, tempFields.Select(
+                    Expression expression = Expression.NewArrayInit(t, tempFields.Select<FieldInfo, Expression>(
                         f =>
                         {
                             try
                             {
                                 Type fType = f.FieldType;
-                                if (fType.IsSubclassOf(typeof(Configurable<>))) //configs
+                                if (fType.IsSubclassOf(typeof(ConfigurableBase))) //configs
                                 {
                                     Type cType = fType.GetGenericArguments()[0];
-                                    string propertyName = nameof(ConfigurableBase.BoxedValue);
+                                    //string propertyName = nameof(ConfigurableBase.BoxedValue);
                                     if (cType == t)
                                     {
-                                        propertyName = "Value";
+                                        return Expression.Property(Expression.Field(null, f), fType.GetProperty("Value"));
                                     }
-                                    else if (t != typeof(string)) //only add unsupported configs to strings
+                                    else if (t != typeof(string) || SupportedTypes.Contains(cType)) //only add unsupported configs to strings
                                         return null;
-                                    return Expression.Property(Expression.Field(null, f), fType.GetProperty(propertyName));
+                                    //convert the boxed value to a string
+                                    return Expression.Call(Expression.Property(Expression.Field(null, f), fType.GetProperty(nameof(ConfigurableBase.BoxedValue))), fType.GetMethod(nameof(object.ToString)));
                                 }
                                 else if (fType == t)
                                 {
@@ -136,6 +143,17 @@ public class AutoSync : Attribute
                 }
 
                 string fString = "Synced floats: ";
+                foreach (float f in GetSyncedVars<float>())
+                    fString += f + ", ";
+                SimplerPlugin.Log(fString);
+
+                string sString = "Synced strings: ";
+                foreach (string s in GetSyncedVars<string>())
+                    sString += s + ", ";
+                SimplerPlugin.Log(sString);
+
+                SetSyncedVars(GetSyncedVars<bool>(), GetSyncedVars<int>(), GetSyncedVars<float>(), GetSyncedVars<string>());
+                fString = "Synced floats: ";
                 foreach (float f in GetSyncedVars<float>())
                     fString += f + ", ";
                 SimplerPlugin.Log(fString);
