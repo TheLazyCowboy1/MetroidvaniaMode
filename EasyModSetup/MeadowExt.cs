@@ -24,6 +24,36 @@ public static class MeadowExt
     public static bool IsOnline(this PhysicalObject obj) => IsOnline(obj.abstractPhysicalObject);
 
 
+    public static void ApplyHooks()
+    {
+        try
+        {
+            if (SimplerPlugin.RainMeadowEnabled)
+            {
+                MeadowCompat.EasyResourceState.ApplyHooks();
+                MeadowCompat.EasyEntityState.ApplyHooks();
+                if (SimplerPlugin.ConfigOptions is AutoConfigOptions)
+                    MeadowCompat.AutoConfigLobbyHooks.ApplyHooks();
+            }
+        }
+        catch (Exception ex) { SimplerPlugin.Error(ex); }
+    }
+    public static void RemoveHooks()
+    {
+        try
+        {
+            if (SimplerPlugin.RainMeadowEnabled)
+            {
+                MeadowCompat.EasyResourceState.RemoveHooks();
+                MeadowCompat.EasyEntityState.RemoveHooks();
+                if (SimplerPlugin.ConfigOptions is AutoConfigOptions)
+                    MeadowCompat.AutoConfigLobbyHooks.RemoveHooks();
+            }
+        }
+        catch (Exception ex) { SimplerPlugin.Error(ex); }
+    }
+
+
     //Stolen from Rain Meadow. Credits go to whoever wrote it there
     public static Type[] GetTypesSafely(this Assembly assembly)
     {

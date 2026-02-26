@@ -19,11 +19,6 @@ public abstract class AutoConfigOptions : OptionInterface
         {
             On.OptionInterface.ConfigHolder.Reload += ConfigHolder_Reload;
             On.OptionInterface.ConfigHolder.Save += ConfigHolder_Save;
-            try
-            {
-                if (SimplerPlugin.RainMeadowEnabled)
-                    AutoConfigLobbyHooks.ApplyHooks();
-            } catch { }
         }
         HooksApplied = true;
     }
@@ -34,11 +29,6 @@ public abstract class AutoConfigOptions : OptionInterface
         {
             On.OptionInterface.ConfigHolder.Reload -= ConfigHolder_Reload;
             On.OptionInterface.ConfigHolder.Save -= ConfigHolder_Save;
-            try
-            {
-                if (SimplerPlugin.RainMeadowEnabled)
-                    AutoConfigLobbyHooks.RemoveHooks();
-            } catch { }
         }
         HooksApplied = false;
     }

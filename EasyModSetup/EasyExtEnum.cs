@@ -41,8 +41,8 @@ public class EasyExtEnum : Attribute
                 }
             }
 
-            SimplerPlugin.Log(debug, 0);
-            SimplerPlugin.Log(fieldErrors, 0);
+            SimplerPlugin.Log(debug, 1);
+            SimplerPlugin.Log(fieldErrors, 2);
         }
         catch (Exception ex) { SimplerPlugin.Error(ex); }
     }

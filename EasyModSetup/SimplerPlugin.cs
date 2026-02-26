@@ -99,10 +99,7 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         try
         {
             if (RainMeadowEnabled)
-            {
-                MeadowCompat.EasyResourceState.RemoveHooks();
-                MeadowCompat.EasyEntityState.RemoveHooks();
-            }
+                MeadowExt.RemoveHooks();
         } catch { }
 
         RemoveHooks();
@@ -117,19 +114,16 @@ public abstract class SimplerPlugin : BaseUnityPlugin
 
         try
         {
-            if (RainMeadowEnabled)
-            {
-                MeadowCompat.EasyResourceState.ApplyHooks();
-                MeadowCompat.EasyEntityState.ApplyHooks();
-            }
-        }
-        catch (Exception ex) { Error("Rain Meadow is apparently inactive: " + ex); RainMeadowEnabled = false; }
-
-        try
-        {
             if (ConfigOptions is AutoConfigOptions)
                 AutoConfigOptions.ApplyHooks();
         } catch (Exception ex) { Error(ex); }
+
+        try
+        {
+            if (RainMeadowEnabled)
+                MeadowExt.ApplyHooks();
+        }
+        catch (Exception ex) { Error("Rain Meadow is apparently inactive: " + ex); RainMeadowEnabled = false; }
 
         ApplyHooks();
         hooksApplied = true;
@@ -152,12 +146,12 @@ public abstract class SimplerPlugin : BaseUnityPlugin
                 MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions); //register config menu
 
             PluginPath = ModManager.ActiveMods.Find(m => m.id == MOD_ID).path;
+
+            SetMeadowEnabled();
+            ModsApplied();
+            _ApplyHooks();
         }
         catch (Exception ex) { Error(ex); }
-
-        SetMeadowEnabled();
-        ModsApplied();
-        _ApplyHooks();
     }
 
     #endregion
