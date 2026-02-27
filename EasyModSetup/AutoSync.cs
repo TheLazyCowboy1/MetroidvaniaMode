@@ -3,34 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using UnityEngine;
 
 namespace EasyModSetup;
 
-//public class AutoStaticVarSync
-//{
 [AttributeUsage(AttributeTargets.Field)]
 public class AutoSync : Attribute
 {
-    [AutoSync]
-    public static Configurable<float> TestConfig = new(123.45f);
-    [AutoSync]
-    public static Configurable<KeyCode> TestConfig2 = new(KeyCode.KeypadEnter);
-    [AutoSync]
-    public static float TestFloat1 = 0.1f, TestFloat2 = 12.4f;
-    [AutoSync]
-    public static int TestInt1 = 5;
 
-    //public static FieldInfo[] SyncedFields;
-    //public static FieldInfo[] SyncedConfigs;
-    //public static PropertyInfo[] SyncedProperties;
-    public static Action<bool[], int[], float[], string[]> SetSyncedVars;
-    public static Dictionary<Type, Func<Array>> syncedVarGetters;
     public static bool ShouldSync = true;
 
+    public static Action<bool[], int[], float[], string[]> SetSyncedVars;
+    private static Dictionary<Type, Func<Array>> syncedVarGetters;
     public static T[] GetSyncedVars<T>() => syncedVarGetters[typeof(T)].Invoke() as T[];
 
-    //private static bool IsSupportedType(Type t) => t == typeof(bool) || t == typeof(int) || t == typeof(float) || t == typeof(string);
     private static Type[] SupportedTypes => new Type[] { typeof(bool), typeof(int), typeof(float), typeof(string) };
     private static int TypeIdx(Type t) => Array.IndexOf(SupportedTypes, t);
 
@@ -93,12 +78,7 @@ public class AutoSync : Attribute
                         }
                     ).Where(e => e != null) //don't include null expressions, obviously
                     .ToArray()
-                    );
-
-                string temp = "Expressions: ";
-                foreach (var e in expression.Expressions)
-                    temp += e.ToString() + ", ";
-                SimplerPlugin.Log(temp);
+                );
 
                 SetSyncedVars = Expression.Lambda<Action<bool[], int[], float[], string[]>>(expression, parameters).Compile();
             }
@@ -146,54 +126,12 @@ public class AutoSync : Attribute
 
                     syncedVarGetters.Add(t, Expression.Lambda<Func<Array>>(expression, new ParameterExpression[0]).Compile());
                 }
-
-                string fString = "Synced floats: ";
-                float[] syncedFloats = GetSyncedVars<float>();
-                foreach (float f in syncedFloats)
-                    fString += f + ", ";
-                SimplerPlugin.Log(fString);
-
-                string sString = "Synced strings: ";
-                foreach (string s in GetSyncedVars<string>())
-                    sString += s + ", ";
-                SimplerPlugin.Log(sString);
-
-                syncedFloats[0] = 567.23f;
-                SetSyncedVars(GetSyncedVars<bool>(), GetSyncedVars<int>(), syncedFloats, GetSyncedVars<string>());
-                fString = "Synced floats: ";
-                foreach (float f in GetSyncedVars<float>())
-                    fString += f + ", ";
-                SimplerPlugin.Log(fString);
             }
             catch (Exception ex) { SimplerPlugin.Error(ex); }
 
-            //isolate Configurables
-            /*SyncedConfigs = tempFields.Where(f => f.FieldType.IsSubclassOf(typeof(ConfigurableBase))).ToArray();
-            SyncedFields = tempFields.Except(SyncedConfigs) //don't include configs
-                .Where(f =>
-                {
-                    if (IsSupportedType(f.FieldType)) return true; //it's supported; it's fine
-                    SimplerPlugin.Error($"Unsupported auto-sync type: {f.FieldType.Name} at {f.DeclaringType.FullName}");
-                    return false;
-                }
-                ).ToArray(); //everything but configs
-            */
-
-            /*SyncedProperties = types.SelectMany(
-                t => t.GetStaticPropertiesSafely()
-                    .Where(p =>
-                    {
-                        if (p.GetCustomAttribute<AutoSync>() == null) return false; //
-                        if (IsSupportedType(p.PropertyType)) return true; //it's supported; it's fine
-                        SimplerPlugin.Error($"Unsupported auto-sync type: {p.PropertyType.Name} at {p.DeclaringType.FullName}");
-                        return false;
-                    }
-                    )
-                ).ToArray();*/
         }
         catch (Exception ex) { SimplerPlugin.Error(ex); }
 
-        //SimplerPlugin.Log($"AutoSync found the following: {SyncedFields.Length} fields, {SyncedConfigs.Length} configs");//, {SyncedProperties.Length} properties.");
     }
 
 }
