@@ -12,9 +12,9 @@ namespace EasyModSetup;
 [AttributeUsage(AttributeTargets.Field)]
 public class AutoSync : Attribute
 {
-    [AutoSync]
+    //[AutoSync]
     public static Configurable<float> TestConfig = new(123.45f);
-    [AutoSync]
+    //[AutoSync]
     public static Configurable<KeyCode> TestConfig2 = new(KeyCode.KeypadEnter);
 
     //public static FieldInfo[] SyncedFields;
@@ -95,7 +95,9 @@ public class AutoSync : Attribute
                     .ToArray()
                     );
 
-                SetSyncedVars = Expression.Lambda<Action<bool[], int[], float[], string[]>>(expression, parameters).Compile();
+                var tempLambda = Expression.Lambda<Action<bool[], int[], float[], string[]>>(expression, parameters);
+                SimplerPlugin.Log(tempLambda);
+                SetSyncedVars = tempLambda.Compile();
             }
             catch (Exception ex) { SimplerPlugin.Error(ex); }
 
@@ -143,7 +145,8 @@ public class AutoSync : Attribute
                 }
 
                 string fString = "Synced floats: ";
-                foreach (float f in GetSyncedVars<float>())
+                float[] syncedFloats = GetSyncedVars<float>();
+                foreach (float f in syncedFloats)
                     fString += f + ", ";
                 SimplerPlugin.Log(fString);
 
@@ -152,7 +155,8 @@ public class AutoSync : Attribute
                     sString += s + ", ";
                 SimplerPlugin.Log(sString);
 
-                SetSyncedVars(GetSyncedVars<bool>(), GetSyncedVars<int>(), GetSyncedVars<float>(), GetSyncedVars<string>());
+                syncedFloats[0] = 567.23f;
+                SetSyncedVars(GetSyncedVars<bool>(), GetSyncedVars<int>(), syncedFloats, GetSyncedVars<string>());
                 fString = "Synced floats: ";
                 foreach (float f in GetSyncedVars<float>())
                     fString += f + ", ";

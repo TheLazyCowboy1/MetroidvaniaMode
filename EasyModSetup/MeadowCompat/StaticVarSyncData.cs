@@ -22,7 +22,7 @@ public class StaticVarSyncData : EasyResourceState
 {
     //public override Type GetDataType() => typeof(StaticVarSyncData);
 
-    public override bool AttachTo(OnlineResource resource) => resource is Lobby;
+    public override bool AttachTo(OnlineResource resource) => AutoSync.ShouldSync && resource is Lobby; //don't add resource if there's nothing to sync
 
     [OnlineField]
     public bool[] bools;
