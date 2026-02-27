@@ -28,6 +28,10 @@ public class AutoSync : Attribute
                 t => t.GetStaticFieldsSafely()
                     .Where(f => f.GetCustomAttribute<AutoSync>() != null)
                 );
+            /*var tempProperties = types.SelectMany(
+                t => t.GetStaticPropertiesSafely()
+                    .Where(p => p.GetCustomAttribute<AutoSync>() != null)
+                );*/
 
             SimplerPlugin.Log($"Found {tempFields.Count()} auto-sync fields.");
 
@@ -45,38 +49,28 @@ public class AutoSync : Attribute
                 int[] actualCounters = new int[SupportedTypes.Length];
 
                 BlockExpression expression = Expression.Block(typeof(void),
-                    tempFields.Select<FieldInfo, Expression>(
+                    tempFields.Select(
                         f =>
                         {
-                            List<Expression> exps = new();
                             try
                             {
-                                Type fType = f.FieldType;
-                                if (fType.IsSubclassOf(typeof(ConfigurableBase))) //configs
-                                {
-                                    Type cType = fType.GetGenericArguments()[0];
-                                    string propertyName = nameof(ConfigurableBase.BoxedValue);
-                                    int typeIdx = TypeIdx(typeof(string));
-                                    if (SupportedTypes.Contains(cType))
-                                    {
-                                        propertyName = "Value";
-                                        typeIdx = TypeIdx(cType);
-                                    }
-                                    return Expression.Assign(Expression.Property(Expression.Field(null, f), fType.GetProperty(propertyName)), Expression.ArrayAccess(parameters[typeIdx], Expression.Constant(actualCounters[typeIdx]++, typeof(int))));
-                                }
-                                else if (SupportedTypes.Contains(fType))
-                                {
-                                    //figure out which array we're reading and which counter we're using
-                                    int typeIdx = TypeIdx(fType);
-                                    //assign the field with the value of the array (at the current index)
-                                    return Expression.Assign(Expression.Field(null, f), Expression.ArrayAccess(parameters[typeIdx], Expression.Constant(actualCounters[typeIdx]++, typeof(int))));
-                                }
-                                else
-                                    SimplerPlugin.Error($"Unsupported auto-sync type: {f.FieldType.Name} at {f.DeclaringType.FullName}");
+                                return MakeSetFunc(Expression.Field(null, f), f.FieldType, ref parameters, ref actualCounters, f.DeclaringType);
                             } catch (Exception ex) { SimplerPlugin.Error(ex); }
                             return null;
-                        }
-                    ).Where(e => e != null) //don't include null expressions, obviously
+                        })
+                    /*.Concat(
+                        tempProperties.Select(
+                            p =>
+                            {
+                                try
+                                {
+                                    return MakeSetFunc(Expression.Property(null, p), p.PropertyType, ref parameters, ref actualCounters, p.DeclaringType);
+                                }
+                                catch (Exception ex) { SimplerPlugin.Error(ex); }
+                                return null;
+                            }
+                        ))*/
+                    .Where(e => e != null) //don't include null expressions, obviously
                     .ToArray()
                 );
 
@@ -100,7 +94,6 @@ public class AutoSync : Attribute
                                 if (fType.IsSubclassOf(typeof(ConfigurableBase))) //configs
                                 {
                                     Type cType = fType.GetGenericArguments()[0];
-                                    //string propertyName = nameof(ConfigurableBase.BoxedValue);
                                     if (cType == t)
                                     {
                                         return Expression.Property(Expression.Field(null, f), fType.GetProperty("Value"));
@@ -114,8 +107,6 @@ public class AutoSync : Attribute
                                 {
                                     return Expression.Field(null, f);
                                 }
-                                //else //don't tell the user again; we already said this once
-                                    //SimplerPlugin.Error($"Unsupported auto-sync type: {f.FieldType.Name} at {f.DeclaringType.FullName}");
                             }
                             catch (Exception ex) { SimplerPlugin.Error(ex); }
                             return null;
@@ -132,6 +123,32 @@ public class AutoSync : Attribute
         }
         catch (Exception ex) { SimplerPlugin.Error(ex); }
 
+    }
+
+    private static Expression MakeSetFunc(Expression fieldOrProp, Type type, ref ParameterExpression[] parameters, ref int[] actualCounters, Type declaringType)
+    {
+        if (type.IsSubclassOf(typeof(ConfigurableBase))) //configs
+        {
+            Type cType = type.GetGenericArguments()[0];
+            string propertyName = nameof(ConfigurableBase.BoxedValue);
+            int typeIdx = TypeIdx(typeof(string));
+            if (SupportedTypes.Contains(cType))
+            {
+                propertyName = "Value";
+                typeIdx = TypeIdx(cType);
+            }
+            return Expression.Assign(Expression.Property(fieldOrProp, type.GetProperty(propertyName)), Expression.ArrayAccess(parameters[typeIdx], Expression.Constant(actualCounters[typeIdx]++, typeof(int))));
+        }
+        else if (SupportedTypes.Contains(type))
+        {
+            //figure out which array we're reading and which counter we're using
+            int typeIdx = TypeIdx(type);
+            //assign the field with the value of the array (at the current index)
+            return Expression.Assign(fieldOrProp, Expression.ArrayAccess(parameters[typeIdx], Expression.Constant(actualCounters[typeIdx]++, typeof(int))));
+        }
+        else //don't tell user; we will tell him in the get func
+            SimplerPlugin.Error($"Unsupported auto-sync type: {type.Name} at {declaringType.FullName}");
+        return null;
     }
 
 }
