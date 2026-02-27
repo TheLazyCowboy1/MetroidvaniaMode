@@ -12,10 +12,14 @@ namespace EasyModSetup;
 [AttributeUsage(AttributeTargets.Field)]
 public class AutoSync : Attribute
 {
-    //[AutoSync]
+    [AutoSync]
     public static Configurable<float> TestConfig = new(123.45f);
-    //[AutoSync]
+    [AutoSync]
     public static Configurable<KeyCode> TestConfig2 = new(KeyCode.KeypadEnter);
+    [AutoSync]
+    public static float TestFloat1 = 0.1f, TestFloat2 = 12.4f;
+    [AutoSync]
+    public static int TestInt1 = 5;
 
     //public static FieldInfo[] SyncedFields;
     //public static FieldInfo[] SyncedConfigs;
@@ -53,10 +57,10 @@ public class AutoSync : Attribute
             try
             {
                 ParameterExpression[] parameters = SupportedTypes.Select(t => Expression.Parameter(t.MakeArrayType(), t.Name+"Array")).ToArray();
-                ParameterExpression[] indexCounters = SupportedTypes.Select(t => Expression.Variable(typeof(int), t.Name+"Counter")).ToArray();
-                Expression expression = Expression.Block(parameters.Concat(indexCounters),
-                    indexCounters.Select(v => Expression.Assign(v, Expression.Constant(0))) //set counters to 0
-                    .Concat(tempFields.SelectMany(
+                int[] actualCounters = new int[SupportedTypes.Length];
+
+                BlockExpression expression = Expression.Block(typeof(void),
+                    tempFields.Select<FieldInfo, Expression>(
                         f =>
                         {
                             List<Expression> exps = new();
@@ -73,31 +77,30 @@ public class AutoSync : Attribute
                                         propertyName = "Value";
                                         typeIdx = TypeIdx(cType);
                                     }
-                                    //exps.Add(Expression.Call(fType.GetProperty(propertyName).GetSetMethod(), Expression.ArrayAccess(parameters[typeIdx], indexCounters[typeIdx])));
-                                    exps.Add(Expression.Assign(Expression.Property(Expression.Field(null, f), fType.GetProperty(propertyName)), Expression.ArrayAccess(parameters[typeIdx], indexCounters[typeIdx])));
-                                    exps.Add(Expression.Increment(indexCounters[typeIdx]));
+                                    return Expression.Assign(Expression.Property(Expression.Field(null, f), fType.GetProperty(propertyName)), Expression.ArrayAccess(parameters[typeIdx], Expression.Constant(actualCounters[typeIdx]++, typeof(int))));
                                 }
                                 else if (SupportedTypes.Contains(fType))
                                 {
                                     //figure out which array we're reading and which counter we're using
                                     int typeIdx = TypeIdx(fType);
                                     //assign the field with the value of the array (at the current index)
-                                    exps.Add(Expression.Assign(Expression.Field(null, f), Expression.ArrayAccess(parameters[typeIdx], indexCounters[typeIdx])));
-                                    //increment the counter
-                                    exps.Add(Expression.Increment(indexCounters[typeIdx]));
+                                    return Expression.Assign(Expression.Field(null, f), Expression.ArrayAccess(parameters[typeIdx], Expression.Constant(actualCounters[typeIdx]++, typeof(int))));
                                 }
                                 else
                                     SimplerPlugin.Error($"Unsupported auto-sync type: {f.FieldType.Name} at {f.DeclaringType.FullName}");
                             } catch (Exception ex) { SimplerPlugin.Error(ex); }
-                            return exps;
+                            return null;
                         }
-                        ))
+                    ).Where(e => e != null) //don't include null expressions, obviously
                     .ToArray()
                     );
 
-                var tempLambda = Expression.Lambda<Action<bool[], int[], float[], string[]>>(expression, parameters);
-                SimplerPlugin.Log(tempLambda);
-                SetSyncedVars = tempLambda.Compile();
+                string temp = "Expressions: ";
+                foreach (var e in expression.Expressions)
+                    temp += e.ToString() + ", ";
+                SimplerPlugin.Log(temp);
+
+                SetSyncedVars = Expression.Lambda<Action<bool[], int[], float[], string[]>>(expression, parameters).Compile();
             }
             catch (Exception ex) { SimplerPlugin.Error(ex); }
 
@@ -131,7 +134,7 @@ public class AutoSync : Attribute
                                 {
                                     return Expression.Field(null, f);
                                 }
-                                //else
+                                //else //don't tell the user again; we already said this once
                                     //SimplerPlugin.Error($"Unsupported auto-sync type: {f.FieldType.Name} at {f.DeclaringType.FullName}");
                             }
                             catch (Exception ex) { SimplerPlugin.Error(ex); }
