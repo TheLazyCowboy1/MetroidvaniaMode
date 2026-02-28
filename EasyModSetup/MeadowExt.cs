@@ -74,6 +74,12 @@ public static class MeadowExt
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static PropertyInfo[] GetStaticPropertiesSafely(this Type type)
-        => type.GetProperties(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic);
+    {
+        try
+        {
+            return type.GetProperties(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic);
+        } catch (Exception ex) { SimplerPlugin.Error(ex); }
+        return new PropertyInfo[0];
+    }
 
 }

@@ -6,10 +6,11 @@ using System.Reflection;
 
 namespace EasyModSetup;
 
-[AttributeUsage(AttributeTargets.Field)]
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 public class AutoSync : Attribute
 {
-
+    [AutoSync]
+    public static string TestStringProp { get => "Hello world!"; set => SimplerPlugin.MOD_NAME = value; }
     public static bool ShouldSync = true;
 
     public static Action<bool[], int[], float[], string[]> SetSyncedVars;
@@ -28,14 +29,14 @@ public class AutoSync : Attribute
                 t => t.GetStaticFieldsSafely()
                     .Where(f => f.GetCustomAttribute<AutoSync>() != null)
                 );
-            /*var tempProperties = types.SelectMany(
+            var tempProperties = types.SelectMany(
                 t => t.GetStaticPropertiesSafely()
                     .Where(p => p.GetCustomAttribute<AutoSync>() != null)
-                );*/
+                );
 
-            SimplerPlugin.Log($"Found {tempFields.Count()} auto-sync fields.");
+            SimplerPlugin.Log($"Found {tempFields.Count()} auto-sync fields and {tempProperties.Count()} auto-sync properties.");
 
-            if (tempFields.Count() < 1)
+            if (tempFields.Count() < 1 && tempProperties.Count() < 1)
             {
                 ShouldSync = false;
                 return;
@@ -46,31 +47,16 @@ public class AutoSync : Attribute
             try
             {
                 ParameterExpression[] parameters = SupportedTypes.Select(t => Expression.Parameter(t.MakeArrayType(), t.Name+"Array")).ToArray();
-                int[] actualCounters = new int[SupportedTypes.Length];
+                int[] indexCounters = new int[SupportedTypes.Length];
 
                 BlockExpression expression = Expression.Block(typeof(void),
                     tempFields.Select(
-                        f =>
-                        {
-                            try
-                            {
-                                return MakeSetFunc(Expression.Field(null, f), f.FieldType, ref parameters, ref actualCounters, f.DeclaringType);
-                            } catch (Exception ex) { SimplerPlugin.Error(ex); }
-                            return null;
-                        })
-                    /*.Concat(
+                        f => MakeSetFunc(Expression.Field(null, f), f.FieldType, ref parameters, ref indexCounters, f.DeclaringType)
+                    ).Concat(
                         tempProperties.Select(
-                            p =>
-                            {
-                                try
-                                {
-                                    return MakeSetFunc(Expression.Property(null, p), p.PropertyType, ref parameters, ref actualCounters, p.DeclaringType);
-                                }
-                                catch (Exception ex) { SimplerPlugin.Error(ex); }
-                                return null;
-                            }
-                        ))*/
-                    .Where(e => e != null) //don't include null expressions, obviously
+                            p => MakeSetFunc(Expression.Property(null, p), p.PropertyType, ref parameters, ref indexCounters, p.DeclaringType)
+                        )
+                    ).Where(e => e != null) //don't include null expressions, obviously
                     .ToArray()
                 );
 
@@ -85,37 +71,18 @@ public class AutoSync : Attribute
                 syncedVarGetters ??= new(SupportedTypes.Length);
                 foreach (Type t in SupportedTypes)
                 {
-                    Expression expression = Expression.NewArrayInit(t, tempFields.Select<FieldInfo, Expression>(
-                        f =>
-                        {
-                            try
-                            {
-                                Type fType = f.FieldType;
-                                if (fType.IsSubclassOf(typeof(ConfigurableBase))) //configs
-                                {
-                                    Type cType = fType.GetGenericArguments()[0];
-                                    if (cType == t)
-                                    {
-                                        return Expression.Property(Expression.Field(null, f), fType.GetProperty("Value"));
-                                    }
-                                    else if (t != typeof(string) || SupportedTypes.Contains(cType)) //only add unsupported configs to strings
-                                        return null;
-                                    //convert the boxed value to a string
-                                    return Expression.Call(Expression.Property(Expression.Field(null, f), fType.GetProperty(nameof(ConfigurableBase.BoxedValue))), fType.GetMethod(nameof(object.ToString)));
-                                }
-                                else if (fType == t)
-                                {
-                                    return Expression.Field(null, f);
-                                }
-                            }
-                            catch (Exception ex) { SimplerPlugin.Error(ex); }
-                            return null;
-                        }
+                    Expression expression = Expression.NewArrayInit(t,
+                        tempFields.Select(
+                            f => MakeGetFunc(t, Expression.Field(null, f), f.FieldType)
+                        ).Concat(
+                            tempProperties.Select(
+                                p => MakeGetFunc(t, Expression.Property(null, p), p.PropertyType)
+                            )
                         ).Where(e => e != null) //don't include null expressions, obviously
                         .ToArray()
                         );
 
-                    syncedVarGetters.Add(t, Expression.Lambda<Func<Array>>(expression, new ParameterExpression[0]).Compile());
+                    syncedVarGetters.Add(t, Expression.Lambda<Func<Array>>(expression).Compile());
                 }
             }
             catch (Exception ex) { SimplerPlugin.Error(ex); }
@@ -125,29 +92,58 @@ public class AutoSync : Attribute
 
     }
 
-    private static Expression MakeSetFunc(Expression fieldOrProp, Type type, ref ParameterExpression[] parameters, ref int[] actualCounters, Type declaringType)
+    private static Expression MakeSetFunc(Expression fieldOrProp, Type type, ref ParameterExpression[] parameters, ref int[] indexCounters, Type declaringType)
     {
-        if (type.IsSubclassOf(typeof(ConfigurableBase))) //configs
+        try
         {
-            Type cType = type.GetGenericArguments()[0];
-            string propertyName = nameof(ConfigurableBase.BoxedValue);
-            int typeIdx = TypeIdx(typeof(string));
-            if (SupportedTypes.Contains(cType))
+            if (type.IsSubclassOf(typeof(ConfigurableBase))) //configs
             {
-                propertyName = "Value";
-                typeIdx = TypeIdx(cType);
+                Type cType = type.GetGenericArguments()[0];
+                string propertyName = nameof(ConfigurableBase.BoxedValue);
+                int typeIdx = TypeIdx(typeof(string));
+                if (SupportedTypes.Contains(cType))
+                {
+                    propertyName = "Value";
+                    typeIdx = TypeIdx(cType);
+                }
+                return Expression.Assign(Expression.Property(fieldOrProp, type.GetProperty(propertyName)), Expression.ArrayAccess(parameters[typeIdx], Expression.Constant(indexCounters[typeIdx]++, typeof(int))));
             }
-            return Expression.Assign(Expression.Property(fieldOrProp, type.GetProperty(propertyName)), Expression.ArrayAccess(parameters[typeIdx], Expression.Constant(actualCounters[typeIdx]++, typeof(int))));
+            else if (SupportedTypes.Contains(type))
+            {
+                //figure out which array we're reading and which counter we're using
+                int typeIdx = TypeIdx(type);
+                //assign the field with the value of the array (at the current index)
+                return Expression.Assign(fieldOrProp, Expression.ArrayAccess(parameters[typeIdx], Expression.Constant(indexCounters[typeIdx]++, typeof(int))));
+            }
+            else //don't tell user; we will tell him in the get func
+                SimplerPlugin.Error($"Unsupported auto-sync type: {type.Name} at {declaringType.FullName}");
         }
-        else if (SupportedTypes.Contains(type))
+        catch (Exception ex) { SimplerPlugin.Error(ex); }
+        return null;
+    }
+
+    private static Expression MakeGetFunc(Type t, Expression fieldOrProp, Type fType)
+    {
+        try
         {
-            //figure out which array we're reading and which counter we're using
-            int typeIdx = TypeIdx(type);
-            //assign the field with the value of the array (at the current index)
-            return Expression.Assign(fieldOrProp, Expression.ArrayAccess(parameters[typeIdx], Expression.Constant(actualCounters[typeIdx]++, typeof(int))));
+            if (fType.IsSubclassOf(typeof(ConfigurableBase))) //configs
+            {
+                Type cType = fType.GetGenericArguments()[0];
+                if (cType == t)
+                {
+                    return Expression.Property(fieldOrProp, fType.GetProperty("Value"));
+                }
+                else if (t != typeof(string) || SupportedTypes.Contains(cType)) //only add unsupported configs to strings
+                    return null;
+                //convert the boxed value to a string
+                return Expression.Call(Expression.Property(fieldOrProp, fType.GetProperty(nameof(ConfigurableBase.BoxedValue))), fType.GetMethod(nameof(object.ToString)));
+            }
+            else if (fType == t)
+            {
+                return fieldOrProp;
+            }
         }
-        else //don't tell user; we will tell him in the get func
-            SimplerPlugin.Error($"Unsupported auto-sync type: {type.Name} at {declaringType.FullName}");
+        catch (Exception ex) { SimplerPlugin.Error(ex); }
         return null;
     }
 
