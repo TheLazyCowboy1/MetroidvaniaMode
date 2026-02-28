@@ -92,14 +92,14 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         {
             if (ModManager.ActiveMods.Any(m => m.id == MOD_ID))
             {
+                CheckIfMeadowEnabled();
+                ModsApplied();
+                ApplyHooksIfNeeded();
                 if (ConfigOptions != null)
                 {
                     MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
                     MachineConnector.ReloadConfig(ConfigOptions);
                 }
-                CheckIfMeadowEnabled();
-                ModsApplied();
-                ApplyHooksIfNeeded();
             }
         }
         catch (Exception ex) { Error(ex); }
