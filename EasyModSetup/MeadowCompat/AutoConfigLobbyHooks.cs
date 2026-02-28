@@ -4,6 +4,10 @@ using System;
 
 namespace EasyModSetup.MeadowCompat;
 
+/// <summary>
+/// Just an event and a hook to Rain Meadow in order to automatically update AutoConfigOptions if it gets changed by the AutoSync.
+/// This is a separate file because it references RainMeadow, so it's safer for soft-compatibility to make it a separate file from everything else.
+/// </summary>
 public static class AutoConfigLobbyHooks
 {
     private static Hook LeaveLobbyHook;

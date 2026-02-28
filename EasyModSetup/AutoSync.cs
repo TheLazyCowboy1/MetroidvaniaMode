@@ -6,11 +6,13 @@ using System.Reflection;
 
 namespace EasyModSetup;
 
+/// <summary>
+/// public static fields and properties with this attribute are automatically synced between all players in the lobby.
+/// Please disregard the fact that I wrote entire Expression trees to optimize a process that exists solely because I'm Lazy. It's stupid; I know.
+/// </summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 public class AutoSync : Attribute
 {
-    [AutoSync]
-    public static string TestStringProp { get => "Hello world!"; set => SimplerPlugin.MOD_NAME = value; }
     public static bool ShouldSync = true;
 
     public static Action<bool[], int[], float[], string[]> SetSyncedVars;
@@ -24,19 +26,21 @@ public class AutoSync : Attribute
     {
         try
         {
-            var types = Assembly.GetExecutingAssembly().GetTypesSafely();
-            var tempFields = types.SelectMany(
+            if (!SimplerPlugin.RainMeadowEnabled) return; //duh; don't bother syncing anything if there's no Meadow to sync with
+
+            Type[] types = Assembly.GetExecutingAssembly().GetTypesSafely();
+            FieldInfo[] tempFields = types.SelectMany(
                 t => t.GetStaticFieldsSafely()
                     .Where(f => f.GetCustomAttribute<AutoSync>() != null)
-                );
-            var tempProperties = types.SelectMany(
+                ).ToArray();
+            PropertyInfo[] tempProperties = types.SelectMany(
                 t => t.GetStaticPropertiesSafely()
                     .Where(p => p.GetCustomAttribute<AutoSync>() != null)
-                );
+                ).ToArray();
 
-            SimplerPlugin.Log($"Found {tempFields.Count()} auto-sync fields and {tempProperties.Count()} auto-sync properties.");
+            SimplerPlugin.Log($"Found {tempFields.Length} auto-sync fields and {tempProperties.Length} auto-sync properties.");
 
-            if (tempFields.Count() < 1 && tempProperties.Count() < 1)
+            if (tempFields.Length < 1 && tempProperties.Length < 1)
             {
                 ShouldSync = false;
                 return;
@@ -57,7 +61,6 @@ public class AutoSync : Attribute
                             p => MakeSetFunc(Expression.Property(null, p), p.PropertyType, ref parameters, ref indexCounters, p.DeclaringType)
                         )
                     ).Where(e => e != null) //don't include null expressions, obviously
-                    .ToArray()
                 );
 
                 SetSyncedVars = Expression.Lambda<Action<bool[], int[], float[], string[]>>(expression, parameters).Compile();
@@ -79,7 +82,6 @@ public class AutoSync : Attribute
                                 p => MakeGetFunc(t, Expression.Property(null, p), p.PropertyType)
                             )
                         ).Where(e => e != null) //don't include null expressions, obviously
-                        .ToArray()
                         );
 
                     syncedVarGetters.Add(t, Expression.Lambda<Func<Array>>(expression).Compile());

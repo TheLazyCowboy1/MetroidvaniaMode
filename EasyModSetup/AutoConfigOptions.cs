@@ -1,4 +1,3 @@
-using EasyModSetup.MeadowCompat;
 using Menu.Remix.MixedUI;
 using System;
 using System.Collections.Generic;
@@ -8,10 +7,12 @@ using UnityEngine;
 
 namespace EasyModSetup;
 
+/// <summary>
+/// A tool to easily add remix configs. Just add the Config attribute to a public field (either static or instance).
+/// </summary>
 public abstract class AutoConfigOptions : OptionInterface
 {
-    #region hooks
-    private static List<AutoConfigOptions> ActiveInstances = new();
+    #region Hooks
     private static bool HooksApplied = false;
     public static void ApplyHooks()
     {
@@ -37,46 +38,21 @@ public abstract class AutoConfigOptions : OptionInterface
     {
         orig(self);
 
-        //RemoveUnusuedOIs();
-        foreach(AutoConfigOptions op in ActiveInstances)
-        {
-            if (op.config == self)
-            {
-                op.SetValues();
-                SimplerPlugin.Log("Loading config values for " + op.mod?.id);
-            }
-        }
+        (SimplerPlugin.ConfigOptions as AutoConfigOptions).SetValues();
     }
 
     private static void ConfigHolder_Save(On.OptionInterface.ConfigHolder.orig_Save orig, ConfigHolder self)
     {
         orig(self);
 
-        //RemoveUnusuedOIs();
-        foreach (AutoConfigOptions op in ActiveInstances)
-        {
-            if (op.config == self)
-            {
-                op.SetValues();
-                SimplerPlugin.Log("Setting config values for " + op.mod?.id);
-            }
-        }
-    }
-
-    //this probably causes more problems than it solves
-    private static void RemoveUnusuedOIs()
-    {
-        for (int i = ActiveInstances.Count - 1; i >= 0; i--)
-        {
-            if (ActiveInstances[i].mod == null || MachineConnector.GetRegisteredOI(ActiveInstances[i].mod.id) != ActiveInstances[i])
-            {
-                SimplerPlugin.Log("WARNING: Removed old OptionInterface; mod = " + ActiveInstances[i].mod?.id, 0);
-                ActiveInstances.RemoveAt(i); //it's no longer in use
-            }
-        }
+        (SimplerPlugin.ConfigOptions as AutoConfigOptions).SetValues();
     }
     #endregion
 
+    /// <summary>
+    /// Adds this field to the remix/config menu for your mod in the specified tab.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
     public class Config : Attribute
     {
         public string Tab, Label = "", Desc = "";
@@ -99,6 +75,10 @@ public abstract class AutoConfigOptions : OptionInterface
         }
     }
 
+    /// <summary>
+    /// Limits the range of int and float configs
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
     public class LimitRange : Attribute
     {
         public float Min, Max;
@@ -109,19 +89,9 @@ public abstract class AutoConfigOptions : OptionInterface
         }
     }
 
-    private struct ConfigInfo
-    {
-        public ConfigurableBase config;
-        public string tab;
-        public string label;
-        public string desc;
-        public bool rightSide;
-        public bool hide;
-        public float width, spaceBefore, spaceAfter, height, extraMargin;
-        public byte precision;
-        public string[] dropdownOptions;
-    }
-
+    /// <summary>
+    /// Defines formatting info, mostly default config spacing, for the tab.
+    /// </summary>
     public struct TabInfo
     {
         public string name;
@@ -134,7 +104,7 @@ public abstract class AutoConfigOptions : OptionInterface
         }
     }
 
-    public AutoConfigOptions(TabInfo[] tabs, bool autoApplyReloadHooks)
+    public AutoConfigOptions(TabInfo[] tabs)
     {
         TabInfos = tabs;
 
@@ -173,10 +143,6 @@ public abstract class AutoConfigOptions : OptionInterface
 
         ConfigInfos = configs.ToArray();
         SimplerPlugin.Log("Found " + ConfigInfos.Length + " configs");
-
-        //set up for auto loading
-        ActiveInstances.Add(this);
-        if (autoApplyReloadHooks) ApplyHooks();
     }
 
     private static string FieldNameToLabel(string n)
@@ -187,6 +153,19 @@ public abstract class AutoConfigOptions : OptionInterface
                 n = n.Insert(i, " "); //insert a space before uppercase characters, if they are after lowercase characters
         }
         return n;
+    }
+
+    private struct ConfigInfo
+    {
+        public ConfigurableBase config;
+        public string tab;
+        public string label;
+        public string desc;
+        public bool rightSide;
+        public bool hide;
+        public float width, spaceBefore, spaceAfter, height, extraMargin;
+        public byte precision;
+        public string[] dropdownOptions;
     }
 
     private ConfigInfo[] ConfigInfos;
@@ -292,7 +271,7 @@ public abstract class AutoConfigOptions : OptionInterface
                 type.GetField(info.config.key).SetValue(this, info.config.BoxedValue);
             } catch (Exception ex) { SimplerPlugin.Error(ex); }
         }
-        SimplerPlugin.Log("Set config values");
+        SimplerPlugin.Log("Set config values for " + mod?.id);
     }
 
 }

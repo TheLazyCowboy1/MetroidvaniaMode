@@ -3,6 +3,10 @@ using System.Reflection;
 
 namespace EasyModSetup;
 
+/// <summary>
+/// Designed to easily initialize ExtEnums, but frankly it's quite unnecessary to add this field.
+/// Just create public static ExtEnums and this Register function will ensure they get registered at the proper time.
+/// </summary>
 [AttributeUsage(AttributeTargets.Field)]
 public class EasyExtEnum : Attribute
 {
@@ -10,6 +14,9 @@ public class EasyExtEnum : Attribute
 
     public string ID = null; //used to specify the ID
 
+    /// <summary>
+    /// Automatically initializes all EasyExtEnums and also reads all public static ExtEnums to ensure they get initialized in a consistent order.
+    /// </summary>
     public static void Register()
     {
         try

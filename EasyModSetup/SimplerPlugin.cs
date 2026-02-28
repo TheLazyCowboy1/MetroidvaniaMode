@@ -6,6 +6,12 @@ using System.Runtime.CompilerServices;
 
 namespace EasyModSetup;
 
+/// <summary>
+/// Makes it easier to make new plugins.
+/// Just pass your config options to the constructor (if you have any)
+/// and override the ApplyHooks and RemoveHooks functions.
+/// If you need to apply any hooks before mods are initialized, try overriding the Initialize function and adding such hooks there.
+/// </summary>
 [BepInDependency("henpemaz.rainmeadow", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("twofour2.rainReloader", BepInDependency.DependencyFlags.SoftDependency)]
 public abstract class SimplerPlugin : BaseUnityPlugin
@@ -17,9 +23,20 @@ public abstract class SimplerPlugin : BaseUnityPlugin
     /// </summary>
     public virtual int LogLevel => 1;
 
+    /// <summary>
+    /// Called when the plugin is first awoken. Sometimes useful; depends on the project.
+    /// </summary>
     public virtual void Initialize() { }
 
+    /// <summary>
+    /// Called immediately after mods are initialized, but ONLY IF hooks are unapplied.
+    /// Add hooks like: On.Player.Jump += Player_Jump;
+    /// </summary>
     public abstract void ApplyHooks();
+    /// <summary>
+    /// Called on OnDisable, but ONLY IF hooks were applied.
+    /// Remove hooks like: On.Player.Jump -= Player_Jump;
+    /// </summary>
     public abstract void RemoveHooks();
 
     public virtual void ModsApplied() { }
@@ -38,6 +55,7 @@ public abstract class SimplerPlugin : BaseUnityPlugin
 
     public static OptionInterface ConfigOptions;
 
+    /// <param name="options">The mod config options. Set to null if your mod should not have a remix/config menu.</param>
     public SimplerPlugin(OptionInterface options) : base()
     {
         Instance = this;
@@ -57,7 +75,6 @@ public abstract class SimplerPlugin : BaseUnityPlugin
     public void Awake()
     {
         EasyExtEnum.Register();
-        AutoSync.RegisterSyncedVars();
 
         Initialize();
         Log("Plugin awoken");
@@ -67,7 +84,6 @@ public abstract class SimplerPlugin : BaseUnityPlugin
     public void OnEnable()
     {
         //EasyExtEnum.Register(); //to reflect hot-reload changes?
-        //AutoSync.RegisterSyncedVars();
 
         On.RainWorld.OnModsInit += RainWorld_OnModsInit;
 
@@ -81,9 +97,9 @@ public abstract class SimplerPlugin : BaseUnityPlugin
                     MachineConnector.SetRegisteredOI(MOD_ID, ConfigOptions);
                     MachineConnector.ReloadConfig(ConfigOptions);
                 }
-                SetMeadowEnabled();
+                CheckIfMeadowEnabled();
                 ModsApplied();
-                _ApplyHooks();
+                ApplyHooksIfNeeded();
             }
         }
         catch (Exception ex) { Error(ex); }
@@ -108,7 +124,7 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         hooksApplied = false;
     }
 
-    private void _ApplyHooks()
+    private void ApplyHooksIfNeeded()
     {
         if (hooksApplied) return;
 
@@ -121,7 +137,10 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         try
         {
             if (RainMeadowEnabled)
+            {
+                AutoSync.RegisterSyncedVars();
                 MeadowExt.ApplyHooks();
+            }
         }
         catch (Exception ex) { Error("Rain Meadow is apparently inactive: " + ex); RainMeadowEnabled = false; }
 
@@ -129,7 +148,7 @@ public abstract class SimplerPlugin : BaseUnityPlugin
         hooksApplied = true;
         Log("Applied hooks");
     }
-    private void SetMeadowEnabled()
+    private void CheckIfMeadowEnabled()
     {
         RainMeadowEnabled = ModManager.ActiveMods.Any(m => m.id == "henpemaz_rainmeadow");
         Log("Rain Meadow enabled: " + RainMeadowEnabled);
@@ -147,9 +166,9 @@ public abstract class SimplerPlugin : BaseUnityPlugin
 
             PluginPath = ModManager.ActiveMods.Find(m => m.id == MOD_ID).path;
 
-            SetMeadowEnabled();
+            CheckIfMeadowEnabled();
             ModsApplied();
-            _ApplyHooks();
+            ApplyHooksIfNeeded();
         }
         catch (Exception ex) { Error(ex); }
     }

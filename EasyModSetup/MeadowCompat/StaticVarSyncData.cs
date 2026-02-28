@@ -2,6 +2,9 @@
 
 namespace EasyModSetup.MeadowCompat;
 
+/// <summary>
+/// Data added to lobbies in order to automatically sync AutoSync fields.
+/// </summary>
 public class StaticVarSyncData : EasyResourceState
 {
     public override bool AttachTo(OnlineResource resource) => AutoSync.ShouldSync && resource is Lobby; //don't add resource if there's nothing to sync

@@ -5,6 +5,9 @@ using System.Runtime.CompilerServices;
 
 namespace EasyModSetup;
 
+/// <summary>
+/// Used as a middle-man for interfacing with Rain Meadow. Useful for soft-compatibility.
+/// </summary>
 public static class MeadowExt
 {
 
@@ -32,8 +35,11 @@ public static class MeadowExt
             {
                 MeadowCompat.EasyResourceState.ApplyHooks();
                 MeadowCompat.EasyEntityState.ApplyHooks();
-                if (SimplerPlugin.ConfigOptions is AutoConfigOptions)
-                    MeadowCompat.AutoConfigLobbyHooks.ApplyHooks();
+                if (SimplerPlugin.ConfigOptions is AutoConfigOptions //if there is an AutoConfigOptions that contains AutoSync fields
+                    && SimplerPlugin.ConfigOptions.GetType().GetStaticFieldsSafely().Any(f => f.GetCustomAttribute<AutoSync>() != null))
+                {
+                    MeadowCompat.AutoConfigLobbyHooks.ApplyHooks(); //update it when owning or leaving the lobby
+                }
             }
         }
         catch (Exception ex) { SimplerPlugin.Error(ex); }
@@ -70,7 +76,13 @@ public static class MeadowExt
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static FieldInfo[] GetStaticFieldsSafely(this Type type) //the key is BindingFlags.DeclaredOnly
-        => type.GetFields(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic);
+    {
+        try
+        {
+            return type.GetFields(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic);
+        } catch { SimplerPlugin.Error($"Error loading type {type}"); }
+        return new FieldInfo[0];
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static PropertyInfo[] GetStaticPropertiesSafely(this Type type)
@@ -78,7 +90,7 @@ public static class MeadowExt
         try
         {
             return type.GetProperties(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic);
-        } catch (Exception ex) { SimplerPlugin.Error(ex); }
+        } catch { SimplerPlugin.Error($"Error loading type {type}"); }
         return new PropertyInfo[0];
     }
 
