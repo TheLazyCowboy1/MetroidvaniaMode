@@ -100,6 +100,16 @@ public static class CurrentItems
                 for (int i = 0; i < WheelItems.Length; i++)
                     deathData.WheelItems.Set(WheelItems[i]?.ToString(), i);
             }
+
+            //if the inventory wheel is all blank, fill it up
+            if (Options.UnlockAllInventoryItems && WheelItems.All(i => i == null))
+            {
+                OptionsItems();
+                Plugin.Log("Inventory wheel was empty, so set it to standard loadout.", 2);
+
+                //normally we would save here, but there's no reason to make the default loadout permanent
+            }
+
         }
         catch (Exception ex) { Plugin.Error(ex); }
     }
@@ -126,6 +136,7 @@ public static class CurrentItems
         WheelItems[1] = AbstractPhysicalObject.AbstractObjectType.ScavengerBomb;
         WheelItems[2] = AbstractPhysicalObject.AbstractObjectType.BubbleGrass;
         WheelItems[3] = AbstractPhysicalObject.AbstractObjectType.FlareBomb;
+        WheelItems[4] = AbstractPhysicalObject.AbstractObjectType.Lantern;
         WheelItems[7] = CustomItems.HealFruit;
 
         if (Options.UnlockAllInventoryItems)

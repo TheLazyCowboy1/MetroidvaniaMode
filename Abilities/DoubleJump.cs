@@ -23,7 +23,14 @@ public static class DoubleJump
         {
             if (CurrentAbilities.ExtraJumps <= 0) return; //don't even run this code if it doesn't apply!
 
-            if (self.canJump <= 0 && self.bodyMode != Player.BodyModeIndex.Swimming //don't jump while swimming
+            bool allowedBodyMode = self.bodyMode == Player.BodyModeIndex.Default || self.bodyMode == Player.BodyModeIndex.Crawl
+                    || self.bodyMode == Player.BodyModeIndex.Stand || self.bodyMode == Player.BodyModeIndex.ZeroG;
+            bool allowedAnimation = self.animation == Player.AnimationIndex.BellySlide || self.animation == Player.AnimationIndex.DownOnFours
+                    || self.animation == Player.AnimationIndex.Flip || self.animation == Player.AnimationIndex.GrapplingSwing
+                    || self.animation == Player.AnimationIndex.None || self.animation == Player.AnimationIndex.RocketJump
+                    || self.animation == Player.AnimationIndex.Roll || self.animation == Player.AnimationIndex.StandUp;
+
+            if (self.canJump <= 0 && allowedBodyMode && allowedAnimation //limit when we can double jump
                 && (self.wantToJump > 0 //usually, check wantToJump. However, sometimes things like flips make wantToJump always 0
                     || (self.jumpBoost <= 0 && self.input[0].jmp && !self.input[1].jmp //just pressed jump
                         && self.animation != Player.AnimationIndex.None))) //special check only applies if we're not in the None/default animation

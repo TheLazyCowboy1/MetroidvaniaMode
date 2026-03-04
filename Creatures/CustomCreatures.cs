@@ -1,9 +1,7 @@
-﻿using EasyModSetup;
-using Mono.Cecil.Cil;
+﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RWCustom;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MetroidvaniaMode.Creatures;
