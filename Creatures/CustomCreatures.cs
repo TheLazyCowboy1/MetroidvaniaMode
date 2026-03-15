@@ -8,39 +8,35 @@ namespace MetroidvaniaMode.Creatures;
 
 public static class CustomCreatures
 {
+    public const bool DRAGONS_ENABLED = false;
+
     //[EasyExtEnum]
     public static CreatureTemplate.Type WorldAITemplate = new("MVM_WorldAITemplate", true);
 
     public static void ApplyHooks()
     {
         On.StaticWorld.InitCustomTemplates += StaticWorld_InitCustomTemplates;
-        On.Lizard.FollowConnection += Lizard_FollowConnection;
 
-        IL.Lizard.Act += Lizard_Act;
-
-        On.LizardGraphics.Update += LizardGraphics_Update;
+        if (DRAGONS_ENABLED)
+        {
+            On.Lizard.FollowConnection += Lizard_FollowConnection;
+            IL.Lizard.Act += Lizard_Act;
+            On.LizardGraphics.Update += LizardGraphics_Update;
+        }
     }
 
     public static void RemoveHooks()
     {
         On.StaticWorld.InitCustomTemplates -= StaticWorld_InitCustomTemplates;
-        On.Lizard.FollowConnection -= Lizard_FollowConnection;
 
-        IL.Lizard.Act -= Lizard_Act;
-
-        On.LizardGraphics.Update -= LizardGraphics_Update;
-    }
-
-    private static void LizardGraphics_Update(On.LizardGraphics.orig_Update orig, LizardGraphics self)
-    {
-        orig(self);
-
-        //self.depthRotation = self.lastDepthRotation = self.headDepthRotation = self.lastHeadDepthRotation = 0;
-        if (self.lizard.Consious)
-        { //rotate lizard like it's swimming
-            self.depthRotation = Custom.LerpAndTick(self.depthRotation, (self.drawPositions[0, 0].x > self.drawPositions[1, 0].x) ? (-1f) : 1f, 0.1f, 0.1f);
+        if (DRAGONS_ENABLED)
+        {
+            On.Lizard.FollowConnection -= Lizard_FollowConnection;
+            IL.Lizard.Act -= Lizard_Act;
+            On.LizardGraphics.Update -= LizardGraphics_Update;
         }
     }
+
 
     /// <summary>
     /// Temporarily just adjusts pink lizards to think they can fly
@@ -63,20 +59,25 @@ public static class CustomCreatures
             liz.pathingPreferencesTiles[(int)AItile.Accessibility.Air] = new(0.9f, PathCost.Legality.Allowed); //make air allowed...?
             */
 
-            foreach (CreatureTemplate temp in StaticWorld.creatureTemplates)
+            if (DRAGONS_ENABLED)
             {
-                if (temp.IsLizard)
+                foreach (CreatureTemplate temp in StaticWorld.creatureTemplates)
                 {
-                    temp.canFly = true; //I don't actually know what this does...
-                    temp.pathingPreferencesTiles[(int)AItile.Accessibility.Air] = new(1.1f, PathCost.Legality.Allowed);
+                    if (temp.IsLizard)
+                    {
+                        temp.canFly = true; //I don't actually know what this does...
+                        temp.pathingPreferencesTiles[(int)AItile.Accessibility.Air] = new(1.1f, PathCost.Legality.Allowed);
+                    }
                 }
+
+                Plugin.Log("Made lizards think they can fly", 0);
             }
 
-            Plugin.Log("Made lizards think they can fly", 0);
         } catch (Exception ex) { Plugin.Error(ex); }
     }
 
 
+    #region Dragons
     private static void Lizard_FollowConnection(On.Lizard.orig_FollowConnection orig, Lizard self, float runSpeed)
     {
         try
@@ -144,7 +145,6 @@ public static class CustomCreatures
         orig(self, runSpeed);
     }
 
-
     private static void Lizard_Act(ILContext il)
     {
         try
@@ -170,5 +170,17 @@ public static class CustomCreatures
         }
         catch (Exception ex) { Plugin.Error(ex); }
     }
+
+    private static void LizardGraphics_Update(On.LizardGraphics.orig_Update orig, LizardGraphics self)
+    {
+        orig(self);
+
+        //self.depthRotation = self.lastDepthRotation = self.headDepthRotation = self.lastHeadDepthRotation = 0;
+        if (self.lizard.Consious)
+        { //rotate lizard like it's swimming
+            self.depthRotation = Custom.LerpAndTick(self.depthRotation, (self.drawPositions[0, 0].x > self.drawPositions[1, 0].x) ? (-1f) : 1f, 0.1f, 0.1f);
+        }
+    }
+    #endregion
 
 }
