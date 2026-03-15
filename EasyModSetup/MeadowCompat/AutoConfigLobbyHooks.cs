@@ -28,7 +28,11 @@ public static class AutoConfigLobbyHooks
 
     private static void Lobby_OnNewOwner(OnlineResource resource, OnlinePlayer player)
     {
-        if (player.isMe && resource is Lobby)
-            (SimplerPlugin.ConfigOptions as AutoConfigOptions).SetValues(); //reload configs
+        try
+        {
+            if (player != null && player.isMe && resource is Lobby) //apparently OnNewOwner is sometimes called with a null player
+                (SimplerPlugin.ConfigOptions as AutoConfigOptions).SetValues(); //reload configs
+        }
+        catch (Exception ex) { SimplerPlugin.Error(ex); }
     }
 }
